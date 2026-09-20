@@ -1,0 +1,67 @@
+/* NEXMIR V5.0 · Gestor global de preguntas */
+(() => {
+  const st={rows:[],duplicates:new Set()};
+  const $q=s=>document.querySelector(s), $$q=(s,r=document)=>[...r.querySelectorAll(s)];
+  const eh=s=>esc(String(s??''));
+  // Asignaturas/áreas de estudio MIR (no especialidades de residencia).
+  // Se mantiene una lista cerrada para evitar variantes y errores de escritura.
+  const MIR_SUBJECTS=[
+    "Alergología",
+    "Anatomía y Fisiología",
+    "Anatomía Patológica",
+    "Anestesiología y Reanimación",
+    "Bioestadística",
+    "Bioética y Medicina Legal",
+    "Cardiología",
+    "Cirugía General",
+    "Dermatología",
+    "Endocrinología y Nutrición",
+    "Enfermedades Infecciosas",
+    "Epidemiología",
+    "Farmacología",
+    "Gastroenterología",
+    "Genética",
+    "Geriatría y Cuidados Paliativos",
+    "Ginecología",
+    "Ginecología y Obstetricia",
+    "Hematología",
+    "Inmunología",
+    "Medicina Interna",
+    "Medicina Preventiva y Salud Pública",
+    "Nefrología",
+    "Neumología",
+    "Neurología",
+    "Obstetricia",
+    "Oftalmología",
+    "Oncología",
+    "Otorrinolaringología",
+    "Pediatría",
+    "Psiquiatría",
+    "Radiología",
+    "Reumatología",
+    "Traumatología y Ortopedia",
+    "Urgencias",
+    "Urología"
+  ];
+  const MIR_CLASSIFICATION=MIR_SUBJECTS;
+  const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/<[^>]*>/g,' ').replace(/[^a-z0-9]+/g,' ').trim();
+  const opts=q=>Array.isArray(q.options)?q.options:[];
+  const isUnclassified=q=>!q.specialty||/sin clasificar/i.test(q.specialty);
+  function issues(q){const r=[];if(!String(q.stem||'').trim())r.push('sin enunciado');if(opts(q).filter(x=>String(typeof x==='string'?x:x?.text||'').trim()).length<4)r.push('alternativas');if(!(Number.isInteger(q.correct_index)&&q.correct_index>=0&&q.correct_index<opts(q).length))r.push('respuesta');if(!String(q.explanation||'').trim())r.push('explicación');if(isUnclassified(q))r.push('sin clasificar');return r}
+  function sourceType(q){if(q.source_exam)return'simulation';if(/^Banco:/i.test(String(q.source||''))||/bank/i.test(String(q.source_uid||'')))return'bank';return'other'}
+  function sourceLabel(q){return q.source_exam||q.source||q.source_uid||'—'}
+  function duplicateKey(q){return norm(q.stem)+'||'+opts(q).map(x=>norm(typeof x==='string'?x:x?.text||'')).join('|')}
+  function calcDuplicates(){const m=new Map();for(const q of st.rows){const k=duplicateKey(q);if(!k||norm(q.stem).length<12)continue;(m.get(k)||m.set(k,[]).get(k)).push(q.id)}st.duplicates=new Set([...m.values()].filter(a=>a.length>1).flat())}
+  async function load(){const body=$q('#qmBody');if(!body)return;if(!cloudMode||!sb){body.innerHTML='<tr><td colspan="8" class="muted">Conecta Supabase e inicia sesión como admin.</td></tr>';return}body.innerHTML='<tr><td colspan="8" class="muted">Cargando preguntas…</td></tr>';let data=[];try{data=await fetchAllPages(()=>sb.from('questions').select('*').order('updated_at',{ascending:false}))}catch(error){body.innerHTML=`<tr><td colspan="8" class="muted">${eh(error.message)}</td></tr>`;return}st.rows=data||[];calcDuplicates();fillFilters();render()}
+  function fillFilters(){const sp=$q('#qmSpecialty'),tp=$q('#qmTopic');if(!sp||!tp)return;const cur=sp.value,curT=tp.value;sp.innerHTML='<option value="all">Todas las asignaturas MIR</option><option value="__unclassified">Sin clasificar</option>'+MIR_CLASSIFICATION.map(x=>`<option value="${eh(x)}">${eh(x)}</option>`).join('');if([...sp.options].some(o=>o.value===cur))sp.value=cur;refreshTopics(curT)}
+  function refreshTopics(keep){const tp=$q('#qmTopic'),sp=$q('#qmSpecialty')?.value||'all';const topics=[...new Set(st.rows.filter(x=>sp==='all'||(sp==='__unclassified'?isUnclassified(x):x.specialty===sp)).map(x=>x.topic).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));tp.innerHTML='<option value="all">Todos los temas</option>'+topics.map(x=>`<option value="${eh(x)}">${eh(x)}</option>`).join('');if(topics.includes(keep))tp.value=keep}
+  function filtered(){const term=norm($q('#qmSearch')?.value||''),status=$q('#qmStatus')?.value||'all',sp=$q('#qmSpecialty')?.value||'all',topic=$q('#qmTopic')?.value||'all',src=$q('#qmSource')?.value||'all',quality=$q('#qmQuality')?.value||'all';return st.rows.filter(q=>{if(status!=='all'&&(q.status||'published')!==status)return false;if(sp==='__unclassified'&&!isUnclassified(q))return false;if(sp!=='all'&&sp!=='__unclassified'&&q.specialty!==sp)return false;if(topic!=='all'&&q.topic!==topic)return false;if(src!=='all'&&sourceType(q)!==src)return false;if(term&&!norm(`${q.stem} ${q.specialty} ${q.topic} ${q.subtopic} ${sourceLabel(q)}`).includes(term))return false;const iss=issues(q);if(quality==='unclassified'&&!isUnclassified(q))return false;if(quality==='problems'&&!iss.length)return false;if(quality==='no_explanation'&&String(q.explanation||'').trim())return false;if(quality==='no_image'&&q.image_path)return false;if(quality==='duplicates'&&!st.duplicates.has(q.id))return false;return true})}
+  function render(){const arr=filtered(),body=$q('#qmBody'),empty=$q('#qmEmpty');const published=st.rows.filter(x=>(x.status||'published')==='published').length,drafts=st.rows.filter(x=>x.status==='draft').length,problems=st.rows.filter(x=>issues(x).length).length,uncl=st.rows.filter(isUnclassified).length,dups=st.duplicates.size;$q('#qmStats').innerHTML=`<div class="stat"><div class="num">${st.rows.length}</div><div class="label">Preguntas</div></div><div class="stat"><div class="num">${published}</div><div class="label">Publicadas</div></div><div class="stat"><div class="num">${drafts}</div><div class="label">Borradores</div></div><div class="stat"><div class="num">${uncl}</div><div class="label">Sin clasificar</div></div><div class="stat"><div class="num">${problems}</div><div class="label">Con problemas</div></div><div class="stat"><div class="num">${dups}</div><div class="label">Posibles duplicadas</div></div>`;if(!arr.length){body.innerHTML='';empty.classList.remove('hidden');return}empty.classList.add('hidden');body.innerHTML=arr.slice(0,1000).map(q=>{const iss=issues(q),dup=st.duplicates.has(q.id);return `<tr><td>${eh(q.source_number??'—')}</td><td><div class="qmStem">${eh(q.stem||'')}</div>${iss.length?`<div class="qmIssue">⚠ ${eh(iss.join(', '))}</div>`:''}${dup?'<div class="qmDup">⧉ posible duplicado</div>':''}</td><td><strong>${eh(q.specialty||'Sin clasificar')}</strong><div class="muted">${eh([q.topic,q.subtopic].filter(Boolean).join(' › ')||'General')}</div></td><td>${eh(sourceLabel(q))}</td><td>${q.explanation?'✓':'—'}</td><td>${q.image_path?'✓':'—'}</td><td><span class="statusPill ${eh(q.status||'published')}">${eh(q.status||'published')}</span></td><td><div class="actions"><button class="secondary qmEdit" data-id="${eh(q.id)}">Editar</button><button class="secondary qmArchive" data-id="${eh(q.id)}">${q.status==='archived'?'Publicar':'Archivar'}</button><button class="secondary danger qmDelete" data-id="${eh(q.id)}">Eliminar</button></div></td></tr>`}).join('');$$q('.qmEdit',body).forEach(b=>b.onclick=()=>edit(b.dataset.id));$$q('.qmArchive',body).forEach(b=>b.onclick=()=>toggleArchive(b.dataset.id));$$q('.qmDelete',body).forEach(b=>b.onclick=()=>remove(b.dataset.id))}
+  function cleanText(s){s=String(s||'').replace(/<br\s*\/?\s*>/gi,'\n').trim();s=s.replace(/^\*\*([\s\S]*?)\*\*$/,'$1').trim();return s}
+  function grow(el){el.style.height='auto';el.style.height=Math.min(Math.max(el.scrollHeight+2,84),420)+'px'}
+  function edit(id){const q=st.rows.find(x=>String(x.id)===String(id));if(!q)return;const a=opts(q),spOptions=['Sin clasificar',...MIR_CLASSIFICATION];$q('#questionManagerBody').innerHTML=`<div class="questionEditor"><div class="questionEditorHead"><div><div class="eyebrow">EDITAR PREGUNTA</div><h2>${eh(sourceLabel(q))}</h2><p class="muted">Edita con una vista amplia. La asignatura MIR se elige de una lista cerrada para evitar clasificaciones inconsistentes.</p></div><span class="statusPill ${eh(q.status||'published')}">${eh(q.status||'published')}</span></div><section class="qeCard"><label class="fieldLabel">Enunciado<textarea id="qmEStem" class="qeTextarea qeStem">${eh(cleanText(q.stem))}</textarea></label></section><section class="qeCard"><div class="qeSectionTitle">Alternativas</div><div class="qeOptions">${[0,1,2,3].map(i=>`<label class="qeOption"><span class="qeLetter">${String.fromCharCode(65+i)}</span><textarea id="qmEO${i}" class="qeTextarea">${eh(cleanText(typeof a[i]==='string'?a[i]:a[i]?.text||''))}</textarea></label>`).join('')}</div></section><section class="qeCard"><div class="qeMetaGrid"><label class="fieldLabel">Respuesta correcta<select id="qmECorrect"><option value="">Sin detectar</option>${[0,1,2,3].map(i=>`<option value="${i}" ${q.correct_index===i?'selected':''}>${String.fromCharCode(65+i)}</option>`).join('')}</select></label><label class="fieldLabel">Estado<select id="qmEStatus"><option value="published" ${q.status==='published'?'selected':''}>Publicado</option><option value="draft" ${q.status==='draft'?'selected':''}>Borrador</option><option value="archived" ${q.status==='archived'?'selected':''}>Archivado</option></select></label><label class="fieldLabel">Asignatura MIR<select id="qmESp">${spOptions.map(x=>`<option value="${eh(x)}" ${String(q.specialty||'Sin clasificar')===x?'selected':''}>${eh(x)}</option>`).join('')}</select></label><label class="fieldLabel">Tema<input id="qmETopic" value="${eh(q.topic||'')}"></label><label class="fieldLabel">Subtema<input id="qmESub" value="${eh(q.subtopic||'')}"></label></div></section><section class="qeCard"><label class="fieldLabel">Explicación<textarea id="qmEExp" class="qeTextarea qeExplain">${eh(q.explanation||'')}</textarea></label></section><div class="qeSticky"><button id="qmECancel" class="secondary">Cancelar</button><button id="qmESave" class="primary">Guardar cambios</button></div></div>`;$$q('#questionManagerBody textarea').forEach(t=>{grow(t);t.oninput=()=>grow(t)});$q('#qmECancel').onclick=()=>$q('#questionManagerDialog').close();$q('#qmESave').onclick=async()=>{const patch={stem:$q('#qmEStem').value.trim(),options:[0,1,2,3].map(i=>$q('#qmEO'+i).value.trim()),correct_index:$q('#qmECorrect').value===''?null:+$q('#qmECorrect').value,explanation:$q('#qmEExp').value.trim()||null,specialty:$q('#qmESp').value,topic:$q('#qmETopic').value.trim()||'General',subtopic:$q('#qmESub').value.trim()||null,status:$q('#qmEStatus').value,updated_at:new Date().toISOString()};const {error}=await sb.from('questions').update(patch).eq('id',q.id);if(error)return alert(error.message);$q('#questionManagerDialog').close();await load()};$q('#questionManagerDialog').showModal()}
+  async function toggleArchive(id){const q=st.rows.find(x=>String(x.id)===String(id));if(!q)return;const status=q.status==='archived'?'published':'archived';if(!confirm(`${status==='archived'?'¿Archivar':'¿Republicar'} esta pregunta?`))return;const {error}=await sb.from('questions').update({status,updated_at:new Date().toISOString()}).eq('id',id);if(error)return alert(error.message);await load()}
+  async function remove(id){const q=st.rows.find(x=>String(x.id)===String(id));if(!q||!confirm('¿Eliminar esta pregunta de forma permanente? Esta acción no se puede deshacer.'))return;const {error}=await sb.from('questions').delete().eq('id',id);if(error)return alert(error.message);await load()}
+  function init(){const nav=$q('[data-view="questions"]');if(nav)nav.addEventListener('click',()=>setTimeout(load,0));$q('#qmRefresh').onclick=load;['qmSearch','qmStatus','qmTopic','qmSource','qmQuality'].forEach(id=>{$q('#'+id).oninput=render;$q('#'+id).onchange=render});$q('#qmSpecialty').onchange=()=>{refreshTopics();render()};$q('#questionManagerClose').onclick=()=>$q('#questionManagerDialog').close()}
+  init();
+})();
