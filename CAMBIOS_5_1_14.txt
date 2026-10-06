@@ -1,0 +1,11 @@
+NEXMIR V5.1.14 — REVISIÓN MÓVIL Y RECUPERACIÓN
+
+1. El pie de preguntas distribuye Reportar contenido y Eliminar pregunta en una misma fila para administradores. Para usuarios normales, Reportar contenido ocupa el ancho disponible.
+2. Las revisiones finales de banqueo y simulacro mantienen el detalle dentro del ancho del móvil, reinician el desplazamiento horizontal al cambiar de pregunta y reservan la mayor parte de la pantalla para el solucionario.
+3. El resumen superior de resultados y la navegación por preguntas ocupan menos alto en móvil. El detalle conserva desplazamiento vertical propio.
+4. Las opciones de modo visual de Perfil se muestran como controles legibles de tamaño fijo, sin partir Automático, Claro u Oscuro.
+5. La recuperación inicia las consultas personales junto con el catálogo. Focus deja cargar XP, racha y misiones después de tener listo el aprendizaje y la sesión activa; la restauración espera únicamente los datos necesarios. El cálculo del dominio se agrupa por tema sin volver a recorrer todos los estados de aprendizaje para cada tema.
+
+INSTALACIÓN: publica el contenido completo de nexmir/ en el mismo lugar de GitHub Pages que la versión anterior. Esta actualización no requiere SQL nuevo. Conserva las políticas y cambios de Supabase instalados previamente.
+
+VALIDACIÓN LOCAL: sintaxis de JavaScript, pruebas unitarias de contenido y Focus, e integridad del ZIP. La comprobación visual en el navegador móvil de producción queda pendiente tras la publicación.

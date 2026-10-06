@@ -23,7 +23,10 @@
     restoring=true;
     (async()=>{
       await route(Object.hasOwn(viewNames,saved.view)?saved.view:'dashboard');
-      if(saved.focusOpen&&state.focusActiveSession){await resumeNexmirFocus();return}
+      if(saved.focusOpen){
+        await window.nexmirFocusReadyPromise;
+        if(state.focusActiveSession){await resumeNexmirFocus();return}
+      }
       if(saved.bank){
         const map=new Map(questionPool().map(q=>[qkey(q),q])),pool=saved.bank.keys.map(k=>map.get(k));
         if(pool.some(q=>!q)){toast('Parte del banco cambió. Inicia un nuevo bloque para usar el contenido actualizado.');return}

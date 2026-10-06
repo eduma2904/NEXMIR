@@ -1,0 +1,58 @@
+/* V5.1.14 · review layout, compact controls, and readable appearance settings. */
+#questionDialog .bank-nav-actions>.report-content-action,
+#simDialog .sim-bottom>.report-content-action{display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+#questionDialog .bank-nav-actions>.report-content-action>.btn,
+#simDialog .sim-bottom>.report-content-action>.btn{min-width:0;flex:1 1 auto}
+
+.theme-mode-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0 12px;padding-top:14px}
+.theme-mode-row>strong{grid-column:1/-1}
+.theme-mode-row>label{min-width:0;display:inline-flex!important;align-items:center;justify-content:flex-start;gap:8px;margin:0!important;padding:10px 11px;border:1px solid var(--n-border,var(--line));border-radius:12px;background:var(--n-card,var(--surface));white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;line-height:1.2}
+.theme-mode-row>label:has(input:checked){border-color:var(--n-primary,var(--primary));background:color-mix(in srgb,var(--n-primary,var(--primary)) 9%,var(--n-card,var(--surface)))}
+.theme-mode-row input[type=radio]{appearance:auto;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;flex:0 0 18px;margin:0;accent-color:var(--n-primary,var(--primary))}
+.profile-theme-card>.btn{margin-top:3px}
+
+#questionDialog:has(.bank-results-shell) #questionDialogBody,
+#simDialog:has(.sim-results-shell) #simDialogBody,
+.sim-results-shell,.sim-review-workspace{width:100%;min-width:0;max-width:100%;overflow:hidden}
+.sim-review-workspace>*{min-width:0;max-width:100%}
+.sim-review-detail{width:100%;max-width:100%;min-width:0;overflow-x:hidden!important;overflow-y:auto!important;scrollbar-gutter:stable}
+.sim-review-detail>*{max-width:100%;min-width:0;overflow-wrap:anywhere}
+.sim-review-detail img{max-width:100%;height:auto}
+.sim-review-detail .sim-review-options,.sim-review-detail .sim-review-option{max-width:100%;min-width:0}
+.sim-review-detail .sim-review-option>span{min-width:0;overflow-wrap:anywhere}
+.sim-review-explanation pre,.sim-review-explanation table{max-width:100%;overflow-x:auto}
+
+@media(max-width:760px){
+ #questionDialog:has(.bank-question-workspace) .bank-nav-actions>.report-content-action{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #questionDialog .bank-nav-actions>.report-content-action>.btn{width:100%;min-width:0;min-height:36px;padding:5px 7px;font-size:11px}
+ #questionDialog .bank-nav-actions>.report-content-action>.btn:only-child{grid-column:1/-1}
+ #simDialog .sim-bottom>.report-content-action{flex:1 1 100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #simDialog .sim-bottom>.report-content-action>.btn:only-child{grid-column:1/-1}
+ .theme-mode-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .theme-mode-row>label:first-of-type{grid-column:1/-1}
+ .theme-mode-row>label{padding:10px;min-height:42px}
+ .profile-theme-card>.btn{width:100%}
+ #questionDialog:has(.bank-results-shell),#simDialog:has(.sim-results-shell){overflow:hidden!important}
+ .sim-results-top{padding:7px 12px 5px!important;max-height:24dvh!important;overflow-y:auto}
+ .sim-results-top .dialog-head{min-height:36px;padding-right:40px!important;gap:6px}
+ .sim-results-top .dialog-head h2{font-size:16px!important;line-height:1.15;margin:2px 0 0!important}
+ .sim-results-top .chip{font-size:10px;padding:3px 6px}
+ .sim-results-top .sim-result-grid{gap:5px!important;margin:5px 0!important}
+ .sim-results-top .sim-result-card{min-height:42px!important;padding:4px 2px!important;gap:1px!important}
+ .sim-results-top .sim-result-card strong{font-size:18px!important}
+ .sim-results-top .sim-result-card span{font-size:9px!important;line-height:1.1}
+ .sim-results-top .sim-result-summary{margin:2px 0 0;gap:6px;font-size:10px}
+ .sim-results-top .sim-result-summary>span:last-child{display:none}
+ .sim-review-workspace{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:88px minmax(0,1fr)!important}
+ .sim-review-sidebar{max-height:88px!important;padding:5px 9px!important;border-right:0}
+ .sim-review-sidebar-head{min-height:19px;margin:0 0 4px!important;font-size:12px}
+ .sim-review-legend{display:none}
+ .sim-review-nav{display:flex!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;gap:6px;padding:0 2px 4px!important}
+ .sim-review-nav-btn{flex:0 0 min(175px,54vw)!important;width:min(175px,54vw)!important;min-height:55px!important;padding:5px 7px!important;gap:5px!important}
+ .sim-review-nav-btn .review-card-number{width:27px;height:27px;min-width:27px;font-size:11px}
+ .sim-review-nav-btn .review-card-copy strong{font-size:11px;line-height:1.15}
+ .sim-review-nav-btn .review-card-copy small{font-size:9px;margin:0}
+ .sim-review-detail{padding:11px max(12px,env(safe-area-inset-right)) 25px max(12px,env(safe-area-inset-left))!important}
+ .sim-review-detail-head{padding-bottom:8px}
+ .sim-review-detail .question-text-controls{margin:4px 0 0}
+}

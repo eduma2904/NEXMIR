@@ -1,10 +1,10 @@
-NEXMIR V5.1.13 · ESTUDIO RESPONSIVE Y RENDIMIENTO
+NEXMIR V5.1.14 · REVISIÓN MÓVIL Y RECUPERACIÓN
 
 Aplicación web estática conectada a Supabase para autenticación, contenido,
 progreso, simulacros, administración y clasificación asistida.
 
-ACTUALIZACIÓN DESDE 5.1.12
-1. Lee CAMBIOS_5_1_13.txt.
+ACTUALIZACIÓN DESDE 5.1.13
+1. Lee CAMBIOS_5_1_14.txt.
 2. Publica el contenido completo de nexmir/ en la misma fuente de GitHub Pages.
 3. Comprueba móvil y escritorio: asignaturas, banqueo, reanudación, flashcards, Focus, Mini-MIR y errores.
 4. No se requieren cambios nuevos en SQL para esta actualización. Si no instalaste la seguridad 5.1.12, sigue INSTALACION_5_1_12.md antes de publicar.
@@ -21,4 +21,4 @@ cd tests
 npm ci
 npm test
 
-Consulta CAMBIOS_5_1_13.txt para el detalle del parche.
+Consulta CAMBIOS_5_1_14.txt para el detalle del parche.

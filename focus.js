@@ -62,23 +62,50 @@
 
   async function loadFocusData(){
     if(!state.user||!state.sb)return;
+    const userId=state.user.id;
     try{
       await ensurePreferences();
-      const [learning,xp,freeze,active]=await Promise.all([
-        opt('estado de aprendizaje',()=>fetchPages(()=>state.sb.from('user_question_learning_state').select('*').eq('user_id',state.user.id)),[]),
-        opt('eventos XP',()=>fetchPages(()=>state.sb.from('xp_events').select('id,event_type,xp_amount,created_at,source_type,source_id,focus_session_id').eq('user_id',state.user.id).order('created_at',{ascending:false})),[]),
-        opt('congeladores',()=>state.sb.from('streak_freezes').select('*').eq('user_id',state.user.id).order('protected_date',{ascending:false}).limit(12).then(r=>{if(r.error)throw r.error;return r.data||[]}),[]),
-        opt('sesión activa',()=>state.sb.from('focus_sessions').select('*').eq('user_id',state.user.id).eq('status','active').order('started_at',{ascending:false}).limit(1).maybeSingle().then(r=>{if(r.error)throw r.error;return r.data||null}),null)
+      const [learning,active]=await Promise.all([
+        opt('estado de aprendizaje',()=>fetchPages(()=>state.sb.from('user_question_learning_state').select('*').eq('user_id',userId)),[]),
+        opt('sesión activa',()=>state.sb.from('focus_sessions').select('*').eq('user_id',userId).eq('status','active').order('started_at',{ascending:false}).limit(1).maybeSingle().then(r=>{if(r.error)throw r.error;return r.data||null}),null)
       ]);
-      state.focusLearning=learning||[];state.xpEvents=xp||[];state.focusXp=(xp||[]).reduce((s,x)=>s+(Number(x.xp_amount)||0),0);
-      state.streakFreezes=freeze||[];state.focusActiveSession=active||null;
-      const streak=await opt('racha',()=>state.sb.rpc('nexmir_refresh_streak').then(r=>{if(r.error)throw r.error;return r.data}),null);
-      if(streak)state.studyStreak=streak;
-      const missions=await opt('misiones',()=>state.sb.rpc('nexmir_sync_daily_missions').then(r=>{if(r.error)throw r.error;return r.data||[]}),[]);
-      state.focusMissions=missions||[];F.ready=true;window.NEXMIR_FOCUS_BACKEND_READY=true;
-      showFreezeNoticeIfNeeded();
+      if(state.user?.id!==userId)return;
+      state.focusLearning=learning||[];state.focusActiveSession=active||null;
+      F.ready=true;window.NEXMIR_FOCUS_BACKEND_READY=true;
+      // Las estadísticas no condicionan la reanudación de una sesión pendiente.
+      void (async()=>{
+        const [xp,freeze]=await Promise.all([
+          opt('eventos XP',()=>fetchPages(()=>state.sb.from('xp_events').select('id,event_type,xp_amount,created_at,source_type,source_id,focus_session_id').eq('user_id',userId).order('created_at',{ascending:false})),[]),
+          opt('congeladores',()=>state.sb.from('streak_freezes').select('*').eq('user_id',userId).order('protected_date',{ascending:false}).limit(12).then(r=>{if(r.error)throw r.error;return r.data||[]}),[])
+        ]);
+        if(state.user?.id!==userId)return;
+        state.xpEvents=xp||[];state.focusXp=(xp||[]).reduce((s,x)=>s+(Number(x.xp_amount)||0),0);state.streakFreezes=freeze||[];
+        const streak=await opt('racha',()=>state.sb.rpc('nexmir_refresh_streak').then(r=>{if(r.error)throw r.error;return r.data}),null);
+        if(streak)state.studyStreak=streak;
+        const missions=await opt('misiones',()=>state.sb.rpc('nexmir_sync_daily_missions').then(r=>{if(r.error)throw r.error;return r.data||[]}),[]);
+        if(state.user?.id!==userId)return;
+        state.focusMissions=missions||[];showFreezeNoticeIfNeeded();
+        if(state.view==='focus')renderFocusHome();
+      })().catch(e=>console.warn('Estadísticas Focus diferidas',e));
     }catch(e){F.ready=false;window.NEXMIR_FOCUS_BACKEND_READY=false;state.focusLoadError=e;console.warn('NexMIR Focus requiere NEXMIR_FOCUS_V1.sql',e)}
   }
+  let focusLoadUser=null,focusLoadPromise=null,focusLoadPending=false;
+  function requestFocusData(){
+    const userId=state.user?.id;
+    if(!userId)return Promise.resolve();
+    if(focusLoadUser===userId&&focusLoadPromise)return focusLoadPromise;
+    focusLoadUser=userId;
+    focusLoadPending=true;
+    focusLoadPromise=loadFocusData().then(()=>{
+      if(state.user?.id!==userId)return;
+      focusLoadPending=false;
+      if(state.view==='focus')renderFocusHome();
+      else if(state.view==='dashboard'&&typeof window.renderDashboard==='function')window.renderDashboard();
+    }).finally(()=>{if(state.user?.id===userId)focusLoadPending=false});
+    window.nexmirFocusReadyPromise=focusLoadPromise;
+    return focusLoadPromise;
+  }
+  window.addEventListener('nexmir:signout',()=>{focusLoadUser=null;focusLoadPromise=null;focusLoadPending=false;F.ready=false;window.NEXMIR_FOCUS_BACKEND_READY=false;window.nexmirFocusReadyPromise=null});
 
   function focusFeatureFlags(){
     const pro=['admin','moderator'].includes(state.profile?.role)||String(state.profile?.plan||'free').toLowerCase()==='pro';
@@ -101,9 +128,10 @@
   function masteryForFilter(subject='',topic=''){
     const all=questionPool().filter(q=>(!subject||displaySpecialty(q.specialty)===subject)&&(!topic||(q.topic||'General')===topic));
     if(!all.length)return 0;
-    if(topic){const keys=new Set(all.map(qKey)),rows=(state.focusLearning||[]).filter(x=>keys.has(`${x.source_type}:${x.source_id}`));return R.topicMastery(rows,all.length)}
-    const topics=new Map();for(const q of all){const t=`${displaySpecialty(q.specialty)}||${q.topic||'General'}`;if(!topics.has(t))topics.set(t,[]);topics.get(t).push(q)}
-    let weighted=0,total=0;for(const qs of topics.values()){const keys=new Set(qs.map(qKey)),rows=(state.focusLearning||[]).filter(x=>keys.has(`${x.source_type}:${x.source_id}`));weighted+=R.topicMastery(rows,qs.length)*qs.length;total+=qs.length}
+    const indexed=learningMap();
+    if(topic)return R.topicMastery(all.map(q=>indexed.get(qKey(q))).filter(Boolean),all.length);
+    const topics=new Map();for(const q of all){const t=`${displaySpecialty(q.specialty)}||${q.topic||'General'}`,group=topics.get(t)||{count:0,rows:[]};group.count++;const row=indexed.get(qKey(q));if(row)group.rows.push(row);topics.set(t,group)}
+    let weighted=0,total=0;for(const group of topics.values()){weighted+=R.topicMastery(group.rows,group.count)*group.count;total+=group.count}
     return total?Math.round(weighted/total):0;
   }
 
@@ -130,7 +158,9 @@
 
   function missionLabel(m){return m.mission_type==='reviews'?'Completa 10 revisiones pendientes':m.mission_type==='new_questions'?'Responde 10 preguntas nuevas prioritarias':m.mission_type==='recover_errors'?'Recupera 3 errores':'Completa un Focus de 15 minutos'}
   function focusHomeHtml(){
-    if(!F.ready)return `<div class="hero-main"><span class="chip">NexMIR Focus</span><h1>Falta activar el motor Focus</h1><p>Ejecuta <strong>supabase/NEXMIR_FOCUS_V1.sql</strong> después de las migraciones actuales. El código de la interfaz ya está instalado.</p></div>`;
+    if(!F.ready)return focusLoadPending
+      ?`<div class="hero-main" role="status"><span class="chip">NexMIR Focus</span><h1>Recuperando Focus…</h1><p>Estamos cargando tu progreso y la sesión pendiente.</p></div>`
+      :`<div class="hero-main"><span class="chip">NexMIR Focus</span><h1>Falta activar el motor Focus</h1><p>Ejecuta <strong>supabase/NEXMIR_FOCUS_V1.sql</strong> después de las migraciones actuales. El código de la interfaz ya está instalado.</p></div>`;
     const st=state.studyStreak||{},xp=state.focusXp||0,lvl=R.levelFromXp(xp),active=state.focusActiveSession;
     const subjects=[...new Set(questionPool().map(q=>displaySpecialty(q.specialty)))].sort((a,b)=>a.localeCompare(b,'es'));
     const dur=[5,10,15,25,0];
@@ -390,9 +420,9 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)heartbeat(true)});window.addEventListener('pagehide',()=>heartbeat(true));
   }
 
-  function patchLoad(){const oldLoad=window.loadAll;window.loadAll=async function(){await oldLoad();await loadFocusData()}}
+  function patchLoad(){const oldLoad=window.loadAll;window.loadAll=async function(){await oldLoad();requestFocusData()}}
   function patchTopButton(){const b=$f('#focusModeBtn');if(!b)return;b.textContent='🎯 Modo Focus';b.title='Inicia una sesión NexMIR Focus';b.onclick=e=>{e.preventDefault();route('focus')}}
 
-  function init(){ensureDom();patchRendering();patchBankAttempts();patchTopButton();hookActivity();startTicker();const oldAdaptive=window.startAdaptiveBank;if(typeof oldAdaptive==='function')window.startAdaptiveBank=function(n){if(state.focusPreferences?.auto_focus)return startNexmirFocus({duration:15});return oldAdaptive(n)};if(state.user)loadFocusData().then(()=>{if(state.view==='focus')renderFocusHome();else if(state.view==='dashboard'&&typeof window.renderDashboard==='function')window.renderDashboard()})}
+  function init(){ensureDom();patchRendering();patchBankAttempts();patchTopButton();hookActivity();startTicker();const oldAdaptive=window.startAdaptiveBank;if(typeof oldAdaptive==='function')window.startAdaptiveBank=function(n){if(state.focusPreferences?.auto_focus)return startNexmirFocus({duration:15});return oldAdaptive(n)};if(state.user)requestFocusData()}
   patchLoad();setTimeout(init,0);
 })();
