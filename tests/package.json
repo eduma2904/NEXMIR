@@ -1,0 +1,17 @@
+{
+  "name": "nexmir-regression-tests",
+  "private": true,
+  "version": "5.1.12",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:db && npm run test:security",
+    "test:unit": "node --test content_rules.test.js focus_rules.test.js",
+    "test:db": "node test_content_sync.test.cjs",
+    "test:security": "node security_permissions.test.cjs",
+    "test:ui": "node ui_regressions.test.cjs",
+    "test:answers": "node answer_flow.test.cjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "playwright": "1.62.1"
+  }
+}

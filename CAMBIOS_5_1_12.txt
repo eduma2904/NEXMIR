@@ -1,0 +1,17 @@
+NEXMIR V5.1.12 · SEGURIDAD Y CIERRE RESPONSIVE
+
+- Retirado SEGURIDAD_5_1_11.sql porque concedía EXECUTE global a todas las
+  funciones SECURITY DEFINER para usuarios autenticados.
+- Nuevo SEGURIDAD_5_1_12.sql con lista permitida explícita de RPC públicas y
+  revocación expresa de funciones internas.
+- Limpieza de tres políticas heredadas: los borrados quedan solo para admin y
+  las explicaciones IA antiguas quedan limitadas a personal autorizado.
+- Auditoría automática de tablas sin RLS, políticas abiertas, roles elevados y
+  funciones internas expuestas.
+- Fecha diaria calculada con la zona horaria local del dispositivo en el panel.
+- Zonas seguras aplicadas directamente a diálogos de estudio, preguntas,
+  flashcards, simulacro y Focus en móviles con notch.
+- Versión visible y parámetros de caché actualizados a 5.1.12.
+- Comando `npm test` agregado para las pruebas unitarias y de sincronización.
+
+No se borran datos ni se modifica la integración SMTP de Brevo.

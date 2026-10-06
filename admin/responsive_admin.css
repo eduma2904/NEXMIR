@@ -1,0 +1,40 @@
+/* V5.1.12 — administrator layout on smaller screens. */
+html,body{max-width:100%;overflow-x:clip}
+.appShell,.main,.view,.cardBox,.panel,.pageHead,.toolbar,.bulkbar,.filters,.grid2>*{min-width:0}
+.panel,.tableWrap,.adminTableWrap{max-width:100%;overflow-x:auto}
+.pageHead p,.cardBox p,.question,.meta,.path{overflow-wrap:anywhere}
+dialog{max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
+@media(max-width:900px){
+ .appShell{display:block}
+ .sidebar{position:relative;top:auto;height:auto;min-height:0;max-height:none;width:100%;padding:8px 12px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:thin}
+ .sidebar .nav-group,.sidebar .advanced-imports{flex:0 0 auto}
+ .sidebar .nav{min-height:44px}
+ .sidebar .sideFoot{display:none}
+ .main{padding:18px 14px}
+ .grid2{grid-template-columns:minmax(0,1fr)}
+ .topbar{position:relative;top:auto;padding:10px 14px}
+ .topActions{max-width:100%;min-width:0}
+ .filters{min-width:0}
+ .filters>*{max-width:100%}
+}
+@media(max-width:600px){
+ .main{padding:14px 10px}
+ .cardBox{padding:15px}
+ .stats,#dashboardStats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stat{min-width:0;padding:12px}
+ .toolbar,.compareHead,.bulkbar,.pageHead{align-items:stretch;flex-direction:column}
+ .toolbar .filters,.toolbar .tabs{max-width:100%}
+ .filters{flex-direction:column}
+ .filters input,.filters select{width:100%;min-width:0}
+ .diffRow,.contentRow,.historyRow,.simqRow{grid-template-columns:24px minmax(0,1fr);gap:8px;padding:12px}
+ .diffRow .question,.contentRow .question,.historyRow .question{min-width:0}
+ .dialog-actions,.actions{flex-wrap:wrap}
+ dialog{width:calc(100vw - 16px)!important;min-width:0!important;max-height:calc(100dvh - 16px)!important;overflow-y:auto}
+}
+
+/* 5.1.11 · evita zoom automático en iOS y mejora objetivos táctiles */
+@media (pointer:coarse){
+  input,select,textarea{font-size:16px!important}
+  button{min-height:44px}
+}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}

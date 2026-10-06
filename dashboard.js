@@ -22,7 +22,7 @@
   ].map(x=>`<div class="home-activity-item"><span class="home-activity-dot">${x[0]}</span><div><strong>${x[1]}</strong><span>${x[2]}</span></div></div>`).join('');
   function dashboard(){
     const s=stat(), areas=weak(), q=questions()[0], user=typeof profileName==='function'?profileName():'Estudiante';
-    const todayAttempts=(s.attempts||[]).filter(a=>a.answered_at?.slice(0,10)===new Date().toISOString().slice(0,10)).length;
+    const todayAttempts=(s.attempts||[]).filter(a=>a.answered_at&&today(new Date(a.answered_at))===today()).length;
     const goal=state.profile?.goal_specialty?`Tu objetivo: ${safe(state.profile.goal_specialty)}`:'Construye una rutina que te acerque a tu plaza MIR.';
     const root=document.querySelector('#view-dashboard'); if(!root)return;
     root.innerHTML=`<div class="nexmir-home">

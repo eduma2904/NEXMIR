@@ -43,7 +43,6 @@
     themeWelcomeDialog:['Tema visual','Escoge la apariencia que te resulte cómoda; puedes volver a cambiarla después.'],
     resetPasswordDialog:['Nueva contraseña','Introduce la contraseña nueva y guarda para recuperar el acceso a tu cuenta.'],
     deviceDialog:['Dispositivo vinculado','Tu cuenta solo puede estar activa en un dispositivo. Elige si deseas cerrar sesión o vincular este equipo.'],
-    configDialog:['Conexión','Estos campos conectan la web con el proyecto Supabase. Usa únicamente la clave publicable; nunca una clave secreta.']
   };
   let index=-1, ticket=0, lastFocus=null, autoTimer=null, initialTour=false, highlightObserver=null;
   const rollout=Date.parse('2026-10-06T01:40:00Z');
@@ -172,10 +171,12 @@
   function startTour(auto=false){if(!state.user)return;initialTour=auto;if(auto)setSeen();openDialogs().forEach(d=>{if(['studyDialog','cardDialog','questionDialog','simDialog','focusSessionDialog'].includes(d.id))d.close()});lastFocus=document.activeElement;show(0)}
   function maybeAuto(restored){clearTimeout(autoTimer);if(!state.user||getSeen()||!isNewAccount())return;const userId=state.user.id;const launch=()=>{if(state.user?.id!==userId||getSeen()||index>=0)return;if(openDialogs().length){autoTimer=setTimeout(launch,2000);return}startTour(true)};autoTimer=setTimeout(launch,restored?2500:1000)}
   function attachDialogHelp(){
-    openDialogs().forEach(d=>{if(!dialogHelp[d.id]||d.querySelector(':scope > .tutorial-dialog-help'))return;
+    openDialogs().forEach(d=>{if(!dialogHelp[d.id]||d.querySelector('.tutorial-dialog-help'))return;
       const btn=el('button','btn mini tutorial-dialog-help');btn.type='button';btn.textContent='🐾 ? Ayuda';btn.setAttribute('aria-label','Ayuda para esta ventana');
       btn.onclick=()=>{d.querySelector(':scope > .tutorial-dialog-note')?.remove();const note=el('aside','tutorial-dialog-note');note.setAttribute('role','status');const heading=el('strong','');heading.textContent=dialogHelp[d.id][0];const p=el('p','');p.textContent=dialogHelp[d.id][1];const close=el('button','icon-btn');close.type='button';close.textContent='×';close.setAttribute('aria-label','Cerrar ayuda');close.onclick=()=>note.remove();note.append(heading,close,p);d.append(note)};
-      d.append(btn);
+      const head=d.id==='simDialog' ? d.querySelector('.sim-top,.sim-results-top .dialog-head') : d.querySelector('.dialog-head,.focus-session-top,.tutorial-guide-head');
+      if(head){btn.classList.add('in-header');const close=head.querySelector(':scope > .icon-btn');if(close)head.insertBefore(btn,close);else head.append(btn)}
+      else d.append(btn);
     });
   }
   function openGuide(){

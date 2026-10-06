@@ -2,14 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NEXMIR V5.1.8 · Estudia. Practica. Repite. Llega.</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>NEXMIR V5.1.12 · Estudia. Practica. Repite. Llega.</title>
   <meta name="theme-color" content="#081525" />
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="layout_refinements.css?v=5.1.5" />
   <script src="vendor/supabase.js?v=2.57.4"></script>
   <link rel="stylesheet" href="product_polish.css?v=5.1.5.2" />
-  <link rel="stylesheet" href="tutorial.css?v=5.1.8" />
+  <link rel="stylesheet" href="tutorial.css?v=5.1.9" />
+  <link rel="stylesheet" href="responsive.css?v=5.1.12" />
 </head>
 <body>
 <div id="toast" class="toast hidden"></div>
@@ -32,18 +33,17 @@
     <div class="auth-tabs"><button class="auth-tab active" data-auth="login">Entrar</button><button class="auth-tab" data-auth="signup">Crear cuenta</button></div>
     <div id="loginPanel">
       <label>Correo<input id="loginEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
-      <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+      <label for="loginPassword">Contraseña</label><div class="password-field"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"><button class="password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button></div>
       <button id="loginBtn" class="btn primary full">Entrar a NEXMIR</button>
       <div class="auth-links"><button id="forgotPasswordBtn" class="link-btn" type="button">¿Olvidaste tu contraseña?</button><button id="resendVerifyBtn" class="link-btn" type="button">Reenviar verificación</button></div>
     </div>
     <div id="signupPanel" class="hidden">
       <label>Nombre<input id="signupName" type="text" placeholder="Tu nombre"></label>
       <label>Correo<input id="signupEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
-      <label>Contraseña<input id="signupPassword" type="password" autocomplete="new-password" placeholder="Mín. 8 caracteres"></label>
+      <label for="signupPassword">Contraseña</label><div class="password-field"><input id="signupPassword" type="password" autocomplete="new-password" placeholder="Mín. 8 caracteres"><button class="password-toggle" type="button" data-password-toggle="signupPassword" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button></div>
       <button id="signupBtn" class="btn primary full">Crear cuenta</button>
     </div>
     <p id="authMsg" class="muted small"></p>
-    <button id="configBtn" class="link-btn">Configurar Supabase</button>
   </div>
 </section>
 
@@ -94,15 +94,8 @@
 </div>
 
 <dialog id="planLoadingDialog" class="dialog plan-loading" aria-labelledby="planLoadingTitle"><div class="loading-spinner" aria-hidden="true"></div><h3 id="planLoadingTitle" role="status" aria-live="polite">Cargando…</h3><p class="muted">Preparando tu plan de estudio</p></dialog>
-<dialog id="resetPasswordDialog" class="dialog"><div class="dialog-head"><h3>Nueva contraseña</h3><button data-close="resetPasswordDialog" class="icon-btn">×</button></div><p class="muted">Escribe una nueva contraseña para tu cuenta.</p><label>Nueva contraseña<input id="newPassword" type="password" autocomplete="new-password" minlength="8"></label><div class="dialog-actions"><button data-close="resetPasswordDialog" class="btn">Cancelar</button><button id="saveNewPasswordBtn" class="btn primary">Actualizar contraseña</button></div></dialog>
+<dialog id="resetPasswordDialog" class="dialog"><div class="dialog-head"><h3>Nueva contraseña</h3><button data-close="resetPasswordDialog" class="icon-btn">×</button></div><p class="muted">Escribe una nueva contraseña para tu cuenta.</p><label for="newPassword">Nueva contraseña</label><div class="password-field"><input id="newPassword" type="password" autocomplete="new-password" minlength="8"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button></div><div class="dialog-actions"><button data-close="resetPasswordDialog" class="btn">Cancelar</button><button id="saveNewPasswordBtn" class="btn primary">Actualizar contraseña</button></div></dialog>
 <dialog id="deviceDialog" class="dialog"><div class="dialog-head"><h3>Un dispositivo por cuenta</h3></div><p id="deviceMessage" class="muted">Esta cuenta ya está vinculada a otro dispositivo.</p><div class="dialog-actions"><button id="deviceLogoutBtn" class="btn">Cerrar sesión</button><button id="deviceReplaceBtn" class="btn primary">Usar este dispositivo</button></div></dialog>
-<dialog id="configDialog" class="dialog">
-  <div class="dialog-head"><h3>Conexión Supabase</h3><button data-close="configDialog" class="icon-btn">×</button></div>
-  <p class="muted">La Publishable key puede usarse en el navegador. Nunca pegues una Secret key aquí.</p>
-  <label>Project URL<input id="sbUrl" type="text"></label>
-  <label>Publishable key<input id="sbKey" type="text"></label>
-  <div class="dialog-actions"><button data-close="configDialog" class="btn">Cancelar</button><button id="saveConfigBtn" class="btn primary">Guardar</button></div>
-</dialog>
 
 <dialog id="studyDialog" class="dialog wide"><div id="studyDialogBody"></div></dialog>
 <dialog id="cardDialog" class="dialog card-dialog"><div id="cardDialogBody"></div></dialog>
@@ -116,7 +109,7 @@
 <script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
 <script src="content_rules.js?v=5.1.5"></script>
 <script src="taxonomy.js?v=5.1.5"></script>
-<script src="app.js?v=5.1.7"></script>
+<script src="app.js?v=5.1.12"></script>
 <script src="content_admin.js?v=5.1.5.2"></script>
 <script src="product.js?v=5.1.5"></script>
 <script src="diagnostic_plan.js?v=5.1.7"></script>
@@ -132,6 +125,6 @@
 <script src="study_display.js?v=5.1.5"></script>
 <script src="image_controls.js?v=5.1.5"></script>
 <script src="interaction_polish.js?v=5.1.5"></script>
-<script src="tutorial.js?v=5.1.8"></script>
+<script src="tutorial.js?v=5.1.10"></script>
 </body>
 </html>
