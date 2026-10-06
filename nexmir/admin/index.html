@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXMIR Admin V5.1.5 · Pre-publicación</title>
+  <link rel="stylesheet" href="styles.css?v=5.1.5" />
+  <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
+  <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
+  <link rel="stylesheet" href="../product_polish.css?v=5.1.5.2" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="logo">M</div><div><strong>NEXMIR Admin</strong><span>Biblioteca · Revisión · Publicación</span></div></div>
+  <div class="topActions"><span id="dbState" class="pill">Base local</span><span id="userState" class="pill hidden"></span><button id="cloudBtn" class="ghost">Supabase</button><button id="logoutBtn" class="ghost hidden">Salir</button></div>
+</header>
+<div class="appShell">
+  <aside class="sidebar">
+    <div class="nav-group"><div class="nav-group-title">Contenido</div>
+      <button class="nav active" data-view="dashboard">▦ <span>Resumen</span></button>
+      <button class="nav" data-view="import">⇧ <span>Importar contenido</span></button>
+      <button class="nav" data-view="questions">❓ <span>Gestionar preguntas</span></button>
+      <button class="nav" data-view="content">▤ <span>Contenido</span></button>
+      <button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button>
+      <button class="nav" data-view="simmanager">🗂 <span>Gestionar simulacros</span></button>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Revisión</div>
+      <button class="nav" data-view="reports">⚑ <span>Reportes de estudiantes</span></button>
+      <button class="nav" data-view="suggestions">💡 <span>Sugerencias</span></button>
+      <button class="nav" data-view="history">↺ <span>Historial</span></button>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Acceso</div>
+      <button class="nav" data-view="users">👥 <span>Usuarios y planes</span></button>
+    </div>
+    <details class="advanced-imports"><summary>Importación avanzada</summary><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
+    <div class="sideFoot">V5.1.5 · Administración</div>
+  </aside>
+
+  <main class="main">
+    <section id="dashboardView" class="view">
+      <div class="pageHead"><div><div class="eyebrow">PANEL ADMIN</div><h1>Tu biblioteca, en orden</h1><p>Importa RemNote sin duplicar información, clasifica automáticamente por especialidad y conserva tablas reales.</p></div></div>
+      <div class="import-callout"><div><strong>Una carga, cada contenido en su lugar</strong><p>Sube un ZIP y revisa el destino antes de publicar.</p></div><button type="button" class="primary" onclick="go('import')">Importar contenido →</button></div>
+      <div id="dashboardStats" class="stats"></div>
+      <div class="grid2">
+        <div class="cardBox"><h2>Estado editorial</h2><div id="editorialState"></div></div>
+        <div class="cardBox"><h2>Últimas importaciones</h2><div id="recentImports"></div></div>
+      </div>
+      <div class="cardBox"><h2>Flujo de actualización</h2><div class="flow"><span>RemNote</span><b>→</b><span>ZIP</span><b>→</b><span>Comparar</span><b>→</b><span>Revisar</span><b>→</b><span>Publicar</span></div><p class="muted">Las tarjetas publicadas siguen visibles hasta que apruebes una actualización. Cada carga procesa únicamente sus archivos. Los duplicados ya existentes se omiten y el resto de tu colección se conserva.</p></div><div class="cardBox"><div class="compareHead"><div><h2>Clasificación automática</h2><p class="muted">Todo lo no clasificado se muestra como <strong>Desagrupadas</strong>. Primero revisa la jerarquía guardada o vuelve a importar RemNote. La IA se ejecuta al pulsar su botón para el contenido que no tenga una ruta recuperable.</p><p id="aiClassifyStatus" class="muted"></p></div><div class="actions"><button class="secondary" onclick="openGrouping()">Ver y agrupar publicadas</button><button id="repairHierarchyBtn" class="secondary" onclick="previewHierarchyRepair()">Revisar clasificación guardada</button><button id="checkAiBtn" class="secondary" onclick="checkAiService()">Comprobar IA sin modificar tarjetas</button><button id="aiClassifyBtn" class="primary" onclick="classifyUnclassifiedWithAI()">Clasificar desagrupadas con IA</button></div></div></div>
+<details class="cardBox maintenance"><summary>Mantenimiento y respaldos</summary><div class="cardBox"><h2>Gestión de la base de contenido</h2><p class="muted">Elimina solo las flashcards, una especialidad o reinicia todo el contenido. Primero verás las cantidades afectadas. Las cuentas y la configuración de acceso se conservan.</p><button class="secondary danger" onclick="openContentReset()">Borrar contenido / reiniciar base</button></div><button id="resetAllBtn" class="secondary danger">Reiniciar base local</button></details>
+    </section>
+
+    <section id="importView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">REMNOTE SYNC</div><h1>Importar contenido</h1><p>Sube una nueva exportación. Se detectan flashcards, teoría, tablas y la ruta especialidad → tema → subtema → apartado antes de publicar.</p></div></div>
+      <p class="muted">Carga incremental: se añade lo nuevo, se omiten los duplicados y se revisan los cambios presentes en estos archivos. El contenido de otras cargas se conserva.</p><label class="dropzone" id="dropzone"><input id="fileInput" type="file" accept=".zip,.md,.markdown,.pdf,application/zip,text/markdown,application/pdf" multiple /><div class="dropIcon">⇧</div><strong>Suelta aquí tu ZIP, Markdown o PDF</strong><span>Elige el archivo y después su tipo de contenido</span></label>
+      <p class="muted tiny">Puedes añadir más ZIP mientras se analizan. Se procesan en cola y se revisan juntos antes de publicar.</p>
+      <div id="importQueue" class="importQueue hidden" aria-live="polite"></div>
+      <p id="remnotePublishMode" class="muted tiny"></p>
+      <label class="fieldLabel">Especialidad de respaldo (opcional, solo si la exportación no incluye su carpeta)<input id="importFallbackSpecialty" list="classificationSubjects" placeholder="La jerarquía del Markdown se reconoce automáticamente"></label>
+      <div id="loadingView" class="loading hidden"><div class="spinner"></div><h2>Analizando RemNote…</h2><p id="loadingText"></p><div class="progressTrack"><div id="importProgressBar" class="progressBar" style="width:0%"></div></div><div id="importProgressPct" class="progressPct">0%</div></div>
+      <div id="compareView" class="hidden">
+        <div class="compareHead"><div class="compareTitleBlock"><h2>Contenido de esta carga</h2><p id="compareMeta" class="muted"></p><div id="publishProgressWrap" class="publishProgress hidden"><div class="progressTrack"><div id="publishProgressBar" class="progressBar" style="width:0%"></div></div><div id="publishProgressText" class="progressPct">0%</div></div></div><div class="actions"><button id="discardImportBtn" class="secondary">Descartar</button><button id="publishBtn" class="primary">Publicar seleccionados</button></div></div>
+        <div id="compareStats" class="stats"></div>
+        <div class="toolbar"><div class="tabs" id="statusTabs"><button class="tab active" data-status="all">Todos</button><button class="tab" data-status="new">Nuevos</button><button class="tab" data-status="modified">Modificados</button><button class="tab" data-status="review">Sin clasificar</button><button class="tab" data-status="problems">Con problemas</button></div><div class="filters"><input id="compareSearch" type="search" placeholder="Buscar tarjeta…" /></div></div>
+        <div class="bulkbar"><label><input id="selectVisible" type="checkbox" /> Seleccionar visibles</label><span id="selectedCount">0 seleccionados</span><button id="importSelectAll" class="secondary" type="button">Seleccionar todo el filtro</button><button id="importClearSelected" class="secondary" type="button">Quitar selección</button><button id="importDeleteSelected" class="secondary danger" type="button">Eliminar seleccionadas</button></div>
+        <div class="bulkbar"><button id="importGroupSelected" class="secondary" type="button">Agrupar seleccionadas</button><button id="importRepairSelected" class="secondary" type="button">Recuperar clasificación gratis</button><p id="importClassifyWarning" class="muted hidden"></p></div>
+        <div id="diffPager" class="diffPager"></div><div id="diffList" class="panel"></div>
+      </div>
+    </section>
+
+
+    <section id="simimportView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">BANCO · SIMULACROS</div><h1>Importar simulacro</h1><p>Importa simulacros desde PDFs separados, un único PDF con preguntas y soluciones, o una exportación de RemNote. NEXMIR limpia cabeceras, dominios y nombres de academias antes de publicar.</p></div></div>
+
+      <div id="simImportSetup">
+        <div class="cardBox" style="margin-bottom:16px">
+          <div class="tabs" id="simSourceTabs">
+            <button class="tab active" data-mode="separate">PDFs separados</button>
+            <button class="tab" data-mode="single">PDF único</button>
+            <button class="tab" data-mode="remnote">Desde RemNote</button>
+          </div>
+          <p id="simModeHelp" class="muted" style="margin:10px 0 0">Usa un PDF de preguntas y otro de respuestas/comentarios. El cuadernillo de imágenes es opcional.</p>
+        </div>
+
+        <div id="simModeSeparate" class="simModePanel">
+          <div class="grid2 sim-upload-grid">
+            <label class="simFileCard"><span class="simFileIcon">1</span><strong>PDF de preguntas</strong><span class="muted">Enunciados y alternativas</span><input id="simQuestionsPdf" type="file" accept=".pdf,application/pdf"></label>
+            <label class="simFileCard"><span class="simFileIcon">2</span><strong>PDF de respuestas / comentarios</strong><span class="muted">Claves, respuestas correctas y explicaciones</span><input id="simAnswersPdf" type="file" accept=".pdf,application/pdf"></label>
+            <label class="simFileCard"><span class="simFileIcon">3</span><strong>PDF de imágenes</strong><span class="muted">Opcional · asocia IMAGEN 1, 2, 3…</span><input id="simImagesPdf" type="file" accept=".pdf,application/pdf"></label>
+            <div class="cardBox sim-meta-card"><p class="muted" style="margin:0">Ideal cuando la academia entrega preguntas, soluciones e imágenes en archivos separados.</p></div>
+          </div>
+        </div>
+
+        <div id="simModeSingle" class="simModePanel hidden">
+          <div class="grid2 sim-upload-grid">
+            <label class="simFileCard"><span class="simFileIcon">1</span><strong>PDF completo</strong><span class="muted">Preguntas + respuestas/comentarios en el mismo archivo</span><input id="simSinglePdf" type="file" accept=".pdf,application/pdf"></label>
+            <label class="simFileCard"><span class="simFileIcon">2</span><strong>PDF de imágenes</strong><span class="muted">Opcional · solo si las imágenes vienen aparte</span><input id="simSingleImagesPdf" type="file" accept=".pdf,application/pdf"></label>
+          </div>
+          <div class="cardBox" style="margin-top:12px"><p class="muted" style="margin:0">NEXMIR busca por número de pregunta el bloque con enunciado/opciones y el bloque que contiene “Respuesta correcta” o comentario. Si ambos están juntos, los une automáticamente.</p></div>
+        </div>
+
+        <div id="simModeRemnote" class="simModePanel hidden">
+          <div class="grid2 sim-upload-grid">
+            <label class="simFileCard"><span class="simFileIcon">1</span><strong>Exportación RemNote</strong><span class="muted">ZIP o Markdown del documento/subdocumento que quieres convertir en simulacro</span><input id="simRemnoteFile" type="file" accept=".zip,.md,.markdown,application/zip,text/markdown"></label>
+            <div class="cardBox sim-meta-card"><strong>Regla</strong><p class="muted">Solo se toman las flashcards de opción múltiple. La alternativa marcada como correcta se convierte en clave y sus detalles pasan a explicación. Si exportas un solo documento/subdocumento, quedará como un simulacro exacto.</p></div>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:16px">
+          <div class="cardBox sim-meta-card">
+            <label class="fieldLabel">Nombre del simulacro<input id="simExamName" type="text" placeholder="Ej. Simulacro 24"></label>
+            <label class="fieldLabel">Año / convocatoria (opcional)<input id="simExamYear" type="number" min="2000" max="2100" placeholder="2027"></label>
+          </div>
+          <div class="cardBox sim-meta-card">
+            <strong>Limpieza de marca</strong>
+            <p class="muted">Se eliminan automáticamente nombres de academias, webs, cabeceras y pies detectados. “MIR” como término del examen se conserva.</p>
+            <label class="fieldLabel">Marcas adicionales a eliminar (opcional)<input id="simExtraBrands" type="text" placeholder="Ej. Academia X, Preparación Y"></label>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:16px"><button id="simAnalyzeBtn" class="primary">Analizar simulacro</button></div>
+      </div>
+      <div id="simImportProgress" class="cardBox hidden" style="margin-top:16px"><strong>Procesando archivos</strong><div class="progressTrack"><div id="simImportProgressBar" class="progressBar" style="width:0%"></div></div><div id="simImportProgressText" class="progressPct">0%</div></div>
+      <div id="simImportReview" class="hidden">
+        <div class="compareHead"><div><h2>Preguntas preparadas para el banco</h2><p class="muted">Revisa clasificación y respuestas antes de publicar. Reimportar el mismo simulacro actualiza; no duplica.</p></div><div class="actions"><button id="simImportReset" class="secondary">Descartar</button><button id="simPublishBtn" class="primary">Publicar seleccionadas</button></div></div>
+        <div id="simImportStats" class="stats"></div>
+          <div id="simImportQuality" class="notice hidden" style="margin-top:12px"></div>
+        <div class="toolbar"><div class="tabs" id="simImportTabs"><button class="tab active" data-filter="all">Todas</button><button class="tab" data-filter="new">Nuevas</button><button class="tab" data-filter="modified">Modificadas</button><button class="tab" data-filter="unchanged">Sin cambios</button><button class="tab" data-filter="review">Sin clasificar</button><button class="tab" data-filter="problems">Con problemas</button></div><div class="filters"><input id="simImportSearch" type="search" placeholder="Buscar pregunta…"></div></div>
+        <div class="bulkbar"><label><input id="simSelectVisible" type="checkbox"> Seleccionar este filtro</label><div class="bulkActions"><span id="simImportSelectedCount">0 seleccionadas</span><button id="simDeleteSelected" type="button" class="secondary danger" disabled>Eliminar seleccionadas</button></div></div>
+        <div id="simQuestionList" class="panel"></div>
+      </div>
+    </section>
+
+
+    <section id="simmanagerView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">FUENTES IMPORTADAS</div><h1>Fuentes del banco de simulacros</h1><p>Gestiona las fuentes originales. Sus preguntas alimentan el banco con el que cada usuario crea sus simulacros.</p></div><div class="actions"><button id="simMgrRefresh" class="secondary">Actualizar</button></div></div>
+      <div id="simMgrStats" class="stats"></div>
+      <div class="toolbar"><div class="filters"><input id="simMgrSearch" type="search" placeholder="Buscar simulacro…"><select id="simMgrStatus"><option value="all">Todos los estados</option><option value="published">Publicados</option><option value="draft">Con borradores</option><option value="archived">Archivados</option></select></div></div>
+      <div class="tableWrap adminTableWrap"><table class="adminTable"><thead><tr><th>Simulacro</th><th>Año</th><th>Preguntas</th><th>Con imagen</th><th>Problemas</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="simMgrTableBody"></tbody></table></div>
+      <div id="simMgrEmpty" class="empty hidden">No hay simulacros publicados todavía.</div>
+    </section>
+
+    <section id="bankimportView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">BANCO GENERAL</div><h1>Importar banco de preguntas</h1><p>Importa preguntas reutilizables al banco general. Todo termina en la misma tabla de preguntas y aparece en Banqueo por especialidad, tema y subtema.</p></div></div>
+      <div id="bankSetup">
+        <div class="cardBox"><div class="tabs" id="bankSourceTabs"><button class="tab active" data-mode="single">PDF único</button><button class="tab" data-mode="separate">PDFs separados</button><button class="tab" data-mode="remnote">RemNote MCQ</button><button class="tab" data-mode="excel" disabled title="Próximamente">Excel · próximamente</button></div><p id="bankModeHelp" class="muted" style="margin:10px 0 0">Un PDF con preguntas y respuestas/comentarios en el mismo archivo.</p></div>
+        <div id="bankModeSingle" class="bankModePanel" style="margin-top:16px"><div class="grid2 sim-upload-grid"><label class="simFileCard"><span class="simFileIcon">1</span><strong>PDF completo</strong><span class="muted">Preguntas + respuestas/comentarios</span><input id="bankSinglePdf" type="file" accept=".pdf,application/pdf"></label><label class="simFileCard"><span class="simFileIcon">2</span><strong>PDF de imágenes</strong><span class="muted">Opcional, si las imágenes vienen aparte</span><input id="bankSingleImagesPdf" type="file" accept=".pdf,application/pdf"></label></div></div>
+        <div id="bankModeSeparate" class="bankModePanel hidden" style="margin-top:16px"><div class="grid2 sim-upload-grid"><label class="simFileCard"><span class="simFileIcon">1</span><strong>PDF de preguntas</strong><span class="muted">Enunciados y alternativas</span><input id="bankQuestionsPdf" type="file" accept=".pdf,application/pdf"></label><label class="simFileCard"><span class="simFileIcon">2</span><strong>PDF de claves / comentarios</strong><span class="muted">Respuestas correctas y explicaciones</span><input id="bankAnswersPdf" type="file" accept=".pdf,application/pdf"></label><label class="simFileCard"><span class="simFileIcon">3</span><strong>PDF de imágenes</strong><span class="muted">Opcional</span><input id="bankImagesPdf" type="file" accept=".pdf,application/pdf"></label></div></div>
+        <div id="bankModeRemnote" class="bankModePanel hidden" style="margin-top:16px"><div class="grid2 sim-upload-grid"><label class="simFileCard"><span class="simFileIcon">1</span><strong>Exportación RemNote</strong><span class="muted">ZIP o Markdown; solo MCQ</span><input id="bankRemnoteFile" type="file" accept=".zip,.md,.markdown,application/zip,text/markdown"></label><div class="cardBox sim-meta-card"><strong>Regla</strong><p class="muted">Toda flashcard de opción múltiple entra al banco. La jerarquía de RemNote se conserva como especialidad → tema → subtema → apartado.</p></div></div></div>
+        <div class="grid2" style="margin-top:16px"><div class="cardBox sim-meta-card"><label class="fieldLabel">Nombre del banco<input id="bankName" type="text" placeholder="Ej. Banco Digestivo 2026"></label><label class="fieldLabel">Año / convocatoria (opcional)<input id="bankYear" type="number" min="2000" max="2100" placeholder="2027"></label></div><div class="cardBox sim-meta-card"><strong>Limpieza de marca</strong><p class="muted">Se eliminan webs, cabeceras/pies y nombres de academias detectados. Puedes añadir marcas propias.</p><label class="fieldLabel">Marcas adicionales a eliminar<input id="bankExtraBrands" type="text" placeholder="Academia X, Preparación Y"></label></div></div>
+        <div class="actions" style="margin-top:16px"><button id="bankAnalyzeBtn" class="primary">Analizar banco</button></div>
+      </div>
+      <div id="bankProgress" class="cardBox hidden" style="margin-top:16px"><strong>Procesando banco</strong><div class="progressTrack"><div id="bankProgressBar" class="progressBar" style="width:0%"></div></div><div id="bankProgressText" class="progressPct">0%</div></div>
+      <div id="bankReview" class="hidden"><div class="compareHead"><div><h2>Banco preparado</h2><p class="muted">Revisa problemas y clasificación antes de publicar.</p></div><div class="actions"><button id="bankResetBtn" class="secondary">Descartar</button><button id="bankPublishBtn" class="primary">Publicar seleccionadas</button></div></div><div id="bankStats" class="stats"></div><div id="bankQuality" class="notice hidden" style="margin-top:12px"></div><div class="toolbar"><div class="tabs" id="bankTabs"><button class="tab active" data-filter="all">Todas</button><button class="tab" data-filter="new">Nuevas</button><button class="tab" data-filter="modified">Modificadas</button><button class="tab" data-filter="unchanged">Sin cambios</button><button class="tab" data-filter="review">Sin clasificar</button><button class="tab" data-filter="problems">Con problemas</button></div><div class="filters"><input id="bankSearch" type="search" placeholder="Buscar pregunta…"></div></div><div class="bulkbar"><label><input id="bankSelectVisible" type="checkbox"> Seleccionar este filtro</label><span id="bankSelectedCount">0 seleccionadas</span></div><div id="bankQuestionList" class="panel"></div></div>
+    </section>
+
+
+    <section id="questionsView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">BANCO PUBLICADO</div><h1>Gestor de preguntas</h1><p>Busca, filtra y corrige todo el banco general, independientemente de si vino de PDF, RemNote o un simulacro.</p></div><div class="actions"><button id="qmRefresh" class="secondary">Actualizar</button></div></div>
+      <div id="qmStats" class="stats"></div>
+      <div class="cardBox qmFilters">
+        <input id="qmSearch" type="search" placeholder="Buscar enunciado, tema u origen…">
+        <select id="qmStatus"><option value="all">Todos los estados</option><option value="published">Publicadas</option><option value="draft">Borradores</option><option value="archived">Archivadas</option></select>
+        <select id="qmSpecialty"><option value="all">Todas las asignaturas MIR</option></select>
+        <select id="qmTopic"><option value="all">Todos los temas</option></select>
+        <select id="qmSource"><option value="all">Todos los orígenes</option><option value="simulation">Simulacros</option><option value="bank">Bancos PDF/RemNote</option><option value="other">Otros</option></select>
+        <select id="qmQuality"><option value="all">Toda calidad</option><option value="unclassified">Sin clasificar</option><option value="problems">Con problemas</option><option value="no_explanation">Sin explicación</option><option value="no_image">Sin imagen</option><option value="duplicates">Posibles duplicados</option></select>
+      </div>
+      <div class="tableWrap adminTableWrap"><table class="adminTable qmTable"><thead><tr><th>#</th><th>Pregunta</th><th>Clasificación</th><th>Origen</th><th>Exp.</th><th>Imagen</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="qmBody"></tbody></table></div>
+      <div id="qmEmpty" class="empty hidden">No hay preguntas con esos filtros.</div>
+    </section>
+
+
+    <section id="usersView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">ACCESO</div><h1>Usuarios y planes</h1><p>Gestiona Free/Pro, roles y el dispositivo vinculado de cada cuenta.</p></div><div class="actions"><button id="usersRefresh" class="secondary">Actualizar</button></div></div>
+      <div class="cardBox"><div class="filters"><input id="usersSearch" type="search" placeholder="Buscar por nombre o correo…"><select id="usersPlan"><option value="all">Todos los planes</option><option value="free">Free</option><option value="pro">Pro</option></select><select id="usersRole"><option value="all">Todos los roles</option><option value="user">user</option><option value="moderator">moderator</option><option value="admin">admin</option></select></div></div>
+      <div class="tableWrap adminTableWrap"><table class="adminTable"><thead><tr><th>Usuario</th><th>Plan</th><th>Rol</th><th>Dispositivo</th><th>Objetivo MIR</th><th>Acciones</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+      <div id="usersEmpty" class="empty hidden">No hay usuarios con esos filtros.</div>
+    </section>
+
+
+    <section id="suggestionsView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">PRODUCTO</div><h1>Sugerencias de usuarios</h1><p>Revisa ideas, mejoras y problemas enviados desde el perfil de NEXMIR.</p></div><div class="actions"><button id="suggestionsRefresh" class="secondary">Actualizar</button></div></div>
+      <div class="cardBox"><div class="filters"><select id="suggestionsStatus"><option value="open">Pendientes</option><option value="reviewing">En revisión</option><option value="planned">Planificadas</option><option value="done">Completadas</option><option value="dismissed">Descartadas</option><option value="all">Todas</option></select><select id="suggestionsCategory"><option value="all">Todas las categorías</option><option value="feature">Nueva función</option><option value="improvement">Mejora</option><option value="problem">Problema</option><option value="other">Otro</option></select></div></div>
+      <p id="suggestionsMessage" class="muted"></p><div id="suggestionsList" class="panel"></div>
+    </section>
+
+    <section id="reportsView" class="view hidden"><div class="pageHead"><div><div class="eyebrow">REVISIÓN EDITORIAL</div><h1>Reportes de preguntas</h1><p>Revisa las observaciones de los estudiantes. Solo administración puede corregir el banco o cambiar el estado del reporte.</p></div><button class="secondary" onclick="loadQuestionReports()">Actualizar</button></div><div class="toolbar"><label>Estado <select id="reportStatusFilter" onchange="renderQuestionReports()"><option value="open">Pendientes</option><option value="reviewing">En revisión</option><option value="resolved">Resueltos</option><option value="dismissed">Descartados</option><option value="all">Todos</option></select></label></div><p id="reportsMessage" class="muted"></p><div id="reportsList" class="panel"></div></section>
+
+    <section id="contentView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">BASE PUBLICADA</div><h1>Contenido vigente</h1><p>Busca palabras del anverso, respuesta, alternativas o explicación. Edita o elimina contenido con tu cuenta de administrador.</p></div><div class="actions"><button class="secondary" onclick="openGrouping()">Seleccionar y agrupar</button><button id="exportDbBtn" class="secondary">Exportar respaldo JSON</button></div></div>
+      <div class="toolbar"><div class="tabs" id="contentTabs"><button class="tab active" data-kind="cards">Flashcards</button><button class="tab" data-kind="theory">Teoría</button></div><div class="filters"><select id="contentType"><option value="all">Todos los tipos</option><option value="basic">Básica</option><option value="multiline">Multilínea</option><option value="ordered">Ordenada</option><option value="multiple_choice">Opción múltiple</option><option value="cloze">Cloze</option><option value="bidirectional">Bidireccional</option><option value="reverse">Reversa</option></select><input id="contentSearch" type="search" placeholder="Buscar por palabras…" /></div></div>
+      <p id="editorialCount" class="muted" aria-live="polite"></p><div id="contentList" class="panel"></div>
+    </section>
+
+    <section id="historyView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">AUDITORÍA</div><h1>Historial de cambios</h1><p>Cada publicación conserva qué cambió, cuándo y qué versión quedó vigente.</p></div></div>
+      <div id="historyList" class="panel"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="cloudDialog"><button class="dialogClose" id="cloudClose">×</button><div class="detail"><div class="eyebrow">SUPABASE</div><h2>Conectar base en la nube</h2><p class="muted">La Publishable key sí puede usarse en el navegador. No pegues aquí una Secret key.</p><label class="fieldLabel">Project URL<input id="sbUrl" type="url" placeholder="https://xxxxx.supabase.co"></label><label class="fieldLabel">Publishable key<input id="sbKey" type="text" placeholder="sb_publishable_..."></label><div class="actions"><button id="saveCloudBtn" class="secondary">Guardar conexión</button></div><hr><h3>Iniciar sesión de administrador</h3><label class="fieldLabel">Email<input id="loginEmail" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"></label><label class="fieldLabel">Contraseña<div class="passwordWrap"><input id="loginPassword" name="password" type="password" autocomplete="current-password"><button id="togglePasswordBtn" class="passwordToggle" type="button" aria-label="Mostrar contraseña">Mostrar</button></div></label><div class="actions"><button id="loginBtn" class="primary">Entrar</button></div><p id="cloudMessage" class="muted"></p></div></dialog>
+
+<dialog id="detailDialog"><button class="dialogClose" id="dialogClose">×</button><div id="dialogBody"></div></dialog>
+<dialog id="simQuestionEditDialog"><button class="dialogClose" id="simQuestionEditClose">×</button><div id="simQuestionEditBody"></div></dialog>
+<dialog id="simProblemsDialog"><button class="dialogClose" id="simProblemsClose">×</button><div id="simProblemsBody"></div></dialog>
+<dialog id="simManagerDialog"><button class="dialogClose" id="simManagerClose">×</button><div id="simManagerBody"></div></dialog>
+<dialog id="bankQuestionEditDialog"><button class="dialogClose" id="bankQuestionEditClose">×</button><div id="bankQuestionEditBody"></div></dialog>
+<dialog id="questionManagerDialog"><button class="dialogClose" id="questionManagerClose">×</button><div id="questionManagerBody"></div></dialog>
+<script src="../vendor/supabase.js?v=2.57.4"></script>
+<script src="vendor/pdf.min.js?v=3.11.174"></script>
+<script src="jszip.min.js?v=5.1.5"></script>
+<script src="../content_rules.js?v=5.1.5"></script>
+<script src="../taxonomy.js?v=5.1.5"></script>
+<script src="app.js?v=5.1.5"></script>
+<script src="../content_admin.js?v=5.1.5.2"></script>
+<script src="content_editor.js?v=5.1.5"></script>
+<script src="remnote_upload.js?v=5.1.5"></script>
+<script src="sim_importer.js?v=5.1.5"></script>
+<script src="simulation_manager.js?v=5.1.5"></script>
+<script src="bank_importer.js?v=5.1.5"></script>
+<script src="classification_manager.js?v=5.1.5"></script>
+<script src="question_manager.js?v=5.1.5"></script>
+<script src="users_manager.js?v=5.1.5"></script>
+<script src="content_reset.js?v=5.1.5"></script>
+<script src="question_reports.js?v=5.1.5"></script>
+<script src="suggestions_manager.js?v=5.1.5"></script>
+<script src="import_review.js?v=5.1.5"></script>
+<script src="bulk_content.js?v=5.1.5"></script>
+<script src="unified_import.js?v=5.1.5"></script>
+<script src="../interaction_polish.js?v=5.1.5"></script>
+</body>
+</html>

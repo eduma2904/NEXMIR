@@ -1,0 +1,29 @@
+CHECKLIST — NEXMIR 5.1.3
+Responde en el chat con el número y «bien» o «falla».
+
+1. Abre la versión nueva y pulsa Ctrl + F5. La pestaña indica V5.1.3.
+2. Entra en Focus, elige una alternativa y recarga. Debe verse primero
+   «Recuperando tu sesión» y después la misma pregunta y alternativa.
+   No debe aparecer el formulario de correo durante la recarga.
+3. Repite la recarga dentro de un Banqueo. Debe volver directamente al
+   Banqueo y conservar la pregunta y la alternativa.
+4. Abre una pregunta con imagen. La imagen debe ser compacta y centrada,
+   sin barra horizontal. «Ver imagen ampliada» debe abrirla grande.
+5. Comprueba que la ventana de Banqueo ocupa casi toda la pantalla y queda
+   centrada, como la ventana de revisión final.
+6. Termina el Banqueo. La revisión debe conservar ese mismo tamaño y tener
+   lista lateral y detalle con desplazamiento interno.
+7. Usa Texto A− y A+. Deben cambiar juntos el enunciado y las alternativas.
+   Cierra y vuelve a abrir otra pregunta: el tamaño debe conservarse.
+8. Comprueba una pregunta de Focus y una de Simulacro: ambas ventanas deben
+   usar el formato amplio y mostrar el mismo control de texto.
+9. En Admin selecciona algunos contenidos sin especialidad y pulsa
+   «Recuperar clasificación gratis». Debe indicar resultados por carpetas,
+   por contenido y pendientes.
+10. Si quedan pendientes, pulsa «Usar Miscelánea para los pendientes» y luego
+    «Aplicar y revisar». Comprueba los grupos antes de publicar.
+11. Publica primero una selección pequeña de prueba y comprueba en la web que
+    aparece bajo la especialidad propuesta o bajo Miscelánea.
+
+No hay que ejecutar nada nuevo en Supabase para esta versión.
+

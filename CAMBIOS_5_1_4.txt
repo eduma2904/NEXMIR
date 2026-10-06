@@ -1,0 +1,36 @@
+NEXMIR 5.1.4 — Imágenes, importación y revisión del administrador
+
+- Las imágenes insertadas en el enunciado ahora tienen «Ver imagen ampliada»
+  y se pueden abrir también con clic o teclado. Se conserva el tamaño de lectura.
+- El visor permite aumentar, reducir, ajustar y ver el tamaño original.
+  Sus atajos no responden la pregunta que queda detrás del visor.
+- El agarre del popup cambia el tamaño y sigue funcionando al cambiar de pregunta.
+  También admite flechas del teclado. En móvil se mantiene la ventana completa.
+- El administrador tiene navegación por grupos, una entrada de importación
+  principal y mantenimiento separado de las acciones cotidianas.
+- Tras elegir un ZIP, Markdown o PDF, se pregunta si la carga es Banco,
+  Simulacro, Teoría, Flashcards o Combinado. Se muestra qué se detectó.
+- Los ZIP con Markdown y PDF pueden reunirse en una revisión combinada.
+  Los PDF separados permiten indicar preguntas, respuestas e imágenes.
+- Solo las preguntas de opción múltiple válidas aparecen en los modos test.
+  Las flashcards sin alternativas permanecen en estudio, repasos y Focus.
+- Las MCQ de Markdown con 2, 4 o 5 alternativas conservan todas sus opciones.
+- Nueva migración TEST_CONTENT_SYNC.sql: las MCQ de RemNote se sincronizan
+  con el banco que usan las batallas, incluyendo ediciones y cambios de estado.
+- La selección se limita a la pestaña y búsqueda actuales. Las acciones masivas
+  dejan fuera las tarjetas ocultas. Se conserva la clasificación gratuita.
+- PDF.js y Supabase JS se incluyen localmente para cargar sus bibliotecas
+  sin depender de un CDN.
+
+VALIDACIÓN LOCAL
+- 6 pruebas de reglas de contenido y Focus: aprobadas.
+- Migración SQL: carga inicial y repetición, tipos, 2/5 alternativas,
+  ediciones, versiones, archivo, restauración, eliminación y permisos: aprobados.
+- Navegador Chromium: visor, teclado, arrastre, cambio de pregunta, móvil,
+  importación combinada, clasificación gratuita, publicación local,
+  filtros y eliminación selectiva de ambos importadores: aprobados.
+- ZIP PDF: seis preguntas completas detectadas en banco y simulacro.
+- ZIP Markdown + PDF: ocho MCQ, una flashcard y un bloque de teoría en una revisión.
+
+No se ha publicado la web ni modificado la base real de Supabase.
+Lee INSTALACION_5_1_4.md antes de desplegar la versión.

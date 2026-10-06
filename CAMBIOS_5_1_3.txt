@@ -1,0 +1,45 @@
+NEXMIR 5.1.3 — Recarga, exámenes, imágenes y clasificación gratuita
+
+INSTALACIÓN
+Descomprime el ZIP y reemplaza la carpeta de la web por esta versión completa.
+Después abre index.html como siempre o vuelve a publicar la carpeta.
+Pulsa Ctrl + F5 una vez. La pestaña debe mostrar V5.1.3.
+
+SUPABASE
+Esta actualización no requiere ejecutar SQL ni cambiar Supabase.
+Conserva la configuración de Supabase y el motor Focus que ya instalaste.
+
+CAMBIOS
+- Al recargar, se muestra «Recuperando tu sesión» mientras se valida la cuenta.
+  El formulario de correo ya no aparece durante esa espera.
+- Si falla temporalmente la carga del contenido, la cuenta se conserva y aparece
+  «Volver a intentar»; no se envía al usuario a la pantalla de acceso.
+- Focus y Banqueo siguen recuperando la pregunta actual y la alternativa elegida.
+- Las ventanas de Banqueo, Simulacro, Focus y revisión ocupan casi toda la
+  pantalla, con el mismo formato amplio y centrado.
+- Las imágenes de las preguntas se limitan a 560 × 280 px aproximadamente.
+  El botón «Ver imagen ampliada» permite inspeccionarlas cuando sea necesario.
+- También se limitan las imágenes que vienen insertadas dentro del enunciado.
+- Nuevo control Texto A− / porcentaje / A+ en las ventanas de preguntas.
+  Cambia a la vez el enunciado y las alternativas y recuerda el tamaño elegido.
+- La recuperación gratuita de clasificación intenta primero carpetas y títulos.
+  Si no existen, usa coincidencias médicas claras del propio contenido.
+- La vista previa indica cuántas propuestas proceden de la estructura, cuántas
+  del contenido y cuántas siguen pendientes.
+- Los pendientes pueden enviarse a Miscelánea con un botón para poder publicar
+  y reagruparlos después desde el panel Admin.
+- Todo el clasificador gratuito se ejecuta localmente en el navegador y no usa
+  una API, créditos ni servicios de pago.
+
+VERIFICACIÓN LOCAL
+- Pantalla de acceso oculta durante la restauración de una sesión válida.
+- Ventana de examen y revisión comprobada a 1308 × 900 px.
+- Sin desbordamiento horizontal en Banqueo y revisión.
+- Imagen grande reducida dentro de los límites y ampliación disponible.
+- A−/A+ modifica enunciado y alternativas y conserva la preferencia.
+- Inferencia local comprobada con ejemplos de Gastroenterología y Cardiología.
+- Se mantienen las pruebas anteriores de recarga, Focus, Banqueo, atajos,
+  reintentos de red, temas claro/oscuro y controles masivos del Admin.
+
+No se ha publicado la web ni se han modificado datos reales de Supabase.
+

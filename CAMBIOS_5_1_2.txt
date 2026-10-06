@@ -1,0 +1,71 @@
+NEXMIR 5.1.2 — Admin, media pantalla, guardado y revisión
+
+INSTALACIÓN
+Descomprime este ZIP. Usa el contenido completo de la carpeta nexmir.
+Reemplaza la web y la carpeta admin, incluidos los nuevos archivos CSS y JS.
+Abre index.html como hasta ahora o publica la carpeta en tu alojamiento.
+Actualiza con Ctrl + F5. El título de la pestaña muestra V5.1.2.
+Esta actualización no requiere SQL adicional ni cambios en Supabase.
+El motor Focus instalado anteriormente sigue siendo necesario.
+
+CLASIFICACIÓN GRATIS DE LOS CONTENIDOS
+En la revisión de RemNote selecciona los contenidos y pulsa
+«Recuperar clasificación gratis». También se ofrece al intentar publicar
+una selección que aún tiene contenidos sin especialidad.
+Revisa las especialidades recuperadas de las carpetas y títulos originales.
+Si quedan pendientes y el archivo es de una sola asignatura, escribe esa
+asignatura como respaldo y pulsa «Aplicar y revisar». Luego publica.
+Si mezcla asignaturas, aplica solo lo recuperado dejando el respaldo vacío.
+Selecciona los pendientes por grupos y usa «Agrupar seleccionadas».
+También puedes usar una categoría propia y reclasificar después.
+El proceso se ejecuta en el navegador y no usa una API de pago.
+
+CAMBIOS
+- Seleccionar todo el filtro, quitar selección y eliminar seleccionadas
+  en RemNote y bancos; controles equivalentes en simulacros.
+- Selección y eliminación masiva en flashcards/teoría publicadas,
+  Desagrupadas/Agrupar, gestor de preguntas y gestor de simulacros.
+- Eliminar desde una importación excluye de esa carga; conserva lo publicado.
+  La exclusión se mantiene si añades otro archivo a la misma cola.
+- Eliminar desde un gestor de contenido publicado exige confirmación escrita.
+  Usa los mismos permisos y mecanismos de eliminación de la versión original.
+- Recuperación gratuita de clasificación con vista previa y especialidad
+  de respaldo; conserva los pendientes cuando no hay datos suficientes.
+- Corrección de las columnas de la web al reducir la ventana o colocarla
+  a media pantalla. La barra lateral se convierte en menú hasta 1080 px.
+- Duraciones de Focus con ancho mínimo y distribución en varias filas.
+  «Sin temporizador» ya no se sale de su botón.
+- Barra de controles, cabecera de resultados y explicación de Banqueo
+  adaptadas al tema. Correctas/incorrectas mantienen color y contraste.
+- Resumen de resultados y mascota más compactos; lista de preguntas con
+  más altura y desplazamiento independiente. Diseño adaptable en móvil.
+- Focus calcula la prioridad una vez por pregunta y reutiliza el mapa
+  de aprendizaje. Reduce solicitudes simultáneas de guardado y sincronización.
+- Espera de conexión limitada a 15 segundos por solicitud; permite reintentar
+  conservando el identificador para evitar registrar dos veces una respuesta.
+  El avance sigue esperando la confirmación real de Supabase.
+- Autenticación sin consultas dentro de su bloqueo interno y persistencia
+  activada. Al refrescar se recuperan la sección y el estudio de Focus/Banqueo,
+  incluidos pregunta y selección, para la misma cuenta en ese navegador.
+- Atajos 1=A, 2=B, 3=C, 4=D, incluidos los números del teclado numérico.
+  En Focus Enter responde y, tras la corrección, pasa a la siguiente.
+- Enviar Banqueo muestra carga y solo confirma el envío al guardar todas
+  las respuestas. Si falla una, reintenta desde las pendientes.
+
+VERIFICACIÓN
+Pruebas locales en Edge con datos y servidor simulados:
+- Diseño a 1920, 1440, 1080, 960, 850, 820, 760, 700, 600 y 390 px.
+- Restauración mediante recarga real de la pestaña en Focus y Banqueo.
+- Atajos normales y del teclado numérico; espera agotada y reintento con
+  el mismo identificador de respuesta; comportamiento de autenticación.
+- Revisión final, scroll interno, explicación legible y temas claro/oscuro.
+- 3432 contenidos sin especialidad, respaldo manual y recuperación parcial.
+- Seleccionar todo, quitar selección y eliminar de la revisión; lo publicado
+  se conserva; los excluidos no reaparecen al añadir contenido a la carga.
+- Comprobación de sintaxis y reglas Focus existentes.
+
+VALIDACIÓN EN TU WEB
+No se ha publicado ni se han modificado datos de tu Supabase.
+Prueba guardar respuestas y publicar una selección pequeña con tu cuenta
+antes de publicar toda la importación. La conexión y los permisos reales
+deben verificarse en tu entorno.

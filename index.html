@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NEXMIR V5.1.8 · Estudia. Practica. Repite. Llega.</title>
+  <meta name="theme-color" content="#081525" />
+  <link rel="stylesheet" href="styles.css?v=5.1.5" />
+  <link rel="stylesheet" href="layout_refinements.css?v=5.1.5" />
+  <script src="vendor/supabase.js?v=2.57.4"></script>
+  <link rel="stylesheet" href="product_polish.css?v=5.1.5.2" />
+  <link rel="stylesheet" href="tutorial.css?v=5.1.8" />
+</head>
+<body>
+<div id="toast" class="toast hidden"></div>
+
+<section id="bootScreen" class="auth-screen boot-screen" aria-live="polite" aria-busy="true">
+  <div class="boot-card">
+    <div class="logo-mark">N</div>
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <h2>Recuperando tu sesión…</h2>
+    <p class="muted">Volverás directamente a la pregunta en la que estabas.</p>
+  </div>
+</section>
+
+<section id="authScreen" class="auth-screen hidden">
+  <div class="auth-brand">
+    <div class="logo-mark">N</div>
+    <div><h1>NEXMIR</h1><p>Estudia. Practica. Repite. Llega.</p></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs"><button class="auth-tab active" data-auth="login">Entrar</button><button class="auth-tab" data-auth="signup">Crear cuenta</button></div>
+    <div id="loginPanel">
+      <label>Correo<input id="loginEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
+      <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+      <button id="loginBtn" class="btn primary full">Entrar a NEXMIR</button>
+      <div class="auth-links"><button id="forgotPasswordBtn" class="link-btn" type="button">¿Olvidaste tu contraseña?</button><button id="resendVerifyBtn" class="link-btn" type="button">Reenviar verificación</button></div>
+    </div>
+    <div id="signupPanel" class="hidden">
+      <label>Nombre<input id="signupName" type="text" placeholder="Tu nombre"></label>
+      <label>Correo<input id="signupEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
+      <label>Contraseña<input id="signupPassword" type="password" autocomplete="new-password" placeholder="Mín. 8 caracteres"></label>
+      <button id="signupBtn" class="btn primary full">Crear cuenta</button>
+    </div>
+    <p id="authMsg" class="muted small"></p>
+    <button id="configBtn" class="link-btn">Configurar Supabase</button>
+  </div>
+</section>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo-mark small">N</div><div><strong>NEXMIR</strong><span>MIR España</span></div></div>
+    <nav id="nav">
+      <button class="nav-item active" data-view="dashboard">⌂ <span>Inicio</span></button>
+      <button class="nav-item" data-view="study">▦ <span>Estudiar</span></button>
+      <button class="nav-item" data-view="focus">🎯 <span>Modo Focus</span></button>
+      <button class="nav-item" data-view="reviews">◉ <span>Repasos</span><b id="dueBadge" class="badge hidden">0</b></button>
+      <button class="nav-item" data-view="bank">? <span>Banqueo</span></button>
+      <button class="nav-item" data-view="simulations">◷ <span>Simulacros</span></button>
+      <button class="nav-item" data-view="battles">⚔ <span>Batallas</span></button>
+      <button class="nav-item" data-view="errors">× <span>Mis errores</span></button>
+      <button class="nav-item" data-view="bookmarks">★ <span>Marcadas</span></button>
+      <button class="nav-item" data-view="progress">⌁ <span>Progreso</span></button>
+      <button class="nav-item" data-view="goal">◎ <span>Mi plaza MIR</span></button>
+      <button class="nav-item" data-view="calendar">▣ <span>Plan de estudio</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <a class="nav-item admin-link hidden" id="adminLink" href="admin/index.html" target="_blank" rel="noopener">⚙ <span>Panel Admin</span></a>
+      <button class="nav-item" data-view="profile">♙ <span>Perfil</span></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="mobileMenu" class="icon-btn">☰</button>
+      <div><h2 id="viewTitle">Inicio</h2><p id="crumb" class="muted"></p></div>
+      <div class="top-actions"><button id="tutorialBtn" class="btn mini tutorial-launch" type="button" title="Repetir el recorrido guiado" aria-label="Repetir el recorrido guiado">🐾 <span>Guía</span></button><button id="focusModeBtn" class="btn mini focus-toggle" type="button" title="Inicia una sesión NexMIR Focus">🎯 Modo Focus</button><button id="studyTimerBtn" class="btn mini study-timer" type="button" title="Controla tu cronómetro de estudio">⏱ 00:00:00</button><span id="planPill" class="pill">Free</span><div id="userAvatar" class="avatar">E</div></div>
+    </header>
+
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-study" class="view"></section>
+    <section id="view-focus" class="view"></section>
+    <section id="view-reviews" class="view"></section>
+    <section id="view-bank" class="view"></section>
+    <section id="view-simulations" class="view"></section>
+    <section id="view-battles" class="view"></section>
+    <section id="view-errors" class="view"></section>
+    <section id="view-bookmarks" class="view"></section>
+    <section id="view-progress" class="view"></section>
+    <section id="view-goal" class="view"></section>
+    <section id="view-calendar" class="view"></section>
+    <section id="view-profile" class="view"></section>
+  </main>
+</div>
+
+<dialog id="planLoadingDialog" class="dialog plan-loading" aria-labelledby="planLoadingTitle"><div class="loading-spinner" aria-hidden="true"></div><h3 id="planLoadingTitle" role="status" aria-live="polite">Cargando…</h3><p class="muted">Preparando tu plan de estudio</p></dialog>
+<dialog id="resetPasswordDialog" class="dialog"><div class="dialog-head"><h3>Nueva contraseña</h3><button data-close="resetPasswordDialog" class="icon-btn">×</button></div><p class="muted">Escribe una nueva contraseña para tu cuenta.</p><label>Nueva contraseña<input id="newPassword" type="password" autocomplete="new-password" minlength="8"></label><div class="dialog-actions"><button data-close="resetPasswordDialog" class="btn">Cancelar</button><button id="saveNewPasswordBtn" class="btn primary">Actualizar contraseña</button></div></dialog>
+<dialog id="deviceDialog" class="dialog"><div class="dialog-head"><h3>Un dispositivo por cuenta</h3></div><p id="deviceMessage" class="muted">Esta cuenta ya está vinculada a otro dispositivo.</p><div class="dialog-actions"><button id="deviceLogoutBtn" class="btn">Cerrar sesión</button><button id="deviceReplaceBtn" class="btn primary">Usar este dispositivo</button></div></dialog>
+<dialog id="configDialog" class="dialog">
+  <div class="dialog-head"><h3>Conexión Supabase</h3><button data-close="configDialog" class="icon-btn">×</button></div>
+  <p class="muted">La Publishable key puede usarse en el navegador. Nunca pegues una Secret key aquí.</p>
+  <label>Project URL<input id="sbUrl" type="text"></label>
+  <label>Publishable key<input id="sbKey" type="text"></label>
+  <div class="dialog-actions"><button data-close="configDialog" class="btn">Cancelar</button><button id="saveConfigBtn" class="btn primary">Guardar</button></div>
+</dialog>
+
+<dialog id="studyDialog" class="dialog wide"><div id="studyDialogBody"></div></dialog>
+<dialog id="cardDialog" class="dialog card-dialog"><div id="cardDialogBody"></div></dialog>
+<dialog id="questionDialog" class="dialog wide"><div id="questionDialogBody"></div></dialog>
+<dialog id="simDialog" class="dialog sim-dialog"><div id="simDialogBody"></div></dialog>
+<dialog id="imageViewerDialog" class="dialog image-viewer-dialog"><div class="image-viewer-head"><strong>Imagen de la pregunta</strong><button class="icon-btn" type="button" onclick="closeQuestionImageViewer()">×</button></div><div class="image-viewer-body"><img id="imageViewerImg" alt="Imagen ampliada de la pregunta"></div><div class="dialog-actions"><button class="btn" type="button" onclick="closeQuestionImageViewer()">Cerrar</button></div></dialog>
+<dialog id="reportDialog" class="dialog"><div class="dialog-head"><h3>Reportar contenido</h3><button class="icon-btn" type="button" onclick="document.getElementById('reportDialog').close()">×</button></div><p id="reportQuestion" class="muted"></p><div class="grid cols-2"><label>Parte afectada<select id="reportPart"><option value="question">Pregunta</option><option value="answer">Respuesta correcta</option><option value="explanation">Explicación</option><option value="image">Imagen</option><option value="other">Otra</option></select></label><label>Problema<select id="reportCategory"><option value="incorrect">Error de contenido</option><option value="ambiguous">Ambigüedad</option><option value="typo">Errata</option><option value="outdated">Desactualizado</option><option value="missing">Información incompleta</option><option value="other">Otro</option></select></label></div><label>Describe el problema<textarea id="reportDetail" minlength="10" maxlength="2000" rows="5" placeholder="Indica qué dato o explicación debemos revisar"></textarea></label><p id="reportMessage" class="muted small"></p><div class="dialog-actions"><button class="btn" type="button" onclick="document.getElementById('reportDialog').close()">Cancelar</button><button id="submitReportBtn" class="btn primary" type="button">Enviar reporte</button></div></dialog>
+<dialog id="themeWelcomeDialog" class="dialog theme-dialog"><div id="themeWelcomeBody"></div></dialog>
+<dialog id="studyTimerDialog" class="dialog"><div class="dialog-head"><div><span class="chip">Cronómetro de estudio</span><h3>Tu tiempo de estudio</h3></div><button class="icon-btn" type="button" onclick="document.getElementById('studyTimerDialog').close()">×</button></div><p class="timer-big" id="studyTimerBig">00:00:00</p><p class="muted">Cuenta solo cuando resuelves preguntas, flashcards/repasos o simulacros con esta pestaña visible.</p><div class="dialog-actions"><button class="btn" type="button" onclick="toggleStudyTimerManual()" id="studyTimerManualBtn">Pausar</button><button class="btn primary" type="button" onclick="document.getElementById('studyTimerDialog').close()">Listo</button></div></dialog>
+
+<script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
+<script src="content_rules.js?v=5.1.5"></script>
+<script src="taxonomy.js?v=5.1.5"></script>
+<script src="app.js?v=5.1.7"></script>
+<script src="content_admin.js?v=5.1.5.2"></script>
+<script src="product.js?v=5.1.5"></script>
+<script src="diagnostic_plan.js?v=5.1.7"></script>
+<script src="adaptive_features.js?v=5.1.5.2"></script>
+<script src="plan_help.js?v=5.1.5"></script>
+<script src="personalization.js?v=5.1.7"></script>
+<script src="dashboard.js?v=5.1.5"></script>
+<script src="mascot.js?v=5.1.5"></script>
+<script src="focus_rules.js?v=5.1.5"></script>
+<script src="focus.js?v=5.1.5.2"></script>
+<script src="ui_refinements.js?v=5.1.5"></script>
+<script src="study_resume.js?v=5.1.5"></script>
+<script src="study_display.js?v=5.1.5"></script>
+<script src="image_controls.js?v=5.1.5"></script>
+<script src="interaction_polish.js?v=5.1.5"></script>
+<script src="tutorial.js?v=5.1.8"></script>
+</body>
+</html>

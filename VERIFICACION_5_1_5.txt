@@ -1,0 +1,12 @@
+NEXMIR 5.1.5: verificación del paquete
+
+Archivos originales conservados byte por byte: No comprobado: el ZIP fuente ya no está disponible en Descargas.
+Archivos originales modificados: No comprobado frente al ZIP fuente.
+Ningún archivo del proyecto fue eliminado durante este refinamiento.
+Supabase (SQL, RLS y funciones), vendor y assets: no modificados durante este refinamiento.
+JavaScript propio: 39 archivos comprobados sintácticamente.
+Pruebas unitarias, PostgreSQL local, UI original y nuevo flujo de respuestas: aprobadas.
+Sin despliegue ni modificaciones a una base real.
+
+Archivos originales modificados:
+No disponible sin el ZIP fuente.

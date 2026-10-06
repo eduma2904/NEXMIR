@@ -1,0 +1,29 @@
+CHECKLIST — cambios de NEXMIR 5.1.2
+Responde en el chat con el número y «bien» o «falla».
+
+1. Abre la versión nueva y pulsa Ctrl + F5. La pestaña indica V5.1.2.
+2. Pon el navegador a media pantalla y prueba Inicio, Focus, Banqueo,
+   Repasos y Admin. Deben ocupar el espacio sin una columna estrecha
+   ni texto fuera de las tarjetas.
+3. En Focus elige todas las duraciones. Sin temporizador debe caber
+   y el tiempo elegido debe quedar resaltado.
+4. Resuelve una pregunta Focus con 1/2/3/4. Prueba también el teclado
+   numérico. Enter responde; después Enter avanza.
+5. Guarda varias respuestas Focus. Debe avanzar tras guardar. Si la
+   conexión falla, debe permitir reintentar en lugar de esperar indefinidamente.
+6. Recarga mientras estás en Focus: conserva la pregunta y la selección.
+   Recarga otra vez después de responder: no debes registrar dos respuestas.
+7. Recarga durante un Banqueo: conserva la sección, pregunta y respuestas.
+8. En Banqueo usa 1/2/3/4 para elegir y revisa que la barra inferior
+   siga el tema claro.
+9. Termina un Banqueo. La cabecera debe ser compacta y la lista lateral
+   mostrar varias preguntas con su propio scroll.
+10. Abre una explicación. Debe verse legible en claro y en oscuro.
+11. En Admin prueba Seleccionar todo el filtro, Quitar selección y
+    Eliminar seleccionadas en RemNote, banco y simulacros.
+12. En una importación pequeña sin especialidad, prueba Recuperar
+    clasificación gratis: revisa lo recuperado y asigna respaldo a pendientes.
+    Después publica esa pequeña selección y comprueba la especialidad en la web.
+13. Comprueba los controles de selección/eliminación en flashcards, teoría,
+    Desagrupadas, preguntas y simulacros publicados. Para probar un borrado,
+    utiliza únicamente contenido de prueba que quieras eliminar.

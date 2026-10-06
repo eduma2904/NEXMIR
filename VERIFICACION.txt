@@ -1,0 +1,19 @@
+NEXMIR V5.0.29 — VERIFICACIÓN DEL PAQUETE (05/10/2026)
+
+COMPROBACIONES REALIZADAS EN ESTA REVISIÓN
+- Todos los archivos JavaScript del paquete pasan `node --check` sin errores de sintaxis.
+- Se eliminaron del código y de supabase/functions todas las referencias ejecutables a generate-explanation.
+- AI_EXPLANATION_SECURITY.sql ya no forma parte del paquete.
+- EDICION_CONTENIDO.sql crea con IF NOT EXISTS las columnas faltantes detectadas en el esquema real:
+  profiles.plan, display_name, email, active_device_id, active_device_label, device_updated_at y questions.year.
+- plan queda limitado a free/pro y por defecto free.
+- El trigger de perfiles impide que una cuenta normal modifique role o plan.
+- SUGERENCIAS.sql crea feature_suggestions con RLS: cada usuario inserta/lee las suyas; staff revisa; admin puede borrar.
+- El perfil incluye envío e historial de sugerencias.
+- El panel Admin incluye la bandeja Sugerencias y gestión de estado/nota.
+- Los atajos numéricos siguen presentes: flashcards 0–3 y respuestas múltiples 1–9.
+- CONTENT_RESET y el borrado individual ya no dependen de tablas de explicaciones IA.
+
+NO EJECUTADO AQUÍ
+- No se ha conectado al proyecto Supabase real del usuario ni se han ejecutado las migraciones allí.
+- Por tanto, cualquier error devuelto por el SQL Editor del proyecto real debe revisarse antes de continuar con el siguiente archivo.

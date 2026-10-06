@@ -1,0 +1,164 @@
+/* 5.1.2: one responsive shell and theme-aware study/review surfaces. */
+.app{grid-template-columns:252px minmax(0,1fr)!important}
+.app>.main{grid-column:2!important;width:100%;min-width:0}
+body.focus-mode .app{grid-template-columns:minmax(0,1fr)!important}
+body.focus-mode .app>.main{grid-column:1!important}
+.view{width:100%;min-width:0}
+.view>*,.grid>*,.dashboard-focus-card>*{min-width:0}
+.dashboard-focus-card{grid-template-columns:minmax(0,1fr) auto;container-type:inline-size}
+.dashboard-focus-card>.btn{grid-column:1/-1;justify-self:start}
+.focus-setup-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))!important}
+.focus-duration-grid{grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.focus-duration{white-space:normal!important;word-break:normal;overflow-wrap:normal;line-height:1.35}
+.focus-duration:last-child{grid-column:auto;font-size:14px;hyphens:auto}
+.select-trigger{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.select-trigger::after{flex-shrink:0}
+.dialog-head>div,.focus-session-top>div{min-width:0}
+.path{max-width:100%}
+.bank-nav-actions{background:var(--n-card)!important;color:var(--n-text)!important;border-top:1px solid var(--n-border);box-shadow:0 -5px 18px color-mix(in srgb,var(--n-primary) 5%,transparent);padding:12px;flex-wrap:wrap}
+:root[data-theme-mode] :is(.sim-results-top,.sim-review-workspace,.sim-review-explanation,.sim-result-summary,.sim-review-answerline,.discard-summary,.sim-review-legend,.sim-top,.sim-bottom,.sim-side,.highlight-toolbar){background:var(--n-card)!important;color:var(--n-text)!important;border-color:var(--n-border)!important}
+:root[data-theme-mode] :is(.review-status-pill.blank,.option-letter,.review-card-number){color:var(--n-primary)!important;background:color-mix(in srgb,var(--n-primary) 9%,var(--n-card));border-color:var(--n-border)}
+:root[data-theme-mode] .sim-review-nav-btn.active{outline-color:var(--n-primary);color:var(--n-text)!important}
+:root[data-theme-mode] .review-card-copy small{color:var(--n-muted)!important}
+:root[data-theme-mode] .option-tag.good{color:#187552;background:color-mix(in srgb,#28a477 12%,var(--n-card))}
+:root[data-theme-mode] .option-tag.bad{color:var(--n-text);background:color-mix(in srgb,#d44c68 12%,var(--n-card))}
+:root[data-theme-mode] .sim-review-explanation :is(strong,p,div){color:inherit}
+.sim-review-nav-btn{min-height:76px!important}
+.review-card-copy{min-width:0}
+.review-card-copy strong{font-size:13px;line-height:1.4}
+/* Keep the summary compact so the question list can use the available height. */
+dialog:has(.sim-results-shell){overflow:hidden!important}
+#questionDialog:has(.bank-results-shell){height:min(900px,calc(100dvh - 32px));min-height:0}
+#questionDialog:has(.bank-results-shell) #questionDialogBody{height:100%;min-height:0}
+.bank-results-shell{height:100%;min-height:0}
+.sim-results-shell .sim-results-top{flex:0 0 auto;padding:12px 18px;max-height:35%;overflow:auto;overscroll-behavior:contain}
+.sim-results-top{position:relative}
+.sim-results-top .dialog-head{width:100%;padding-right:42px}
+.sim-results-top .dialog-head>.icon-btn{position:absolute;top:12px;right:18px}
+.sim-results-top .dialog-head h2{font-size:19px;margin-top:4px!important}
+.sim-results-top .sim-result-grid{gap:8px;margin:8px 0}
+.sim-results-top .sim-result-card{min-height:50px;padding:6px 10px;flex-direction:row;gap:8px;align-items:center}
+.sim-results-top .sim-result-card strong{font-size:22px}
+.sim-results-top .sim-result-card span{font-size:12px;margin:0}
+.sim-results-top .mascot-panel{padding:9px 12px;gap:12px;margin:8px 0 0}
+.sim-results-top .mascot-portrait{flex-basis:50px;width:50px;height:50px;border-radius:12px}
+.sim-results-top .mascot-copy p{font-size:12px;margin:4px 0}
+.sim-results-top .mascot-specialty{display:none}
+.sim-review-workspace{flex:1;min-height:0;grid-template-columns:minmax(240px,29%) minmax(0,1fr)}
+.sim-review-sidebar{max-height:none;min-height:0;padding:12px}
+.sim-review-nav{overscroll-behavior:contain;flex:1;min-height:0}
+.sim-review-side-actions{padding-top:8px;gap:6px}
+.sim-review-side-actions .btn{padding:9px 12px}
+.sim-review-detail{overscroll-behavior:contain;padding:18px 22px}
+.focus-save-status{margin:0 auto 0 0;color:var(--n-muted);font-size:12px;align-self:center}
+.focus-option>span{height:auto;min-height:38px;padding:4px;line-height:1.1}
+.focus-option>span small{display:block;font-size:10px;font-weight:500}
+:root[data-theme-mode] .sim-review-option.correct-option{border-color:#28a477!important;background:color-mix(in srgb,#28a477 10%,var(--n-card))!important}
+:root[data-theme-mode] .sim-review-option.wrong-option{border-color:#d44c68!important;background:color-mix(in srgb,#d44c68 10%,var(--n-card))!important}
+:root[data-theme-mode="light"] :is(.review-status-pill.wrong,.option-tag.bad){color:#b52c4a}
+:root[data-theme-mode="light"] :is(.review-status-pill.correct,.option-tag.good){color:#187552}
+:root[data-theme-mode="dark"] :is(.review-status-pill.wrong,.option-tag.bad){color:#ffa8b8}
+:root[data-theme-mode="dark"] :is(.review-status-pill.correct,.option-tag.good){color:#75e9b3}
+@media(max-width:1080px){
+ .app{grid-template-columns:minmax(0,1fr)!important}
+ .app>.main{grid-column:1!important}
+ .sidebar{transform:translateX(-100%);width:252px!important;transition:transform .2s}
+ .sidebar.open{transform:translateX(0)}
+ #mobileMenu{display:block!important}
+ .topbar{padding:12px 20px!important}
+ .top-actions{flex-wrap:wrap;gap:6px!important}
+ .view{padding:22px 20px 36px!important}
+ .home-split,.hero{grid-template-columns:minmax(0,1fr)}
+ .focus-hero{grid-template-columns:minmax(0,1fr)}
+ .grid.cols-3,.grid.cols-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:701px) and (max-width:1080px){
+ .sim-review-workspace{grid-template-columns:minmax(230px,30%) minmax(0,1fr)}
+ .sim-review-sidebar{max-height:none;border-right:1px solid var(--n-border);border-bottom:0}
+ .sim-review-side-actions{display:grid}
+}
+@media(max-width:700px){
+ .grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:minmax(0,1fr)}
+ .dashboard-focus-card{grid-template-columns:minmax(0,1fr)}
+ .dashboard-focus-streak{justify-self:start}
+ .dashboard-focus-card>.btn{width:100%}
+ .topbar{height:auto!important;min-height:76px;flex-wrap:wrap;gap:8px}
+ .top-actions{gap:5px!important}
+ .topbar h2{font-size:18px!important}
+ .top-actions #focusModeBtn{display:none}
+ .sim-review-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:160px minmax(0,1fr)}
+ .sim-review-sidebar{max-height:none;padding:8px 12px;border-right:0;border-bottom:1px solid var(--n-border)}
+ .sim-review-nav{flex-direction:row;overflow-x:auto;overflow-y:hidden}
+ .sim-review-nav-btn{width:220px;flex:0 0 220px;min-height:68px!important}
+ .sim-review-side-actions{display:none}
+ .sim-review-detail{padding:14px}
+ .sim-results-top .sim-result-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .sim-results-top .sim-result-card{flex-direction:column;gap:3px;min-width:0;padding:6px 2px}
+ .sim-results-top .sim-result-card span{font-size:10px}
+ .sim-results-top .mascot-panel{display:none}
+ .bank-nav-actions .spacer{display:none}
+ .bank-nav-actions .btn{flex:1 1 auto}
+ .sim-review-option{flex-wrap:wrap}
+ .focus-mission-preview{grid-template-columns:minmax(0,1fr)}
+}
+
+/* 5.1.3: quiet session restore, consistent exam canvas and readable media. */
+.boot-screen{z-index:10000;background:var(--n-bg,#f5f9ff)}
+.boot-card{width:min(430px,calc(100vw - 32px));padding:34px;border:1px solid var(--n-border,#cbdcf0);border-radius:24px;background:var(--n-card,#fff);box-shadow:var(--n-shadow,0 18px 48px rgba(20,55,90,.16));display:grid;justify-items:center;text-align:center;gap:14px}
+.boot-card h2,.boot-card p{margin:0}
+.boot-card .loading-spinner{width:34px;height:34px}
+
+#questionDialog,#simDialog,.focus-session-dialog{
+ width:var(--dialog-width,min(1776px,calc(100vw - 48px)))!important;
+ height:var(--dialog-height,calc(100dvh - 48px))!important;
+ max-width:none!important;
+ max-height:calc(100dvh - 48px)!important;
+ min-height:260px;
+ box-sizing:border-box;
+}
+#questionDialog{overflow-x:hidden!important}
+#questionDialog:not(:has(.bank-results-shell)){overflow-y:auto!important}
+#questionDialog:has(.bank-results-shell){height:calc(100dvh - 48px)!important}
+#questionDialogBody{min-width:0;max-width:100%;height:100%}
+.focus-session-shell{height:100%;min-height:0!important}
+.focus-question-area{width:min(1120px,100%)}
+.sim-question,.sim-review-detail{min-width:0;overflow-x:hidden}
+
+.question-image-wrap{width:min(100%,520px);max-width:100%;margin:14px auto 18px!important;padding:8px!important;box-sizing:border-box}
+.question-image{width:auto!important;height:auto!important;max-width:100%!important;max-height:230px!important;object-fit:contain!important}
+.sim-question .question-image{max-height:230px!important}
+.question-stem img,.focus-stem img,.sim-stem img{display:block;width:auto!important;height:auto!important;max-width:min(100%,500px)!important;max-height:230px!important;object-fit:contain;margin:14px auto;border-radius:10px}
+:root[data-theme-mode] .image-zoom-btn{background:var(--n-card)!important;color:var(--n-primary)!important;border-color:var(--n-border)!important}
+
+.question-text-controls{display:flex;align-items:center;gap:5px;margin-left:auto;padding:5px 7px;border:1px solid var(--n-border);border-radius:12px;background:color-mix(in srgb,var(--n-card) 94%,transparent);box-shadow:0 5px 18px color-mix(in srgb,var(--n-primary) 10%,transparent);color:var(--n-muted);font-size:11px;backdrop-filter:blur(8px);white-space:nowrap}
+.question-text-controls button{min-width:34px;height:30px;padding:0 7px;border:1px solid var(--n-border);border-radius:8px;background:var(--n-card);color:var(--n-text);font-weight:800;cursor:pointer}
+.question-text-controls button:disabled{opacity:.4;cursor:not-allowed}
+.question-text-scale-value{min-width:52px!important;color:var(--n-primary)!important}
+.question-stem,.focus-stem,.sim-stem{font-size:calc(20px * var(--question-text-scale,1))!important;line-height:1.5}
+.mcq-option .option-text,.sim-option .option-text,.focus-option>b,.sim-review-option>span:nth-child(2){font-size:calc(16px * var(--question-text-scale,1))!important;line-height:1.5}
+.sim-review-detail-head,.focus-session-meta{flex-wrap:wrap}
+
+@media(max-width:700px){
+ #questionDialog,#simDialog,.focus-session-dialog{width:100vw!important;height:100dvh!important;max-height:100dvh!important;min-height:0;border-radius:0}
+ .question-image-wrap{width:min(100%,440px)}
+ .question-image,.sim-question .question-image{max-height:220px!important}
+ .question-text-controls{padding:4px}
+ .question-text-controls>span{display:none}
+ .question-text-controls button{min-width:31px;height:29px;padding:0 5px}
+ .question-text-scale-value{min-width:46px!important}
+}
+
+/* Keep the resize handle reachable while reading a long question. */
+@media(min-width:761px){
+ dialog > .resize-grip{position:sticky;display:block;float:right;bottom:0;margin:0 -8px -8px 0;padding:0;min-width:24px;min-height:24px;touch-action:none;z-index:30;background:linear-gradient(135deg,transparent 52%,var(--n-border,#8aa1b7) 52%)}
+ #studyDialog,#cardDialog,#questionDialog{resize:none}
+}
+.inline-image-zoom{display:block;margin:0 auto 14px;user-select:none;font-size:12px!important;line-height:1.4}
+.question-stem img,.focus-stem img,.sim-stem img,.flash-front img,.flash-back img{cursor:zoom-in}
+.image-viewer-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.image-viewer-body{display:block;text-align:center;overflow:auto;height:70dvh;max-height:70dvh}
+.image-viewer-body #imageViewerImg{margin:auto;max-width:none;max-height:none;object-fit:contain}
+
+.image-viewer-head{flex-wrap:wrap}
+
+.resize-grip{border-top:0;border-left:0}

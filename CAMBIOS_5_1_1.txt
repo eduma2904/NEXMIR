@@ -1,0 +1,38 @@
+NEXMIR 5.1.1 FOCUS — Correcciones de interfaz e interacción
+
+INSTALACIÓN
+Publica el contenido de la carpeta nexmir en el mismo alojamiento que usas actualmente.
+Incluye ui_refinements.js y los archivos actualizados; index.html cambia las versiones
+para evitar que el navegador reutilice los estilos y scripts anteriores.
+Esta revisión no agrega migraciones SQL. Conserva los archivos Supabase del original.
+
+CAMBIOS
+- Superficies de Focus adaptadas al tema claro y oscuro: misiones, racha,
+  congeladores, XP, resumen, vista previa y alternativas de respuesta.
+- Duración elegida con fondo destacado y estado accesible; cambiarla conserva filtros.
+- Selectores de asignatura/tema con buscador, selección visible y navegación por teclado.
+- Pestañas Todo/Teoría/Flashcards adaptadas al tema.
+- Bloqueo del desplazamiento de fondo mientras exista una ventana abierta,
+  incluidas ventanas superpuestas; desplazamiento interno limitado al modal.
+- Focus con cabecera y controles visibles, y contenido central desplazable.
+- Indicador de carga al navegar por todas las secciones, incluidas Batallas,
+  y al crear/unirse/iniciar una batalla o confirmar/reanudar Focus.
+  La espera contempla operaciones asíncronas; no acelera la conexión al servidor.
+- Responder muestra Guardando, evita duplicados y permite reintentar un fallo de red.
+- Seleccionar una alternativa conserva el desplazamiento y el foco del botón.
+- Ajustes para pantallas pequeñas y conservación del soporte de movimiento reducido.
+
+VERIFICACIÓN
+Pruebas locales en Microsoft Edge (automatizadas, con servidor de datos simulado):
+selección y filtros; búsquedas; respuesta correcta; bloqueo del reenvío;
+reintento tras rechazo de red; scroll interno y ventanas superpuestas;
+indicador de carga; navegación Focus/Banqueo/Repasos/Batallas;
+visualización a 1440x960 y 390x844 y revisión visual en tema oscuro.
+Pruebas de reglas Focus incluidas en el original: correctas.
+Comprobación de sintaxis JavaScript: correcta.
+
+PENDIENTE EN EL ENTORNO REAL
+No se ejecutaron escrituras en tu Supabase ni se publicó esta versión.
+Validar con cuentas reales el guardado, cierre/reanudación de sesión y una batalla
+con dos participantes. Las pruebas con datos simulados no validan permisos,
+migraciones ni sincronización multiusuario del servidor.

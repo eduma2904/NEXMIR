@@ -1,0 +1,65 @@
+NEXMIR V5.1.0 · DESPLIEGUE NEXMIR FOCUS V1
+
+ANTES DE PUBLICAR
+- Haz backup de la base de datos.
+- Publica primero el frontend de esta carpeta o después de ejecutar el SQL; si el SQL aún no existe, la pantalla Focus mostrará un aviso y el resto de NEXMIR seguirá funcionando.
+
+SQL — ORDEN RECOMENDADO
+Si tu proyecto ya tiene aplicadas las migraciones de V5.0.29, ejecuta SOLO:
+  supabase/NEXMIR_FOCUS_V1.sql
+
+Si partes de una base nueva, usa:
+1. supabase/EDICION_CONTENIDO.sql
+2. supabase/RLS_HARDENING.sql
+3. supabase/ERRORES_Y_REPORTES.sql
+4. supabase/SUGERENCIAS.sql
+5. supabase/PERSONALIZACION_ESTADISTICAS.sql
+6. supabase/CONTENT_RESET.sql
+7. supabase/NEXMIR_FOCUS_V1.sql
+
+QUÉ REUTILIZA
+- user_question_attempts: se amplía; NO se crea otra tabla de intentos.
+- user_error_log: se conserva y se sincroniza con el nuevo calendario de revisión.
+- user_study_daily: se amplía con métricas válidas; conserva el cronómetro existente.
+- profiles / plan Free-Pro: no se reemplazan ni se bloquea Focus por plan.
+
+QUÉ AÑADE
+- focus_sessions
+- user_question_learning_state
+- xp_events
+- study_streaks
+- streak_freezes
+- daily_missions
+- user_study_preferences
+- user_study_integrity_state
+
+BACKEND CRÍTICO
+- nexmir_submit_answer: valida la respuesta correcta en servidor, calcula validez/antifarmeo, mastery, repetición y XP.
+- nexmir_start_focus / nexmir_focus_heartbeat / nexmir_complete_focus: controlan sesiones Focus e idempotencia.
+- nexmir_refresh_streak: evalúa racha por zona horaria y consume hasta 3 congeladores por mes.
+- nexmir_sync_daily_missions: crea/actualiza las 3 misiones diarias y sus XP.
+
+PRUEBAS LOCALES
+Desde la carpeta nexmir:
+  node tests/focus_rules.test.js
+
+CASOS CUBIERTOS EN TESTS PUROS
+- umbral rápido: MAX(4 s, 20% mediana personal) tras 30 preguntas;
+- aviso 3 rápidas consecutivas o 4/6;
+- mínimo de Focus para racha (70% y mínimo 5);
+- objetivos de preguntas por duración;
+- deterioro de effective mastery;
+- cobertura de dominio;
+- fórmula de nivel 100 × N².
+
+COMPROBACIONES MANUALES RECOMENDADAS
+1. 15 preguntas válidas => daily_goal_met y racha.
+2. 14 preguntas sin Focus válido => no cumple; al día siguiente consume congelador si hay.
+3. Focus 10 min / objetivo 8 / 6 válidas => válido para racha.
+4. Focus abierto sin actividad => no suma tiempo activo.
+5. 3 rápidas consecutivas => aviso, sin acusación.
+6. Tras aviso, 3/5 rápidas => las rápidas posteriores dejan de contar.
+7. 5 respuestas normales => se recupera automáticamente.
+8. Pregunta fallada reaparece tras 5–10 preguntas distintas, máximo 2 veces por Focus.
+9. Primera correcta => mastery 40; revisiones correctas +20; fallo -25.
+10. Nuevo mes => disponibilidad visual vuelve a 3/3 porque los congeladores se cuentan por mes calendario.

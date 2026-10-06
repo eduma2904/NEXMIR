@@ -1,0 +1,201 @@
+/* NEXMIR 5.1.5: restrained product surfaces, shared interactive states.
+   Loaded last because earlier versioned styles contain theme !important rules. */
+:root{
+ --ui-ease:cubic-bezier(.23,1,.32,1);--ui-fast:140ms;--ui-enter:180ms;
+ --ui-radius:12px;--ui-accent:#245bc4;--ui-on-accent:#fff;
+ --ui-text:var(--n-text,var(--text));--ui-muted:var(--n-muted,var(--muted));
+ --ui-surface:var(--n-card,var(--panel));--ui-border:var(--n-border,var(--line));
+}
+:root[data-palette="blue"]{--ui-accent:#245bc4}
+:root[data-palette="green"]{--ui-accent:#087755}
+:root[data-palette="orange"]{--ui-accent:#ac4814}
+:root[data-palette="pink"]{--ui-accent:#af316f}
+:root[data-theme-mode="light"]{--n-muted:#52637a;--n-shadow:0 3px 12px rgba(31,61,91,.045);--n-panel:#fff;--n-primary:var(--ui-accent);--red:#b52c4a;--green:#16704d}
+:root[data-theme-mode="dark"]{--n-shadow:0 3px 12px rgba(0,0,0,.12);--n-panel:#121f31;--ui-accent:#a5c5ff;--ui-on-accent:#10233c;--n-primary:var(--ui-accent);color-scheme:dark}
+:root[data-theme-mode="dark"][data-palette="green"]{--ui-accent:#76dfb7}
+:root[data-theme-mode="dark"][data-palette="orange"]{--ui-accent:#ffc28e}
+:root[data-theme-mode="dark"][data-palette="pink"]{--ui-accent:#ffb0d6}
+html{scroll-padding-block:88px;scrollbar-color:var(--ui-muted) transparent}
+html,body{background:var(--n-canvas,var(--bg))!important}
+body{line-height:1.5}
+::selection{background:color-mix(in srgb,var(--ui-accent) 24%,transparent);color:var(--ui-text)}
+button,a,input,select,textarea,summary,[tabindex]{-webkit-tap-highlight-color:transparent}
+:is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--ui-accent)!important;outline-offset:3px}
+input,textarea{caret-color:var(--ui-accent)}
+input::placeholder,textarea::placeholder{color:var(--ui-muted);opacity:1}
+button{touch-action:manipulation}
+.btn,.icon-btn,.nav-item,.auth-tab,.discard-btn,.picker-option,.select-trigger,.question-text-controls button{
+ min-height:40px;transition:background-color var(--ui-fast) ease,border-color var(--ui-fast) ease,transform var(--ui-fast) var(--ui-ease)!important;
+}
+.btn{font-weight:650!important;box-shadow:none!important;filter:none!important}
+:root[data-theme-mode] .btn.primary,:root[data-theme-mode] .btn.violet-btn{background:var(--ui-accent)!important;color:var(--ui-on-accent)!important;border:1px solid transparent!important;box-shadow:none!important}
+.btn.danger{color:var(--red,#ffb3c0)!important;border-color:color-mix(in srgb,var(--red,#ffb3c0) 55%,var(--ui-border))!important}
+button:disabled,.btn:disabled{opacity:.52!important;cursor:not-allowed!important;transform:none!important;box-shadow:none!important;filter:none!important}
+button[aria-busy="true"]{cursor:progress}
+.icon-btn{min-width:40px;border-radius:10px;display:inline-grid;place-items:center}
+.sidebar,.topbar,.question-text-controls{backdrop-filter:none}
+.sidebar{overflow-y:auto;box-shadow:none}
+.topbar{background:var(--n-panel,var(--bg))!important}
+.nav-item{font-weight:550!important;border-radius:10px!important;box-shadow:none!important}
+.nav-item:hover,.specialty-card:hover,.list-item:hover{transform:none!important}
+.nav-item.active{background:color-mix(in srgb,var(--ui-accent) 10%,var(--ui-surface))!important;font-weight:700!important}
+.card,.list-item,.home-section,.home-kpi{border-radius:16px!important}
+.card>.section-head:first-child{margin-top:0!important}
+.section-head p{line-height:1.55}
+.home-hero{border-radius:18px;box-shadow:none;min-height:220px}
+.home-hero-copy{padding:24px;gap:12px;max-width:620px}
+.home-hero-copy h2{font-size:clamp(24px,2.7vw,32px);letter-spacing:-.025em;line-height:1.2}
+.nexmir-welcome h1{letter-spacing:-.025em;font-size:clamp(26px,3vw,34px)}
+.home-kpis{gap:0;background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:16px;overflow:hidden}
+.home-kpi{border:0;border-radius:0!important;box-shadow:none;min-height:105px;border-right:1px solid var(--ui-border)}
+.home-kpi:last-child{border-right:0}.home-kpi::after{display:none}
+.home-kpi strong,.metric,.sim-timer,.sim-result-card strong{font-variant-numeric:tabular-nums}
+.home-kpi em{color:var(--ui-muted);font-style:normal}
+.home-split{align-items:start}
+.home-question-badge{max-width:100%;white-space:normal;overflow-wrap:anywhere;letter-spacing:0;text-transform:none;font-size:12px}
+#quickStudyPanel>.card{background:var(--ui-surface)!important}
+.dashboard-focus-card{padding:16px 20px!important;margin-bottom:22px!important;border-left:3px solid var(--ui-accent)!important}
+.dashboard-focus-card h3{margin:5px 0}.dashboard-focus-card p{margin:4px 0}
+.dashboard-focus-card>.btn{grid-column:auto;grid-row:1/3;grid-column:2;align-self:center}
+.dashboard-focus-streak{grid-column:1;justify-self:start;padding:0;background:transparent}
+.home-activity-item.clickable{border-radius:8px;cursor:pointer}
+.resume-bank-card{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.resume-bank-card p{margin:4px 0 0}
+.dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overscroll-behavior:contain}
+dialog::backdrop{background:rgba(9,19,32,.58);backdrop-filter:none}
+dialog[open]{animation:dialog-arrive var(--ui-enter) var(--ui-ease)}
+@keyframes dialog-arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.dialog-head{gap:16px}.dialog-head .path{font-size:12px;margin-top:7px;overflow-wrap:anywhere}
+#questionDialog .question-stem,.sim-stem,.focus-stem{font-weight:550!important;line-height:1.6!important;letter-spacing:0;max-width:90ch}
+#questionDialog .question-stem{margin:24px 0 20px}
+.bank-progress-row{font-size:13px;gap:12px;margin:16px 0 12px;flex-wrap:wrap}
+.highlight-toolbar{padding:10px 12px!important;gap:8px;border-radius:10px!important;font-size:12px}
+.question-text-controls{box-shadow:none;margin-block:0;padding:0;border:0;background:transparent}
+.question-text-controls button{height:36px;min-width:36px;font-weight:650}
+.mcq-options,.sim-options{gap:10px}
+:root[data-theme-mode] :is(.mcq-option.discardable,.sim-option.discardable){
+ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;
+ padding:4px 10px 4px 4px!important;min-height:60px;box-shadow:none!important;
+ border:1px solid var(--n-border)!important;background:var(--n-card)!important;border-radius:12px!important;
+}
+.answer-choice{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;min-width:0;min-height:48px;padding:12px;border:0;border-radius:8px;background:transparent;color:inherit;cursor:pointer;line-height:1.5}
+.answer-choice .option-letter{flex:0 0 26px;min-width:26px;min-height:26px;display:grid;place-items:center;border-radius:6px;font-size:13px;font-weight:650}
+.answer-choice .option-text{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:400}
+.choice-check{width:18px;flex:0 0 18px;color:var(--ui-accent);font-weight:750}
+.answer-choice:disabled{opacity:1!important;cursor:default!important}
+.eliminated .answer-choice{opacity:.6!important;text-decoration:line-through}
+:root[data-theme-mode] :is(.mcq-option,.sim-option).selected{background:color-mix(in srgb,var(--ui-accent) 8%,var(--n-card))!important;border-color:var(--ui-accent)!important;box-shadow:inset 3px 0 var(--ui-accent)!important}
+:root[data-theme-mode] :is(.mcq-option,.sim-option).correct{border-color:var(--green)!important;background:color-mix(in srgb,var(--green) 8%,var(--n-card))!important}
+:root[data-theme-mode] :is(.mcq-option,.sim-option).wrong{border-color:var(--red)!important;background:color-mix(in srgb,var(--red) 8%,var(--n-card))!important}
+.discard-btn{position:static!important;transform:none!important;margin:0!important;color:var(--ui-muted)!important;background:transparent!important;border:1px solid var(--ui-border)!important;font-size:12px!important;min-width:86px;padding:7px 9px!important;border-radius:8px!important;line-height:1.35}
+.discard-btn.restore{color:var(--ui-accent)!important;border-color:var(--ui-accent)!important}
+.answer-save-status{color:var(--ui-muted);font-size:12px;line-height:1.5;min-height:18px;margin:12px 2px 18px}
+.bank-nav-actions{box-shadow:none;padding:16px 0 8px;gap:8px}
+.bank-nav-actions .btn{font-size:14px;min-height:44px}
+.bank-question-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;min-height:0}
+.bank-question-workspace:not(.has-question-image){align-content:start}
+.bank-question-reading{min-width:0}.bank-question-reading .question-stem{max-width:72ch}
+/* Text-only questions should use the whole reading surface; image questions stay compact beside their image. */
+#questionDialog .bank-question-workspace:not(.has-question-image) .question-stem{width:100%;max-width:none}
+.bank-question-options{min-width:0}.bank-question-workspace.has-question-image{grid-template-columns:minmax(360px,.92fr) minmax(430px,1.08fr);gap:32px}
+.bank-question-workspace.has-question-image .question-image-wrap{margin:18px 0 0;width:min(100%,500px);min-height:0;background:color-mix(in srgb,var(--n-card) 92%,var(--n-tint));align-items:flex-start}
+.bank-question-workspace.has-question-image .question-image{max-width:100%!important;max-height:min(52vh,510px)!important;margin:0 auto}
+.bank-question-workspace.has-question-image .image-zoom-btn{margin-inline:auto}
+#questionDialog:has(.bank-question-workspace){width:min(1540px,calc(100vw - 34px));height:min(920px,calc(100dvh - 34px));max-width:none;overflow:hidden!important;padding:22px 26px!important;display:flex;flex-direction:column}
+#questionDialog:has(.bank-question-workspace) #questionDialogBody{height:100%;min-height:0;display:flex;flex-direction:column}
+#questionDialog:has(.bank-question-workspace) .bank-question-workspace{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 2px 8px}
+#questionDialog:has(.bank-question-workspace) .bank-nav-actions{flex:0 0 auto;margin-top:0}
+/* Focus is a full-screen study surface, so its content follows the width of the dialog. */
+.focus-session-dialog .focus-question-area{width:100%;max-width:none;margin:0;padding:24px clamp(24px,3vw,54px) 28px}
+.focus-session-dialog .focus-stem,.focus-session-dialog .focus-options{width:100%;max-width:none}
+/* The exam shell owns its scrolling; the modal itself must never scroll past its header. */
+#simDialog.dialog{position:fixed;inset:0;margin:auto;padding:0;overflow:hidden!important;overscroll-behavior:contain}
+.focus-counter:has(.admin-delete-question){display:flex;align-items:center;justify-content:space-between;gap:12px}
+.focus-counter .admin-delete-question{flex:0 0 auto}
+/* Flashcards use a compact, balanced study surface instead of a tall empty dialog. */
+#cardDialog{width:min(1160px,calc(100vw - 48px));height:auto!important;min-height:0!important;max-height:calc(100dvh - 48px);padding:24px 28px!important;overflow:auto!important;resize:none!important}
+#cardDialogBody{display:grid;gap:18px}.flash-dialog-head{margin-bottom:2px}.flash-admin-actions{display:flex;justify-content:flex-end;margin-top:-4px}.flash-admin-actions .btn{min-height:38px}
+.flash-study-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,.92fr);gap:20px;align-items:stretch}
+.flash-prompt-panel,.flash-answer-panel,.flash-reveal-panel{border:1px solid var(--n-border);border-radius:16px;background:color-mix(in srgb,var(--n-card) 92%,var(--n-tint));padding:22px;min-width:0}
+.flash-panel-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:750;color:var(--n-primary);margin-bottom:12px}
+.flash-prompt-panel .flash-front{font-size:clamp(20px,2vw,27px);line-height:1.42;margin:0;min-height:150px;display:flex;align-items:center}
+.flash-answer-panel{display:flex;flex-direction:column}.flash-answer-panel .flash-back{font-size:18px;line-height:1.55;margin:0 0 18px;background:transparent!important;border:0!important;padding:0;box-shadow:none!important}
+.flash-reveal-panel{display:flex;flex-direction:column;justify-content:center;min-height:180px}.flash-reveal-panel p{margin:0 0 16px;color:var(--n-muted)}
+.rating-grid{margin-top:auto;gap:8px}.rating-grid button{display:grid;gap:3px;justify-items:center;align-content:center;min-height:92px;padding:12px 8px!important}.rating-grid strong{font-size:20px;line-height:1}.rating-grid span{font-weight:700}.rating-grid small{font-size:12px;font-weight:500;opacity:.9}.flash-shortcuts{text-align:center;margin:12px 0 0;color:var(--n-muted);font-size:12px}
+.sim-bottom{flex-wrap:wrap}.sim-map button{min-height:40px}
+.toast{max-width:min(460px,calc(100vw - 32px));line-height:1.55;z-index:9999}
+.empty{color:var(--ui-muted);padding:24px;line-height:1.6}
+.table-wrap{max-width:100%;overflow:auto}th{text-align:left}td,th{line-height:1.5}
+/* Admin uses its existing dark palette and the same craft scale. */
+body:has(#dashboardView){--ui-accent:#a5c5ff;--ui-on-accent:#10233c;color-scheme:dark}
+body:has(#dashboardView) :is(.primary,.logo){background:#a5c5ff;color:#10233c;border-color:transparent;box-shadow:none}
+body:has(#dashboardView) .topbar{background:var(--bg)!important}
+body:has(#dashboardView) .nav.active{background:#243955;border-color:#496286;color:#dce9ff}
+body:has(#dashboardView) .stat{background:var(--panel);box-shadow:none}
+body:has(#dashboardView) .import-callout{background:var(--panel);border-color:var(--line)}
+body:has(#dashboardView) .compareHead{align-items:flex-start;flex-wrap:wrap}
+body:has(#dashboardView) .compareHead>.actions{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%;justify-content:flex-start}
+body:has(#dashboardView) .compareHead>.actions button{white-space:normal;min-height:40px}
+body:has(#dashboardView) :is(.filters,.toolbar,.bulkbar)>*{min-width:0;max-width:100%}
+body:has(#dashboardView) :is(.diffTitle,.pageHead p){overflow-wrap:anywhere}
+body:has(#dashboardView) .nav-group-title{color:#a4b3cd}
+body:has(#dashboardView) .eyebrow{display:none}
+body:has(#dashboardView) .tableWrap{overflow:auto;max-width:100%}
+@media(hover:hover) and (pointer:fine){
+ .btn:not(:disabled):hover,.picker-option:hover{border-color:var(--ui-accent)!important}
+ :root[data-theme-mode] .btn.primary:not(:disabled):hover{background:color-mix(in srgb,var(--ui-accent) 90%,var(--ui-text))!important}
+ .btn:not(:disabled):active,.icon-btn:not(:disabled):active{transform:scale(.98)}
+ .answer-choice:not(:disabled):hover{background:color-mix(in srgb,var(--ui-accent) 4%,transparent)}
+ .home-activity-item.clickable:hover{background:color-mix(in srgb,var(--ui-accent) 5%,transparent)}
+}
+@media(max-width:1080px){
+ .home-kpi:nth-child(2){border-right:0}.home-kpi:nth-child(-n+2){border-bottom:1px solid var(--ui-border)}
+ .sidebar{transition:transform var(--ui-enter) var(--ui-ease)}
+ .bank-question-workspace.has-question-image{grid-template-columns:minmax(300px,.82fr) minmax(360px,1fr);gap:22px}
+ .flash-study-layout{grid-template-columns:minmax(0,1fr) minmax(340px,.9fr)}
+}
+@media(max-width:700px){
+ .btn,.icon-btn,.nav-item,.discard-btn,.question-text-controls button,.auth-tab,.select-trigger{min-height:44px!important}
+ .icon-btn{min-width:44px}
+ #questionDialog{padding:16px!important;min-width:0!important;margin:0!important;inset:0;max-width:100vw!important}
+ #questionDialog:has(.bank-question-workspace){width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:16px!important}
+ #questionDialog:has(.bank-question-workspace) .bank-question-workspace{display:block;overflow-y:auto;padding-bottom:14px}
+ .bank-question-workspace.has-question-image .question-image-wrap{width:100%;margin:14px 0 18px;align-items:center}
+ .bank-question-workspace.has-question-image .question-image{max-height:290px!important}
+ #cardDialog{width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:18px!important;border-radius:0!important}
+ .flash-study-layout{grid-template-columns:1fr;gap:12px}.flash-prompt-panel,.flash-answer-panel,.flash-reveal-panel{padding:18px;border-radius:13px}.flash-prompt-panel .flash-front{min-height:0;font-size:21px}.flash-answer-panel .flash-back{font-size:16px;margin-bottom:14px}.rating-grid{grid-template-columns:repeat(2,1fr)}.rating-grid button{min-height:76px}.flash-admin-actions{justify-content:stretch}.flash-admin-actions .btn{width:100%}
+ .keyboard-hint{display:none}
+ .highlight-toolbar{padding:8px!important;gap:6px;align-items:center}
+ .highlight-toolbar>span:first-child{display:none}
+ .highlight-toolbar .btn{font-size:12px!important;padding:8px!important}
+ .question-text-controls{margin-left:0;gap:3px;width:auto}
+ .question-text-controls button{min-width:38px}
+ #questionDialog .question-stem{margin:20px 0 16px}
+ .focus-session-dialog .focus-question-area{padding:20px 16px}
+ :root[data-theme-mode] :is(.mcq-option.discardable,.sim-option.discardable){grid-template-columns:minmax(0,1fr) auto;padding:3px 6px 3px 3px!important}
+ .answer-choice{padding:10px 6px;gap:8px}
+ .answer-choice .option-letter{flex-basis:23px;min-width:23px}
+ .choice-check{width:12px;flex-basis:12px}
+ .discard-btn{min-width:76px;padding:7px!important;font-size:11px!important}
+ .bank-nav-actions{display:grid;grid-template-columns:1fr 1fr}
+ .bank-nav-actions .spacer{display:none}
+ .bank-nav-actions .btn{width:100%;padding:10px;font-size:13px}
+ .bank-nav-actions .report-btn{grid-column:1/-1}
+ .dashboard-focus-card{grid-template-columns:1fr!important;gap:10px}
+ .dashboard-focus-card>.btn,.dashboard-focus-streak{grid-column:1;grid-row:auto}
+ .resume-bank-card{align-items:stretch;flex-direction:column}
+ .home-hero{min-height:0}.home-hero-copy{padding:20px}
+ .home-hero-actions .btn{flex:1 1 auto}
+ .sim-map{grid-template-columns:repeat(auto-fit,minmax(44px,1fr))}.sim-map button{min-height:44px}
+ body:has(#dashboardView) button{min-height:44px}
+ body:has(#dashboardView) .main{padding:20px 14px}
+ body:has(#dashboardView) .sidebar{max-width:100vw}
+ body:has(#dashboardView) .advanced-imports{display:block;min-width:180px}
+}
+@media(prefers-reduced-motion:reduce){
+ dialog[open]{animation:none}
+ .btn,.icon-btn,.nav-item,.sidebar,.specialty-card,.list-item,.question-text-controls button{transition:none!important;transform:none!important}
+ .loading-spinner{animation:none!important;border-style:dotted}
+}
+:root[data-focus-reduce-motion="true"] dialog[open]{animation:none}
+:root[data-focus-reduce-motion="true"] :is(.btn,.icon-btn,.nav-item,.sidebar){transition:none!important;transform:none!important}

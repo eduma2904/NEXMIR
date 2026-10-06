@@ -1,0 +1,14 @@
+NEXMIR V5.1.0 · NEXMIR FOCUS
+
+1. Focus universal, no etiquetado clínico y disponible en Free/Pro.
+2. UI de sesión sin distracciones, timer activo, progreso, feedback y cierre profesional.
+3. Priorización: vencidas > errores > mastery bajo > marcadas/antiguas > nuevas.
+4. Antifarmeo por patrón, no por una sola respuesta rápida.
+5. Racha diaria con 15 preguntas válidas o Focus válido de 10+ minutos.
+6. 3 congeladores mensuales automáticos, no acumulables.
+7. XP event-sourced e idempotente; fórmula de nivel 100×N².
+8. Mastery por pregunta y dominio por cobertura, separado de XP.
+9. Repetición espaciada determinista V1.
+10. Misiones diarias, recuperación de errores y persistencia de Focus.
+11. Preferencias de estudio y accesibilidad.
+12. Validación crítica en PostgreSQL/Supabase, conservando RLS y las tablas existentes.

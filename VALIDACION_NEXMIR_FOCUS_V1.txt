@@ -1,0 +1,46 @@
+NEXMIR V5.1.0 · VALIDACIÓN DE IMPLEMENTACIÓN FOCUS V1
+
+IMPLEMENTADO
+- NexMIR Focus universal para Free/Pro con selector 5/10/15/25 min o sin temporizador.
+- Misión previa, prioridad adaptativa y lanzamiento desde asignatura/tema.
+- UI Focus sin distracciones, responsive, teclado, ARIA, focus-visible y reduced-motion.
+- Tiempo activo: visible + ventana enfocada + actividad reciente; heartbeat validado en backend.
+- Pregunta válida, saltos sin recompensa, antifarmeo por patrón y recuperación automática.
+- Mediana personal de respuesta y umbral MAX(4 s, 20% de mediana) desde 30 respuestas válidas.
+- Racha: 15 preguntas válidas O Focus válido >=10 min con >=70% del objetivo y mínimo 5.
+- 3 congeladores por mes calendario, automáticos y no acumulables.
+- XP event-sourced e idempotente; recuperación, consolidación, Focus, misiones y objetivo diario.
+- Mastery 0–100 separado de XP, effective mastery por deterioro temporal y cobertura por tema.
+- Repetición determinista 3→7→14→30→60→120→180; errores a 1 día y reintento en sesión.
+- Repeticiones manuales anticipadas no generan XP/dominio/racha.
+- 3 misiones diarias y bonus conjunto, persistencia/reanudación de sesión Focus.
+- Preferencias de estudio por usuario y feature flags preparadas para futuras funciones Pro.
+- Métricas agregadas de Focus y protección RLS de todas las estructuras nuevas.
+
+REUTILIZADO
+- user_question_attempts
+- user_error_log
+- user_study_daily
+- profiles / plan Free-Pro
+- preguntas y content_items existentes
+- Design System CSS existente
+
+ARCHIVOS PRINCIPALES
+- focus.js
+- focus_rules.js
+- supabase/NEXMIR_FOCUS_V1.sql
+- tests/focus_rules.test.js
+- NEXMIR_FOCUS_V1_DEPLOY.txt
+
+VALIDACIONES LOCALES REALIZADAS
+- node --check en todos los JS del proyecto: OK.
+- node tests/focus_rules.test.js: OK.
+- comprobación estructural de bloques PL/pgSQL: OK.
+- RLS presente en las 8 tablas nuevas: OK.
+- sin DROP TABLE / TRUNCATE TABLE en la migración: OK.
+- sin etiqueta “Modo TDAH”: OK.
+- sin APIs de cámara/micrófono/captura invasiva: OK.
+- referencias frontend a assets V5.1.0: OK.
+
+IMPORTANTE SOBRE SUPABASE
+La migración fue revisada estáticamente en este entorno, pero NO se ejecutó contra tu proyecto Supabase remoto porque no se proporcionó una conexión de base de datos. Antes de publicar en producción, ejecuta supabase/NEXMIR_FOCUS_V1.sql en staging o en el SQL Editor de Supabase y realiza los casos manuales indicados en NEXMIR_FOCUS_V1_DEPLOY.txt.
