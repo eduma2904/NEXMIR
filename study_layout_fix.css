@@ -1,0 +1,83 @@
+/* V5.1.13: one viewport-bound study surface and one scrolling content region. */
+.view{max-width:none!important}
+.main,.view,.view>*{min-width:0}
+#studyDialog,#cardDialog,#questionDialog,#simDialog,.focus-session-dialog{
+  position:fixed!important;inset:0!important;margin:auto!important;
+  box-sizing:border-box;max-width:calc(100vw - 24px)!important;
+  max-height:calc(100dvh - 24px)!important;
+  overscroll-behavior:contain;
+}
+#studyDialog,#cardDialog{width:min(1380px,calc(100vw - 24px))!important}
+#questionDialog,#simDialog,.focus-session-dialog{width:var(--dialog-width,min(1900px,calc(100vw - 24px)))!important;height:var(--dialog-height,calc(100dvh - 24px))!important}
+#questionDialog:has(.bank-results-shell){height:var(--dialog-height,calc(100dvh - 24px))!important;overflow:hidden!important}
+#questionDialog:has(.bank-question-workspace){overflow:hidden!important}
+#questionDialog:has(.bank-question-workspace) #questionDialogBody{display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
+#questionDialog:has(.bank-question-workspace) .bank-question-workspace{flex:1 1 auto;min-height:0;overflow:auto!important;scrollbar-gutter:stable;padding:0 2px 12px}
+#questionDialog:has(.bank-question-workspace) .bank-nav-actions{position:relative;flex:0 0 auto;max-height:none;overflow:visible;margin:0;padding:8px 0;gap:6px}
+#questionDialog .bank-nav-actions .btn{min-height:38px;padding:7px 10px;font-size:12px;white-space:normal}
+#questionDialog:has(.bank-results-shell) #questionDialogBody,.bank-results-shell{height:100%;min-height:0;overflow:hidden}
+.sim-review-workspace{min-height:0;overflow:hidden}
+.sim-review-detail{min-width:0;min-height:0;overflow:auto!important;overscroll-behavior:contain}
+.sim-review-stem{font-size:calc(20px * var(--question-text-scale,1))!important;line-height:1.5}
+.sim-review-option>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.question-stem,.focus-stem,.sim-stem{font-size:calc(20px * var(--question-text-scale,1))!important}
+#questionDialog .question-stem{font-size:calc(20px * var(--question-text-scale,1))!important}
+#cardDialog{height:min(740px,calc(100dvh - 24px))!important;overflow:hidden!important;display:flex;flex-direction:column}
+#cardDialogBody{height:100%;min-height:0;display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain}
+#cardDialog .flash-study-layout{flex:1;min-height:0;align-items:stretch}
+#cardDialog .flash-prompt-panel,#cardDialog .flash-answer-panel,#cardDialog .flash-reveal-panel{min-width:0;overflow:auto}
+#cardDialog .flash-prompt-panel .flash-front{min-height:0;align-items:flex-start}
+.focus-option-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;min-width:0;align-items:stretch;margin-bottom:8px}
+.focus-option-row .focus-option{width:100%;min-width:0;margin:0}
+.focus-option-row.eliminated .focus-option{opacity:.5;text-decoration:line-through}
+.focus-discard-btn{border:1px solid color-mix(in srgb,#ff667a 50%,var(--n-border));border-radius:9px;padding:7px 10px;background:var(--n-card);color:#ff9aaa;font-size:11px;font-weight:700;cursor:pointer;min-width:96px}
+.focus-discard-btn[aria-pressed="true"]{color:var(--n-primary);border-color:var(--n-primary)}
+.focus-discard-btn:disabled{opacity:.4;cursor:default}
+.focus-question-area{max-width:none;width:100%;min-height:0;overflow:auto;overscroll-behavior:contain}
+.focus-session-actions{flex:0 0 auto}
+@media(max-width:760px){
+  #studyDialog,#cardDialog,#questionDialog,#simDialog,.focus-session-dialog{inset:0!important;margin:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;min-height:0!important;border-radius:0!important;resize:none!important}
+  #questionDialog:has(.bank-results-shell){height:100dvh!important}
+  #questionDialog:has(.bank-question-workspace){padding: max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))!important}
+  #questionDialog:has(.bank-question-workspace) .bank-nav-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:6px 0 max(7px,env(safe-area-inset-bottom));max-height:none!important;overflow:visible!important}
+  #questionDialog .bank-nav-actions .btn{width:100%;min-height:36px;padding:5px 7px;font-size:11px}
+  #questionDialog .bank-nav-actions .spacer{display:none}
+  #questionDialog .bank-progress-row{margin:5px 0;font-size:11px}
+  #questionDialog .highlight-toolbar,.focus-question-area .highlight-toolbar{padding:6px;gap:4px;flex-wrap:wrap}
+  #questionDialog .question-stem,.sim-review-stem,.focus-stem{font-size:calc(17px * var(--question-text-scale,1))!important;line-height:1.45!important}
+  #cardDialog{padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important}
+  #cardDialog .flash-study-layout{display:flex;flex-direction:column;gap:8px;flex:1 1 auto}
+  #cardDialog .flash-prompt-panel,#cardDialog .flash-answer-panel,#cardDialog .flash-reveal-panel{padding:12px;flex:0 0 auto;overflow:visible}
+  #cardDialog .flash-prompt-panel .flash-front{font-size:19px}
+  #cardDialog .rating-grid button{min-height:64px;padding:5px!important}
+  #cardDialog .rating-grid strong{font-size:17px}
+  #cardDialog .flash-shortcuts{margin:5px 0 0}
+  .sim-results-shell .sim-results-top{max-height:27dvh;overflow:auto}
+  .sim-review-workspace{grid-template-rows:minmax(88px,18dvh) minmax(0,1fr)!important}
+  .sim-review-sidebar{padding:6px 9px;overflow:hidden}
+  .sim-review-sidebar-head,.sim-review-legend{margin-bottom:4px}
+  .sim-review-nav-btn{min-height:56px!important}
+  .sim-review-detail{padding:10px!important}
+  .sim-review-option{min-width:0}
+  .focus-option-row{grid-template-columns:minmax(0,1fr);gap:0;margin-bottom:7px}
+  .focus-discard-btn{justify-self:end;margin-top:-1px;min-width:0;min-height:32px}
+  .focus-session-actions .btn{min-height:38px;padding:6px 9px}
+  .focus-question-area{padding:10px 12px 20px!important}
+}
+dialog:not([open]){display:none!important}
+#questionDialog:has(#diagnosticStem){overflow:auto!important}
+.diagnostic-option-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:7px;margin-bottom:8px;min-width:0}
+.diagnostic-option-row .diagnostic-option{width:100%;min-width:0;margin:0}
+.diagnostic-option-row.eliminated .diagnostic-option{opacity:.5;text-decoration:line-through}
+.sim-review-explanation,.sim-review-answerline,.sim-review-option,.flash-front,.flash-back{overflow-wrap:anywhere}
+.sim-review-explanation table,.flash-front table,.flash-back table{display:block;max-width:100%;overflow-x:auto}
+@media(max-width:760px){.diagnostic-option-row{grid-template-columns:minmax(0,1fr)}.diagnostic-option-row .focus-discard-btn{justify-self:end}}
+.battle-option-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:stretch;min-width:0;margin-bottom:8px}
+.battle-option-row .sim-option{min-width:0;width:100%;margin:0}
+.battle-option-row.eliminated .sim-option{opacity:.5;text-decoration:line-through}
+@media(max-width:760px){.battle-option-row{grid-template-columns:minmax(0,1fr)}.battle-option-row .focus-discard-btn{justify-self:end}}
+#questionDialog:has(.bank-question-workspace){width:var(--dialog-width,min(1900px,calc(100vw - 24px)))!important;height:var(--dialog-height,calc(100dvh - 24px))!important}
+#questionDialog:has(.bank-question-workspace):not(:has(.bank-results-shell)){overflow:hidden!important}
+@media(max-width:760px){#questionDialog:has(.bank-question-workspace){width:100vw!important;height:100dvh!important}}
+#studyDialog{height:calc(100dvh - 24px)!important;overflow:auto!important}
+@media(max-width:760px){#studyDialog{height:100dvh!important}}

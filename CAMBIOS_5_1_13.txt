@@ -1,0 +1,13 @@
+NEXMIR V5.1.13 — RENDIMIENTO Y VISOR DE ESTUDIO
+
+1. Asignaturas MIR: conteos y dominio se calculan en una pasada por contenido e intentos; los subtemas también se agrupan una sola vez.
+2. Las aperturas de asignatura, tema, banqueo, repaso, diagnóstico, simulacro y reintento de errores muestran una ventana de carga con el nombre de la acción.
+3. Los diálogos de banqueo, resultados, Mini-MIR, Focus, teoría y flashcards ocupan el área visible, con desplazamiento dentro del contenido y controles compactos. El diseño móvil evita que el pie tape las alternativas.
+4. Al volver a un banqueo en curso, el diálogo se adapta al viewport actual; se descartan dimensiones antiguas después de rotar el teléfono.
+5. El tamaño de texto afecta también al enunciado del banco y a los enunciados del solucionario. Textos y tablas largos se mantienen dentro del panel.
+6. Focus, diagnóstico y batalla incorporan resaltado y descarte/recuperación de alternativas. Focus conserva estas marcas durante la reanudación de la sesión.
+7. Las flashcards se abren desde el inicio del contenido y su respuesta y valoración se desplazan dentro del mismo visor.
+
+INSTALACIÓN: reemplaza el contenido completo de tu publicación de NEXMIR con la carpeta nexmir/ de este ZIP. Esta versión no requiere ejecutar SQL nuevo. Mantén las políticas y cambios de la versión 5.1.12.
+
+VALIDACIÓN LOCAL: sintaxis de JavaScript y pruebas unitarias de reglas de contenido y Focus. No se realizó prueba visual con navegador en este entorno.

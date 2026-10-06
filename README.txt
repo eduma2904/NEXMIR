@@ -1,14 +1,13 @@
-NEXMIR V5.1.12 · SEGURIDAD Y CIERRE RESPONSIVE
+NEXMIR V5.1.13 · ESTUDIO RESPONSIVE Y RENDIMIENTO
 
 Aplicación web estática conectada a Supabase para autenticación, contenido,
 progreso, simulacros, administración y clasificación asistida.
 
-ACTUALIZACIÓN DESDE 5.1.11
-1. Lee INSTALACION_5_1_12.md.
-2. Ejecuta supabase/SEGURIDAD_5_1_12.sql en el SQL Editor de Supabase.
-3. Confirma en el resumen 4f que los tres contadores de seguridad sean 0.
-4. Publica el contenido completo de nexmir/ en la misma fuente de GitHub Pages.
-5. Comprueba acceso, banqueo, Mini-MIR, panel Admin y correos de autenticación.
+ACTUALIZACIÓN DESDE 5.1.12
+1. Lee CAMBIOS_5_1_13.txt.
+2. Publica el contenido completo de nexmir/ en la misma fuente de GitHub Pages.
+3. Comprueba móvil y escritorio: asignaturas, banqueo, reanudación, flashcards, Focus, Mini-MIR y errores.
+4. No se requieren cambios nuevos en SQL para esta actualización. Si no instalaste la seguridad 5.1.12, sigue INSTALACION_5_1_12.md antes de publicar.
 
 IMPORTANTE
 - No uses SEGURIDAD_5_1_11.sql de paquetes anteriores.
@@ -22,4 +21,4 @@ cd tests
 npm ci
 npm test
 
-Consulta CAMBIOS_5_1_12.txt para el detalle del parche.
+Consulta CAMBIOS_5_1_13.txt para el detalle del parche.

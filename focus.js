@@ -8,7 +8,8 @@
     ready:false,session:null,pool:[],index:0,selected:null,result:null,processing:false,
     activeSeconds:0,questionActiveSeconds:0,skipped:0,lastInteraction:Date.now(),lastHeartbeat:0,
     reachedTime:false,tick:null,subject:'',topic:'',initialMastery:0,clientSessionId:null,
-    bankLastKey:null,bankLastInteraction:Date.now(),bankTimings:{},bankEvents:{},simTimings:{},diagnosticTimings:{},draftDuration:15,answerEventId:null,startClientId:null
+    bankLastKey:null,bankLastInteraction:Date.now(),bankTimings:{},bankEvents:{},simTimings:{},diagnosticTimings:{},draftDuration:15,answerEventId:null,startClientId:null,
+    eliminations:{},highlights:{}
   };
   const uuid=()=>crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(16).slice(2)}-${Math.random().toString(16).slice(2)}`;
   const qKey=q=>q?`${q._source||'questions'}:${q.id}`:'';
@@ -185,7 +186,7 @@
   window.startNexmirFocus=startNexmirFocus;
 
   function activateSession(session,pool,ss={}){
-    F.session=session;F.pool=pool;F.index=Math.max(0,Math.min(Number(ss.index||0),Math.max(0,pool.length-1)));F.selected=null;F.result=null;F.processing=false;F.answerEventId=null;
+    F.session=session;F.pool=pool;F.index=Math.max(0,Math.min(Number(ss.index||0),Math.max(0,pool.length-1)));F.selected=null;F.result=null;F.processing=false;F.answerEventId=null;F.eliminations=ss.eliminations||{};F.highlights=ss.highlights||{};
     F.activeSeconds=Number(session.active_seconds||0);F.questionActiveSeconds=0;F.skipped=Number(session.skipped_count||0);F.lastInteraction=now();F.lastHeartbeat=F.activeSeconds;
     F.reachedTime=!!(session.duration_target_minutes&&F.activeSeconds>=session.duration_target_minutes*60);F.subject=session.subject_filter||ss.subject||'';F.topic=session.topic_filter||ss.topic||'';
     F.initialMastery=Number(ss.initialMastery??masteryForFilter(F.subject,F.topic));F.clientSessionId=session.client_session_id;
@@ -200,7 +201,7 @@
   window.resumeNexmirFocus=resumeNexmirFocus;
 
   function openFocusDialog(){ensureDom();document.body.classList.add('nexmir-focus-active');const d=$f('#focusSessionDialog');if(!d.open)d.showModal();renderFocusQuestion();startTicker()}
-  function sessionState(){return{poolKeys:F.pool.map(q=>(q._focusRetry?'retry|':'')+qKey(q)),index:F.index,subject:F.subject,topic:F.topic,duration:F.session?.duration_target_minutes||null,questionTarget:F.session?.question_target||10,initialMastery:F.initialMastery}}
+  function sessionState(){return{poolKeys:F.pool.map(q=>(q._focusRetry?'retry|':'')+qKey(q)),index:F.index,subject:F.subject,topic:F.topic,duration:F.session?.duration_target_minutes||null,questionTarget:F.session?.question_target||10,initialMastery:F.initialMastery,eliminations:F.eliminations,highlights:F.highlights}}
   const checkpointKey=()=>`nexmir_focus_checkpoint:${state.user?.id}`;
   function readCheckpoint(id){try{const c=JSON.parse(localStorage.getItem(checkpointKey())||'null');return c?.sessionId===id?c:null}catch{return null}}
   function saveCheckpoint(){if(F.session?.status!=='active')return;try{localStorage.setItem(checkpointKey(),JSON.stringify({sessionId:F.session.id,state:sessionState(),questionKey:qKey(currentQ()),selected:F.selected,answerEventId:F.answerEventId,result:F.result,activeSeconds:F.activeSeconds,questionActiveSeconds:F.questionActiveSeconds,skipped:F.skipped}))}catch{}}
@@ -233,16 +234,29 @@
   function currentQ(){return F.pool[F.index]||null}
   function requiredNow(){return R.requiredValidQuestions(F.session?.question_target||10,F.activeSeconds)}
   function focusProgress(){const target=F.session?.question_target||10,valid=F.session?.valid_questions||0;return Math.min(100,valid/target*100)}
+  let focusSelection=null;
+  window.focusCaptureHighlight=function(){const root=$f('#focusStem'),sel=window.getSelection();if(root&&sel?.rangeCount&&!sel.isCollapsed&&root.contains(sel.getRangeAt(0).commonAncestorContainer))focusSelection=sel.getRangeAt(0).cloneRange()};
+  window.focusHighlight=function(clear=false){const root=$f('#focusStem'),key=qKey(currentQ());if(!root)return;
+    if(clear){root.querySelectorAll('mark.user-highlight').forEach(mark=>mark.replaceWith(...mark.childNodes));root.normalize()}
+    else{const sel=window.getSelection(),range=sel?.rangeCount&&!sel.isCollapsed&&root.contains(sel.getRangeAt(0).commonAncestorContainer)?sel.getRangeAt(0).cloneRange():focusSelection;
+      if(!range||!root.contains(range.commonAncestorContainer))return toast('Selecciona primero una parte del enunciado');
+      const mark=document.createElement('mark');mark.className='user-highlight';try{range.surroundContents(mark)}catch{try{mark.appendChild(range.extractContents());range.insertNode(mark)}catch{return toast('Selecciona un fragmento más corto')}}sel?.removeAllRanges()}
+    F.highlights[key]=root.innerHTML;focusSelection=null;saveCheckpoint();
+  };
+  window.focusToggleDiscard=function(i){const q=currentQ();if(!q||F.result||F.processing||F.answerEventId)return;const key=qKey(q),set=new Set(F.eliminations[key]||[]);
+    if(set.has(i))set.delete(i);else{set.add(i);if(F.selected===i)F.selected=null}
+    F.eliminations[key]=[...set];F.lastInteraction=now();saveCheckpoint();renderFocusQuestion();
+  };
   function renderFocusQuestion(){
     const q=currentQ();if(!q)return completeFocus();const opts=q.options||[],showTimer=state.focusPreferences?.show_timer!==false,showProgress=state.focusPreferences?.show_progress!==false;
     const valid=F.session?.valid_questions||0,target=F.session?.question_target||10;
-    const result=F.result;
+    const result=F.result,discarded=new Set(F.eliminations[qKey(q)]||[]);
     saveCheckpoint();const body=$f('#focusSessionBody'),sameQuestion=body.dataset.question===qKey(q),scrollTop=sameQuestion?($f('.focus-question-area')?.scrollTop||0):0;body.dataset.question=qKey(q);
     $f('#focusSessionBody').innerHTML=`<div class="focus-session-shell">
       <header class="focus-session-top"><div><span class="chip">NexMIR Focus</span><h2 id="focusSessionTitle">${safeText(F.subject||'Sesión adaptativa')}</h2><div class="path">${safeText([q.specialty,q.topic,q.subtopic].filter(Boolean).join(' › '))}</div></div><div class="focus-session-meta">${showTimer?`<strong id="focusClock">${fmtSec(F.activeSeconds)}</strong>`:''}<span>${valid}/${target} válidas</span><button class="btn mini ghost" onclick="finishFocusEarly()">Terminar</button></div></header>
       ${showProgress?`<div class="focus-progress"><div class="progress-track"><div class="progress-fill" style="width:${focusProgress()}%"></div></div>${F.session?.duration_target_minutes?`<div class="focus-time-track"><i id="focusTimeBar" style="width:${Math.min(100,F.activeSeconds/(F.session.duration_target_minutes*60)*100)}%"></i></div>`:''}</div>`:''}
-      <main class="focus-question-area"><div class="focus-counter">Pregunta ${Math.min(F.index+1,F.pool.length)} · ${safeText(reviewBadge(q))}${state.profile?.role==='admin'?`<button type="button" class="btn mini danger admin-delete-question" data-question-key="${safeText(qKey(q))}" onclick="deleteQuestionAsAdmin('${safeText(qKey(q))}')" ${F.processing?'disabled':''}>Eliminar pregunta</button>`:''}</div><div class="focus-stem">${mdInline(q.stem||q.question||'')}</div>${typeof questionImageHtml==='function'?questionImageHtml(q):''}
-      <div class="focus-options" role="radiogroup" aria-label="Alternativas">${opts.map((o,i)=>`<button class="focus-option ${F.selected===i?'selected':''} ${result&&i===+q.correct_index?'correct':''} ${result&&F.selected===i&&i!==+q.correct_index?'wrong':''}" role="radio" aria-checked="${F.selected===i?'true':'false'}" ${result||F.processing||F.answerEventId?'disabled':''} onclick="focusSelectOption(${i})"><span>${String.fromCharCode(65+i)}<small>${i+1}</small></span><b>${optionHtml(typeof o==='string'?o:o.text||'')}</b></button>`).join('')}</div>
+      <main class="focus-question-area"><div class="focus-counter">Pregunta ${Math.min(F.index+1,F.pool.length)} · ${safeText(reviewBadge(q))}${state.profile?.role==='admin'?`<button type="button" class="btn mini danger admin-delete-question" data-question-key="${safeText(qKey(q))}" onclick="deleteQuestionAsAdmin('${safeText(qKey(q))}')" ${F.processing?'disabled':''}>Eliminar pregunta</button>`:''}</div><div class="highlight-toolbar"><span>Enunciado</span><button class="btn mini" type="button" onmousedown="event.preventDefault()" onclick="focusHighlight()">🖍 Resaltar</button><button class="btn mini" type="button" onclick="focusHighlight(true)">Quitar resaltado</button></div><div id="focusStem" class="focus-stem question-stem highlightable" onmouseup="focusCaptureHighlight()" onkeyup="focusCaptureHighlight()">${F.highlights[qKey(q)]||mdInline(q.stem||q.question||'')}</div>${typeof questionImageHtml==='function'?questionImageHtml(q):''}
+      <div class="focus-options" role="radiogroup" aria-label="Alternativas">${opts.map((o,i)=>`<div class="focus-option-row ${discarded.has(i)?'eliminated':''}"><button class="focus-option ${F.selected===i?'selected':''} ${result&&i===+q.correct_index?'correct':''} ${result&&F.selected===i&&i!==+q.correct_index?'wrong':''}" role="radio" aria-checked="${F.selected===i?'true':'false'}" ${result||F.processing||F.answerEventId||discarded.has(i)?'disabled':''} onclick="focusSelectOption(${i})"><span>${String.fromCharCode(65+i)}<small>${i+1}</small></span><b>${optionHtml(typeof o==='string'?o:o.text||'')}</b></button><button type="button" class="focus-discard-btn" ${result||F.processing||F.answerEventId?'disabled':''} aria-label="${discarded.has(i)?'Recuperar':'Descartar'} alternativa ${String.fromCharCode(65+i)}" aria-pressed="${discarded.has(i)}" onclick="focusToggleDiscard(${i})">${discarded.has(i)?'↶ Recuperar':'× Descartar'}</button></div>`).join('')}</div>
       ${result?focusFeedbackHtml(q,result):''}<div id="focusTimeDone" class="focus-target-note ${F.reachedTime?'':'hidden'}">✓ Objetivo de tiempo alcanzado. Completa las preguntas mínimas para cerrar una sesión válida.</div></main>
       <footer class="focus-session-actions">${result?`<button class="btn primary" onclick="nextFocusQuestion()">${shouldFinishAfterCurrent()?'Finalizar Focus':'Siguiente pregunta →'}</button>`:`<button class="btn" onclick="skipFocusQuestion()">Saltar</button><button class="btn primary" ${Number.isInteger(F.selected)&&!F.processing?'':'disabled'} onclick="submitFocusAnswer()">${F.processing?'Guardando…':'Responder'}</button>`}</footer>
     </div>`;
@@ -264,7 +278,7 @@
   }
 
   window.focusSelectOption=i=>{
-    if(F.result||F.processing||F.answerEventId||!Number.isInteger(i)||i<0||i>=(currentQ()?.options||[]).length)return;
+    if(F.result||F.processing||F.answerEventId||!Number.isInteger(i)||i<0||i>=(currentQ()?.options||[]).length||(F.eliminations[qKey(currentQ())]||[]).includes(i))return;
     F.selected=i;F.lastInteraction=now();
     saveCheckpoint();
     $$f('.focus-option').forEach((button,index)=>{button.classList.toggle('selected',index===i);button.setAttribute('aria-checked',String(index===i))});
