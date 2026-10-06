@@ -1,0 +1,26 @@
+/* V5.1.15 · complete review navigation and Focus exit placement. */
+.focus-session-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"heading finish" "meta meta";align-items:start;gap:8px 12px}
+.focus-session-top>.focus-session-heading{grid-area:heading;min-width:0}
+.focus-session-top>.focus-finish-btn{grid-area:finish;justify-self:end;align-self:start;white-space:nowrap;margin:0}
+.focus-session-top>.focus-session-meta{grid-area:meta;min-width:0;width:100%;justify-content:flex-start;gap:10px}
+.focus-session-top>.tutorial-dialog-help{grid-column:1/-1;justify-self:start;min-width:0}
+.focus-session-meta .question-text-controls{margin-left:auto}
+@media(max-width:760px){
+ .focus-session-top{grid-template-columns:minmax(0,1fr) auto;gap:7px 8px;padding-bottom:10px!important}
+ .focus-session-top>.focus-finish-btn{min-width:76px;min-height:38px;padding:6px 9px;font-size:12px}
+ .focus-session-top>.focus-session-heading h2{font-size:18px;line-height:1.2;margin-top:5px}
+ .focus-session-top>.focus-session-heading .path{font-size:11px;line-height:1.35;overflow-wrap:anywhere}
+ .focus-session-top>.focus-session-meta{margin:0;flex-wrap:nowrap;align-items:center}
+ .focus-session-meta .question-text-controls{margin-left:auto}
+ /* Short banqueos show every question as a numbered tile in a complete grid. */
+ .bank-results-shell.short-review .sim-review-workspace{grid-template-rows:calc(31px + var(--review-rows)*38px) minmax(0,1fr)!important}
+ .bank-results-shell.short-review .sim-review-sidebar{height:calc(31px + var(--review-rows)*38px);max-height:none!important;min-height:0;overflow:hidden}
+ .bank-results-shell.short-review .sim-review-nav{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;grid-auto-flow:row!important;grid-auto-rows:34px;gap:4px!important;overflow:hidden!important;padding:0 1px 2px!important}
+ .bank-results-shell .sim-review-nav-btn{scroll-snap-align:start;display:grid!important;grid-template-columns:minmax(0,1fr)!important;place-items:center;padding:3px!important;gap:0!important}
+ .bank-results-shell.short-review .sim-review-nav-btn{width:100%!important;min-width:0!important;min-height:34px!important;height:34px!important;flex:none!important}
+ .bank-results-shell .sim-review-nav-btn .review-card-copy,.bank-results-shell .sim-review-nav-btn .review-card-dot{display:none!important}
+ .bank-results-shell .sim-review-nav-btn .review-card-number{height:27px;width:27px;min-width:27px;padding:0;font-size:12px}
+ .bank-results-shell:not(.short-review) .sim-review-nav{scroll-snap-type:x mandatory}
+ .bank-results-shell:not(.short-review) .sim-review-nav-btn{flex:0 0 41px!important;width:41px!important;min-height:41px!important}
+ .bank-results-shell .sim-review-nav-btn.active{outline:2px solid var(--n-primary,var(--primary));outline-offset:-2px}
+}

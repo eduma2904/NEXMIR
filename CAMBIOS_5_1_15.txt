@@ -1,0 +1,8 @@
+NEXMIR V5.1.15 — NAVEGACIÓN DE REVISIÓN Y FOCUS
+
+1. En la revisión final de banqueos de hasta 21 preguntas, la navegación móvil muestra todas las preguntas en una cuadrícula de números compactos. La pregunta activa conserva su borde destacado y el estado correcto/incorrecto/en blanco sigue visible mediante el color de cada botón.
+2. En banqueos más largos, la navegación móvil utiliza números en lugar de vistas previas truncadas.
+3. En Focus, el botón «Terminar» se sitúa en la esquina superior derecha del encabezado. El tiempo, las preguntas válidas y el tamaño del texto se muestran debajo del título.
+
+INSTALACIÓN: reemplaza el contenido de nexmir/ en GitHub Pages con el del ZIP. No requiere SQL nuevo.
+VALIDACIÓN LOCAL: sintaxis JavaScript, pruebas unitarias de contenido y Focus, integridad del ZIP. La comprobación visual en iPhone queda pendiente de la publicación.
