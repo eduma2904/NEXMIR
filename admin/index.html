@@ -21,6 +21,7 @@
       <button class="nav active" data-view="dashboard">▦ <span>Resumen</span></button>
       <button class="nav" data-view="import">⇧ <span>Importar contenido</span></button>
       <button class="nav" data-view="questions">❓ <span>Gestionar preguntas</span></button>
+      <button class="nav" data-view="arcade">✦ <span>Arcade · Preguntas</span></button>
       <button class="nav" data-view="content">▤ <span>Contenido</span></button>
       <button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button>
       <button class="nav" data-view="simmanager">🗂 <span>Gestionar simulacros</span></button>
@@ -38,6 +39,7 @@
   </aside>
 
   <main class="main">
+    <section id="arcadeView" class="view hidden"></section>
     <section id="dashboardView" class="view">
       <div class="pageHead"><div><div class="eyebrow">PANEL ADMIN</div><h1>Tu biblioteca, en orden</h1><p>Importa RemNote sin duplicar información, clasifica automáticamente por especialidad y conserva tablas reales.</p></div></div>
       <div class="import-callout"><div><strong>Una carga, cada contenido en su lugar</strong><p>Sube un ZIP y revisa el destino antes de publicar.</p></div><button type="button" class="primary" onclick="go('import')">Importar contenido →</button></div>
@@ -229,5 +231,7 @@
 <script src="bulk_content.js?v=5.1.5"></script>
 <script src="unified_import.js?v=5.1.5"></script>
 <script src="../interaction_polish.js?v=5.1.5"></script>
+<link rel="stylesheet" href="arcade_manager.css?v=5.1.16">
+<script src="arcade_manager.js?v=5.1.16"></script>
 </body>
 </html>

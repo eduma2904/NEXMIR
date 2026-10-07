@@ -18,6 +18,8 @@
     ['simulations','#tutorialReviewDemo .tutorial-demo-detail','Revisa la explicación','A la derecha se ven el enunciado, tu elección, la correcta y la explicación. Prueba a cambiar de pregunta en la columna izquierda.'],
     ['simulations','#tutorialReviewDemo .tutorial-demo-actions','Salir de la revisión','En una revisión real puedes cerrar y volver a Simulacros o ir a Mis errores. Esta demostración no guarda nada.'],
     ['battles','#view-battles .section-head','Batallas','Crea una sala o entra con un código para resolver el mismo bloque frente a otro estudiante.'],
+    ['arcade','#view-arcade .section-head','Arcade: repasa jugando','Esta es la biblioteca de minijuegos de NEXMIR. Por ahora encontrarás Código Vital, el ahorcado médico. Se adapta al tema de color que elegiste.'],
+    ['arcade','#arcadePlay','Código Vital','Pulsa Jugar, elige especialidad y descubre el término con letras. Tienes seis errores; revelar una letra consume uno. Al terminar verás la explicación. Cambiar especialidad abre un selector que puedes cerrar sin perder la partida. Arcade no suma XP ni racha y no consume banqueo.'],
     ['errors','#view-errors .section-head','Mis errores','Consulta las preguntas falladas y usa «Repasar» para volver al contenido relacionado.'],
     ['bookmarks','#view-bookmarks .section-head','Marcadas','Guarda preguntas, tarjetas o teoría durante el estudio y vuelve a ellas desde esta sección.'],
     ['progress','#view-progress .progress-head','Progreso','Cambia el periodo para ver respuestas, precisión, cobertura, netas y temas débiles.'],
@@ -183,7 +185,7 @@
     let d=document.getElementById('tutorialGuideDialog');
     if(!d){
       d=el('dialog','dialog tutorial-guide-dialog');d.id='tutorialGuideDialog';d.setAttribute('aria-label','Guía PDF de NEXMIR Free y Pro');
-      d.innerHTML='<div class="tutorial-guide-head"><div><span class="chip">Guía de usuario</span><h2>Funciones Free y Pro</h2></div><div class="row gap"><a class="btn" href="assets/GUIA_NEXMIR_FREE_PRO.pdf" download>Descargar PDF</a><button class="icon-btn" type="button" aria-label="Cerrar guía">×</button></div></div><iframe src="assets/GUIA_NEXMIR_FREE_PRO.pdf#toolbar=1" title="Guía NEXMIR Free y Pro"></iframe><p class="muted small">Si tu navegador no muestra el PDF, usa «Descargar PDF».</p>';
+      d.innerHTML='<div class="tutorial-guide-head"><div><span class="chip">Guía de usuario</span><h2>Funciones Free y Pro</h2></div><div class="row gap"><a class="btn" href="assets/GUIA_NEXMIR_FREE_PRO.pdf?v=5.1.16" download>Descargar PDF</a><button class="icon-btn" type="button" aria-label="Cerrar guía">×</button></div></div><iframe src="assets/GUIA_NEXMIR_FREE_PRO.pdf?v=5.1.16#toolbar=1" title="Guía NEXMIR Free y Pro"></iframe><p class="muted small">Si tu navegador no muestra el PDF, usa «Descargar PDF».</p>';
       d.querySelector('button').onclick=()=>d.close();document.body.append(d);
     }
     if(!d.open)d.showModal();
