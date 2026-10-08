@@ -1,0 +1,11 @@
+NEXMIR V5.1.21 — Mejoras de Batallas
+
+- Opciones numeradas con contraste y estado seleccionado visible.
+- Solo en Batallas: selección previa y confirmación explícita antes de enviar, también con teclado 1–9.
+- Ranking lateral compacto en pantallas horizontales de al menos 900 px; móvil conserva una columna.
+- Aviso de espera tras la última pregunta con progreso de participantes terminados.
+- Resultado con puestos, avatares de iniciales, gestos y animación; respeta reducir movimiento.
+- Acciones finales: Inicio, revancha y nueva batalla. La revancha crea sala con igual cantidad de preguntas y duración; se comparte su enlace al mismo rival.
+- Al volver a entrar en una batalla activa se recuperan las respuestas ya registradas para evitar reenviarlas.
+
+La base de datos actual admite exactamente dos participantes por sala. Para duelos de más jugadores haría falta ampliar las reglas SQL de creación, inicio y cierre. Esta actualización no requiere ejecutar SQL nuevo.

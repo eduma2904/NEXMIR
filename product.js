@@ -108,9 +108,10 @@
     if(navigator.share){try{await navigator.share(share);return}catch(error){if(error?.name==='AbortError')return}}
     try{await navigator.clipboard.writeText(url);toast('Enlace de invitación copiado')}catch{prompt('Copia este enlace de invitación:',url)}
   }
-  async function createBattle(){
+  async function createBattle(rematch=false){
     if(!unlimited()&&remaining('battles')<=0)return toast('Plan Free: límite diario de batallas alcanzado');
-    const count=Math.max(5,Math.min(50,+$v('#battleCount')?.value||10)),minutes=Math.max(3,Math.min(60,+$v('#battleMinutes')?.value||10));
+    const previous=rematch?state.battle?.room:null;
+    const count=Math.max(5,Math.min(50,rematch?(previous?.question_ids?.length||10):(+ $v('#battleCount')?.value||10))),minutes=Math.max(3,Math.min(60,rematch?Math.ceil((previous?.duration_seconds||600)/60):(+ $v('#battleMinutes')?.value||10)));
     const available=questionPool().filter(NexmirContentRules.validTest),pool=available.sort(()=>Math.random()-.5).slice(0,count);
     if(pool.length<5)return toast(`Necesitas al menos 5 preguntas test publicadas en Banqueo o Simulacros. Disponibles ahora: ${pool.length}`);
     const code=battleCode(),room={code,host_user_id:state.user.id,status:'waiting',question_ids:pool.map(q=>q.id),question_sources:pool.map(q=>q._source||'questions'),duration_seconds:minutes*60};
@@ -118,7 +119,7 @@
     const {data:participant,error:joinError}=await state.sb.from('battle_participants').insert({room_id:data.id,user_id:state.user.id,display_name:profileName()}).select().single();
     if(joinError){await state.sb.from('battle_rooms').delete().eq('id',data.id);return toast(joinError.message)}
     state.battleHistory.unshift(participant);state.battle={room:data,pool,index:0,answers:{},started:false,participants:[participant]};
-    history.replaceState(null,'',battleInviteUrl(code));toast(`Sala ${code} creada`);renderBattles();await pollBattle(data.id);
+    history.replaceState(null,'',battleInviteUrl(code));toast(rematch?'Revancha creada. Comparte la invitación con tu rival.':`Sala ${code} creada`);renderBattles();await pollBattle(data.id);
   }
   async function joinBattle(invitedCode=''){
     const code=planRules.sanitizeBattleCode(invitedCode||$v('#battleJoinCode')?.value);if(code.length!==6)return toast('Escribe un código de 6 caracteres');
@@ -132,26 +133,69 @@
     if(participant&&!alreadyJoined)state.battleHistory.unshift(participant);
     const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=ids.map((id,i)=>map.get(`${sources[i]}:${id}`)).filter(Boolean);
     if(pool.length!==ids.length)return toast('La sala contiene preguntas que ya no están disponibles');
-    state.battle={room,pool,index:0,answers:{},started:room.status==='active',participants:participant?[participant]:[]};
+    const {data:prior,error:priorError}=await state.sb.from('battle_answers').select('question_id,source_type,selected_index').eq('room_id',room.id).eq('user_id',state.user.id);
+    if(priorError)return toast(priorError.message);
+    const answers=Object.fromEntries((prior||[]).map(a=>[`${a.source_type}:${a.question_id}`,a.selected_index]));
+    const next=pool.findIndex(q=>answers[battleQuestionKey(q)]==null);
+    state.battle={room,pool,index:next<0?pool.length:next,answers,started:room.status==='active',participants:participant?[participant]:[]};
     history.replaceState(null,'',battleInviteUrl(code));renderBattles();await pollBattle(room.id);
   }
   async function startBattleRoom(){const r=state.battle?.room;if(!r||r.host_user_id!==state.user.id)return;const {data,error}=await state.sb.from('battle_rooms').update({status:'active',started_at:new Date().toISOString()}).eq('id',r.id).select().single();if(error)return toast(error.message);state.battle.room=data;state.battle.started=true;renderBattles();await pollBattle(r.id)}
   let battlePoll=null;
-  async function pollBattle(id){clearInterval(battlePoll);const tick=async()=>{if(!state.battle?.room||state.battle.room.id!==id)return clearInterval(battlePoll);const [{data:room},{data:parts}]=await Promise.all([state.sb.from('battle_rooms').select('*').eq('id',id).single(),state.sb.from('battle_participants').select('*').eq('room_id',id).order('score',{ascending:false})]);if(!state.battle?.room||state.battle.room.id!==id)return clearInterval(battlePoll);if(room){state.battle.room=room;if(room.status==='active')state.battle.started=true}state.battle.participants=parts||[];if(state.view==='battles')renderBattles();if(room?.status==='completed')clearInterval(battlePoll)};await tick();battlePoll=setInterval(tick,2500)}
-  async function answerBattle(i){const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q);if(!q||b.answers[key]!=null||(b.eliminations?.[key]||[]).includes(i)||b.room.status!=='active')return;b.answers[key]=i;const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:i});if(error){delete b.answers[key];return toast(error.message)}if(b.index<b.pool.length-1)b.index++;await pollBattle(b.room.id);renderBattles()}
-  let battleSelection=null;
+  function battleStandings(parts){return parts.slice().sort((a,b)=>Number(b.score||0)-Number(a.score||0)||Number(b.correct||0)-Number(a.correct||0)||new Date(a.finished_at||'9999')-new Date(b.finished_at||'9999')||String(a.user_id).localeCompare(String(b.user_id)))}
+  function battleAvatar(p){const name=p.display_name||'Jugador',initials=name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();return `<span class="battle-avatar" aria-hidden="true">${esc(initials||'J')}</span>`}
+  async function pollBattle(id){
+    clearInterval(battlePoll);
+    const tick=async()=>{
+      if(!state.battle?.room||state.battle.room.id!==id)return clearInterval(battlePoll);
+      const [{data:room},{data:parts}]=await Promise.all([state.sb.from('battle_rooms').select('*').eq('id',id).single(),state.sb.from('battle_participants').select('*').eq('room_id',id)]);
+      if(!state.battle?.room||state.battle.room.id!==id)return clearInterval(battlePoll);
+      if(room){state.battle.room=room;if(room.status==='active')state.battle.started=true}
+      if(parts)state.battle.participants=parts;
+      if(state.view==='battles')renderBattles();
+      if(room?.status==='completed'||room?.status==='cancelled')clearInterval(battlePoll);
+    };
+    await tick();
+    if(state.battle?.room?.id===id&&state.battle.room.status!=='completed'&&state.battle.room.status!=='cancelled')battlePoll=setInterval(tick,2500);
+  }
+  function selectBattleAnswer(i){
+    const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q);
+    if(!q||b.submitting||b.answers[key]!=null||(b.eliminations?.[key]||[]).includes(i)||b.room.status!=='active')return;
+    b.selected=i;renderBattles();$v('#battleConfirmAnswer')?.focus();
+  }
+  function cancelBattleAnswer(){if(!state.battle||state.battle.submitting)return;state.battle.selected=null;renderBattles()}
+  async function answerBattle(){
+    const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q),i=b?.selected;
+    if(!q||!Number.isInteger(i)||b.submitting||b.answers[key]!=null||b.room.status!=='active')return;
+    b.submitting=true;renderBattles();
+    const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:i});
+    if(state.battle!==b)return;
+    b.submitting=false;
+    if(error){renderBattles();return toast(error.message)}
+    b.answers[key]=i;b.selected=null;
+    b.index=b.pool.findIndex(item=>b.answers[battleQuestionKey(item)]==null);
+    if(b.index<0)b.index=b.pool.length;
+    renderBattles();await pollBattle(b.room.id);
+  }
   window.battleCaptureHighlight=()=>{const root=$v('#battleStem'),sel=window.getSelection();if(root&&sel?.rangeCount&&!sel.isCollapsed&&root.contains(sel.getRangeAt(0).commonAncestorContainer))battleSelection=sel.getRangeAt(0).cloneRange()};
+  let battleSelection=null;
   window.battleHighlight=(clear=false)=>{const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q),root=$v('#battleStem');if(!q||!root)return;b.highlights??={};if(clear){root.querySelectorAll('mark.user-highlight').forEach(m=>m.replaceWith(...m.childNodes));root.normalize()}else{const sel=window.getSelection(),range=sel?.rangeCount&&!sel.isCollapsed&&root.contains(sel.getRangeAt(0).commonAncestorContainer)?sel.getRangeAt(0).cloneRange():battleSelection;if(!range||!root.contains(range.commonAncestorContainer))return toast('Selecciona parte del enunciado');const mark=document.createElement('mark');mark.className='user-highlight';try{range.surroundContents(mark)}catch{try{mark.appendChild(range.extractContents());range.insertNode(mark)}catch{return toast('Selecciona un fragmento más corto')}}sel?.removeAllRanges()}b.highlights[key]=root.innerHTML;battleSelection=null};
-  window.battleToggleDiscard=i=>{const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q);if(!q||b.answers[key]!=null)return;b.eliminations??={};const set=new Set(b.eliminations[key]||[]);if(set.has(i))set.delete(i);else set.add(i);b.eliminations[key]=[...set];renderBattles()};
-  window.createBattle=createBattle;window.joinBattle=joinBattle;window.startBattleRoom=startBattleRoom;window.answerBattle=answerBattle;window.shareBattle=shareBattle;
+  window.battleToggleDiscard=i=>{const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q);if(!q||b.answers[key]!=null||b.submitting)return;b.eliminations??={};const set=new Set(b.eliminations[key]||[]);if(set.has(i))set.delete(i);else set.add(i);b.eliminations[key]=[...set];if(b.selected===i)b.selected=null;renderBattles()};
+  function leaveBattle(){clearInterval(battlePoll);state.battle=null;history.replaceState(null,'',location.pathname);route('dashboard')}
+  function newBattle(){clearInterval(battlePoll);state.battle=null;history.replaceState(null,'',location.pathname);route('battles')}
+  window.createBattle=createBattle;window.joinBattle=joinBattle;window.startBattleRoom=startBattleRoom;window.answerBattle=answerBattle;window.selectBattleAnswer=selectBattleAnswer;window.cancelBattleAnswer=cancelBattleAnswer;window.leaveBattle=leaveBattle;window.newBattle=newBattle;window.shareBattle=shareBattle;
   renderBattles=function(){
     const b=state.battle,invited=requestedBattleCode();
     if(!b){$v('#view-battles').innerHTML=`<div class="section-head"><div><h2>Batallas NEXMIR</h2><p class="muted">Duelo 1 vs 1 entre usuarios Free o Pro, con las mismas preguntas, tiempo y ranking.</p></div><span class="pill">${limitText('battles')}</span></div><div class="grid cols-2"><div class="card"><h3>Crear duelo</h3><label>Preguntas<input id="battleCount" type="number" min="5" max="50" value="10"></label><label>Minutos<input id="battleMinutes" type="number" min="3" max="60" value="10"></label><button class="btn primary" onclick="createBattle()">Crear sala</button></div><div class="card"><h3>Unirse</h3>${invited?'<div class="callout"><strong>Invitación detectada</strong><p>Revisa el código y entra a la sala.</p></div>':''}<label>Código<input id="battleJoinCode" maxlength="6" value="${esc(invited)}" placeholder="ABC123" style="text-transform:uppercase"></label><button class="btn" onclick="joinBattle()">Entrar a sala</button></div></div><div class="card" style="margin-top:16px"><h3>Cómo funciona</h3><p class="muted">Quien crea la sala comparte el enlace. El invitado crea su cuenta o inicia sesión, entra a la sala y el anfitrión inicia cuando estén los dos.</p></div>`;return}
     const parts=b.participants||[],room=b.room;
-    if(!b.started&&room.status==='waiting'){$v('#view-battles').innerHTML=`<div class="hero-main"><span class="chip">Sala de espera</span><h1>Código ${esc(room.code)}</h1><p>Comparte el enlace con otra persona. Si todavía no usa NEXMIR, primero podrá crear su cuenta gratis.</p><div class="battle-share-actions"><button class="btn primary" type="button" onclick="shareBattle('${esc(room.code)}')">↗ Compartir invitación</button><input class="battle-share-url" value="${esc(battleInviteUrl(room.code))}" readonly aria-label="Enlace de invitación"></div><div class="battle-ranking">${parts.map((p,i)=>`<div><strong>${i+1}. ${esc(p.display_name||'Jugador')}</strong><span>${p.user_id===room.host_user_id?'Host':''}</span></div>`).join('')}</div>${room.host_user_id===state.user.id?`<button class="btn primary" ${parts.length!==2?'disabled':''} onclick="startBattleRoom()">Empezar batalla</button>`:'<p class="muted">Esperando a que el anfitrión inicie…</p>'}</div>`;return}
-    const elapsed=room.started_at?Math.floor((Date.now()-new Date(room.started_at))/1000):0,left=Math.max(0,(room.duration_seconds||600)-elapsed),ended=room.status==='completed'||left===0,q=ended?null:b.pool[b.index];
-    const qkey=battleQuestionKey(q);
-    $v('#view-battles').innerHTML=`<div class="battle-head"><div><span class="chip">Batalla ${esc(room.code)}</span><h2>${ended?'Resultado final':`${b.index+1}/${b.pool.length}`}</h2></div><div class="sim-timer">${Math.floor(left/60).toString().padStart(2,'0')}:${(left%60).toString().padStart(2,'0')}</div></div><div class="grid cols-2"><div class="card">${q?`<div class="highlight-toolbar"><span>Enunciado</span><button class="btn mini" type="button" onmousedown="event.preventDefault()" onclick="battleHighlight()">🖍 Resaltar</button><button class="btn mini" type="button" onclick="battleHighlight(true)">Quitar resaltado</button></div>`:''}<div id="battleStem" class="question-stem" onmouseup="battleCaptureHighlight()" onkeyup="battleCaptureHighlight()">${q?(b.highlights?.[qkey]||mdInline(q.stem||'')):(ended?'Batalla finalizada. Revisa el ranking.':'Has respondido todas las preguntas. Espera al rival.')}</div>${q?'<p class="muted small">Teclado: 1–'+Math.min(9,(q.options||[]).length)+' para responder.</p>':''}${q?`<div class="sim-options">${(q.options||[]).map((o,i)=>`<div class="battle-option-row ${(b.eliminations?.[qkey]||[]).includes(i)?'eliminated':''}"><button class="sim-option" ${(b.eliminations?.[qkey]||[]).includes(i)?'disabled':''} onclick="answerBattle(${i})"><div class="letter">${i+1}</div><div>${optionHtml(typeof o==='string'?o:o.text||'')}</div></button><button type="button" class="focus-discard-btn" onclick="battleToggleDiscard(${i})">${(b.eliminations?.[qkey]||[]).includes(i)?'↶ Recuperar':'× Descartar'}</button></div>`).join('')}</div>`:''}</div><div class="card"><h3>Ranking</h3>${parts.slice().sort((a,b)=>b.score-a.score).map((p,i)=>`<div class="rank-row"><strong>${i+1}. ${esc(p.display_name||'Jugador')}</strong><span>${p.score||0} pts · ${p.correct||0}/${p.answered||0}</span></div>`).join('')}</div></div>`;
+    if(!b.started&&room.status==='waiting'){$v('#view-battles').innerHTML=`<div class="hero-main"><span class="chip">Sala de espera</span><h1>Código ${esc(room.code)}</h1><p>Comparte el enlace con tu rival. Si todavía no usa NEXMIR, primero podrá crear su cuenta gratis.</p><div class="battle-share-actions"><button class="btn primary" type="button" onclick="shareBattle('${esc(room.code)}')">↗ Compartir invitación</button><input class="battle-share-url" value="${esc(battleInviteUrl(room.code))}" readonly aria-label="Enlace de invitación"></div><div class="battle-ranking">${parts.map((p,i)=>`<div><strong>${i+1}. ${esc(p.display_name||'Jugador')}</strong><span>${p.user_id===room.host_user_id?'Host':''}</span></div>`).join('')}</div>${room.host_user_id===state.user.id?`<button class="btn primary" ${parts.length!==2?'disabled':''} onclick="startBattleRoom()">Empezar batalla</button>`:'<p class="muted">Esperando a que el anfitrión inicie…</p>'}</div>`;return}
+    const elapsed=room.started_at?Math.floor((Date.now()-new Date(room.started_at))/1000):0,left=Math.max(0,(room.duration_seconds||600)-elapsed),ended=room.status==='completed'||left===0,finished=b.index>=b.pool.length,q=ended||finished?null:b.pool[b.index],qkey=battleQuestionKey(q);
+    const ordered=battleStandings(parts),done=parts.filter(p=>p.finished_at||Number(p.answered)>=b.pool.length).length;
+    const ranking=`<div class="battle-rank-list">${ordered.map((p,i)=>`<div class="rank-row"><strong>${i+1}. ${esc(p.display_name||'Jugador')}</strong><span>${p.score||0} pts · ${p.correct||0}/${p.answered||0}${p.finished_at?' ✓':''}</span></div>`).join('')}</div>`;
+    const result=ended?`<section class="battle-results ${b.resultShown?'':'first-show'}" aria-label="Resultado de batalla"><h3>Clasificación final</h3><div class="battle-podium">${ordered.map((p,i)=>`<div class="battle-result ${p.user_id===state.user.id?'is-you':''} ${i===0?'is-winner':'is-runner'}" style="--place:${i}">${battleAvatar(p)}<span class="battle-emotion" aria-hidden="true">${i===0?'🎉':'😔'}</span><div><span class="battle-place">${i+1}.º puesto${p.user_id===state.user.id?' · Tú':''}</span><strong>${esc(p.display_name||'Jugador')}</strong><small>${p.score||0} puntos · ${p.correct||0} aciertos</small></div></div>`).join('')}</div><div class="battle-actions"><button class="btn" onclick="leaveBattle()">Ir al inicio</button><button class="btn primary" onclick="createBattle(true)">Revancha con mi rival</button><button class="btn" onclick="newBattle()">Nueva batalla</button></div><p class="muted small">Para la revancha, comparte la nueva invitación con el mismo rival.</p></section>`:'';
+    const waiting=!ended&&finished?`<div class="battle-waiting" role="status" aria-live="polite"><span class="battle-wait-icon" aria-hidden="true">⌛</span><div><h3>¡Terminaste! Espera a que tu rival concluya.</h3><p>${done}/${parts.length} participantes han terminado · faltan ${Math.max(0,parts.length-done)}.</p></div></div>`:'';
+    $v('#view-battles').innerHTML=`<div class="battle-head"><div><span class="chip">Batalla ${esc(room.code)}</span><h2>${ended?'Resultado final':finished?'Esperando resultados':`${b.index+1}/${b.pool.length}`}</h2></div><div class="sim-timer">${Math.floor(left/60).toString().padStart(2,'0')}:${(left%60).toString().padStart(2,'0')}</div></div><div class="battle-layout ${ended?'is-ended':''}"><main class="card battle-question-card">${q?`<div class="highlight-toolbar"><span>Enunciado</span><button class="btn mini" type="button" onmousedown="event.preventDefault()" onclick="battleHighlight()">🖍 Resaltar</button><button class="btn mini" type="button" onclick="battleHighlight(true)">Quitar resaltado</button></div><div id="battleStem" class="question-stem" onmouseup="battleCaptureHighlight()" onkeyup="battleCaptureHighlight()">${b.highlights?.[qkey]||mdInline(q.stem||'')}</div><p class="muted small">Teclado: 1–${Math.min(9,(q.options||[]).length)} para seleccionar; confirma antes de enviar.</p><div class="sim-options">${(q.options||[]).map((o,i)=>`<div class="battle-option-row ${(b.eliminations?.[qkey]||[]).includes(i)?'eliminated':''}"><button type="button" class="sim-option ${b.selected===i?'selected':''}" aria-pressed="${b.selected===i}" ${(b.eliminations?.[qkey]||[]).includes(i)||b.submitting?'disabled':''} onclick="selectBattleAnswer(${i})"><span class="letter">${i+1}</span><span>${optionHtml(typeof o==='string'?o:o.text||'')}</span></button><button type="button" class="focus-discard-btn" ${b.submitting?'disabled':''} onclick="battleToggleDiscard(${i})">${(b.eliminations?.[qkey]||[]).includes(i)?'↶ Recuperar':'× Descartar'}</button></div>`).join('')}</div>${b.selected!=null?`<div class="battle-confirm" role="group" aria-label="Confirmar respuesta"><strong>Seleccionaste la opción ${b.selected+1}. ¿Estás seguro de tu respuesta?</strong><div><button type="button" class="btn" onclick="cancelBattleAnswer()" ${b.submitting?'disabled':''}>Cambiar respuesta</button><button id="battleConfirmAnswer" type="button" class="btn primary" onclick="answerBattle()" ${b.submitting?'disabled':''}>${b.submitting?'Enviando…':'Confirmar respuesta'}</button></div></div>`:''}`:waiting||result}</main><aside class="card battle-ranking-card"><h3>Ranking</h3>${ranking}</aside></div>`;
+    if(ended)b.resultShown=true;
   };
 
   const showAppBeforeBattle=showApp;

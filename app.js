@@ -381,7 +381,7 @@ function nexmirNumericShortcut(event){
   }
   if(state.view==='battles'&&state.battle?.started){
     const q=state.battle?.pool?.[state.battle.index],n=Number(key);
-    if(q&&Number.isInteger(n)&&n>=1&&n<=(q.options||[]).length&&n<=9){event.preventDefault();answerBattle(n-1)}
+    if(q&&Number.isInteger(n)&&n>=1&&n<=(q.options||[]).length&&n<=9){event.preventDefault();selectBattleAnswer(n-1)}
   }
 }
 document.addEventListener('keydown',nexmirNumericShortcut,true);
