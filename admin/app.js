@@ -1,6 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const DB_KEY='mir_admin_v4_db';
 const SB_CFG_KEY='mir_admin_v4_supabase';
+let cloudAuthBusy=false,cloudGeneration=0;
 let sb=null, cloudUser=null, cloudRole=null, cloudMode=false, cloudAuthSubscription=null, cloudAuthRefresh=null;
 const typeNames={basic:'Básica',multiline:'Multilínea',ordered:'Ordenada',multiple_choice:'Opción múltiple',cloze:'Cloze',bidirectional:'Bidireccional',reverse:'Reversa'};
 const state={db:loadDb(),import:null,statusFilter:'all',selected:new Set(),contentKind:'cards'};
@@ -289,9 +290,43 @@ renderDashboard();
 function cloudMsg(t,bad=false){const el=$('#cloudMessage');if(el){el.textContent=t||'';el.style.color=bad?'#ff8e8e':''}}
 function getSbCfg(){try{return JSON.parse(localStorage.getItem(SB_CFG_KEY))||{}}catch{return{}}}
 function setSbCfg(url,key){localStorage.setItem(SB_CFG_KEY,JSON.stringify({url,key}))}
-function initSb(){const c=getSbCfg();if(!c.url||!c.key||!window.supabase?.createClient)return false;try{cloudAuthSubscription?.unsubscribe();sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});cloudAuthSubscription=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){cloudUser=null;cloudRole=null;cloudMode=false;state.db=loadDb();paintCloudState();renderDashboard();renderContent();renderHistory()}else if(event==='SIGNED_IN'&&session?.user&&(!cloudMode||cloudUser?.id!==session.user.id)){setTimeout(()=>refreshCloudAuth().catch(()=>{}),0)}}).data.subscription;$('#sbUrl').value=c.url;$('#sbKey').value=c.key;return true}catch{return false}}
-async function refreshCloudAuth(){if(cloudAuthRefresh)return cloudAuthRefresh;cloudAuthRefresh=refreshCloudAuthWork().finally(()=>{cloudAuthRefresh=null});return cloudAuthRefresh}
-async function refreshCloudAuthWork(){if(!sb){cloudMode=false;paintCloudState();return}const {data:{session},error}=await sb.auth.getSession();if(error||!session){cloudUser=null;cloudRole=null;cloudMode=false;paintCloudState();return}cloudUser=session.user;const {data,error:pe}=await sb.from('profiles').select('role').eq('id',cloudUser.id).single();if(pe){cloudRole=null;cloudMode=false;paintCloudState();cloudMsg('Conectado, pero no pude leer tu rol. ¿Ejecutaste el SQL y convertiste tu usuario en admin?',true);return}cloudRole=data.role;if(!['admin','moderator'].includes(cloudRole)){cloudMode=false;paintCloudState();cloudMsg(`Tu cuenta tiene rol “${cloudRole}”. El Panel Admin requiere admin o moderator.`,true);return}cloudMode=true;paintCloudState();await loadCloudDb();cloudMsg(`Conectado como ${cloudRole}.`)}
+function clearCloudSession(reason,message){
+ cloudGeneration++;cloudUser=null;cloudRole=null;cloudMode=false;state.db=loadDb();
+ paintCloudState();renderDashboard();renderContent();renderHistory();
+ $('#loginPassword').value='';cloudMsg(message||'Has cerrado sesión.');
+ if(!$('#cloudDialog').open)$('#cloudDialog').showModal();
+}
+function initSb(){
+ const c=getSbCfg();if(!c.url||!c.key||!window.supabase?.createClient)return false;
+ try{
+  cloudAuthSubscription?.unsubscribe();
+  const storageKey='sb-'+new URL(c.url).hostname.split('.')[0]+'-auth-token';
+  sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey},global:{fetch:window.NexmirSessions.fetch}});
+  window.NexmirSessions.configure({client:sb,url:c.url.replace(/\/$/,''),key:c.key,storageKey,onEnd:clearCloudSession});
+  cloudAuthSubscription=sb.auth.onAuthStateChange((event,session)=>{
+   if(cloudAuthBusy)return;
+   if(event==='SIGNED_OUT'){setTimeout(()=>{window.NexmirSessions.reset();if(cloudUser)clearCloudSession('logout','Has cerrado sesión.')},0)}
+   else if(session&&event!=='INITIAL_SESSION'&&!window.NexmirSessions.observe(session)){setTimeout(()=>refreshCloudAuth().catch(e=>cloudMsg(e.message,true)),0)}
+  }).data.subscription;
+  $('#sbUrl').value=c.url;$('#sbKey').value=c.key;return true;
+ }catch{return false}
+}
+async function refreshCloudAuth(fresh=false){if(cloudAuthRefresh)return cloudAuthRefresh;cloudAuthRefresh=refreshCloudAuthWork(fresh).finally(()=>{cloudAuthRefresh=null});return cloudAuthRefresh}
+async function refreshCloudAuthWork(fresh=false){
+ if(!sb){cloudMode=false;paintCloudState();return}
+ const generation=cloudGeneration;
+ const {data:{session},error}=await sb.auth.getSession();
+ if(error||!session){cloudUser=null;cloudRole=null;cloudMode=false;paintCloudState();return}
+ if(!await window.NexmirSessions.open(session,{fresh})||generation!==cloudGeneration)return;
+ cloudUser=session.user;
+ const {data,error:pe}=await sb.from('profiles').select('role').eq('id',cloudUser.id).single();
+ if(generation!==cloudGeneration)return;
+ if(pe){cloudRole=null;cloudMode=false;paintCloudState();cloudMsg('No pude leer tu rol: '+pe.message,true);return}
+ cloudRole=data.role;
+ if(!['admin','moderator'].includes(cloudRole)){cloudMode=false;paintCloudState();cloudMsg(`Tu cuenta tiene rol “${cloudRole}”. El Panel Admin requiere admin o moderator.`,true);return}
+ cloudMode=true;paintCloudState();await loadCloudDb();
+ if(generation===cloudGeneration)cloudMsg(`Conectado como ${cloudRole}.`);
+}
 function paintCloudState(){if(cloudMode){$('#dbState').textContent='Supabase';$('#userState').classList.remove('hidden');$('#userState').textContent=`${cloudRole}: ${cloudUser?.email||''}`;$('#logoutBtn').classList.remove('hidden')}else{$('#dbState').textContent='Base local';$('#userState').classList.add('hidden');$('#logoutBtn').classList.add('hidden')} }
 async function fetchAllPages(makeQuery,pageSize=1000){const out=[];for(let from=0;;from+=pageSize){const {data,error}=await makeQuery().range(from,from+pageSize-1);if(error)throw error;const rows=data||[];out.push(...rows);if(rows.length<pageSize)break}return out}
 async function exactCount(makeQuery){const {count,error}=await makeQuery();if(error)throw error;return count||0}
@@ -355,8 +390,17 @@ async function loadCloudDb(){
     // IA disponible a petición, después de revisar la jerarquía RemNote.
   }catch(e){cloudMsg(e.message||'No se pudo cargar Supabase.',true);throw e}
 }
-async function loginCloud(){if(!sb){cloudMsg('Primero guarda Project URL y Publishable key.',true);return}const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value;const {error}=await sb.auth.signInWithPassword({email,password});if(error){cloudMsg(error.message,true);return}await refreshCloudAuth();if(cloudMode)$('#cloudDialog').close()}
-async function logoutCloud(){if(sb)await sb.auth.signOut();cloudUser=null;cloudRole=null;cloudMode=false;state.db=loadDb();paintCloudState();renderDashboard();renderContent();renderHistory()}
+async function loginCloud(){
+ if(!sb){cloudMsg('Primero guarda Project URL y Publishable key.',true);return}
+ if(cloudAuthBusy)return;cloudAuthBusy=true;$('#loginBtn').disabled=true;
+ try{
+  const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value;
+  const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;
+  await refreshCloudAuth(true);if(cloudMode)$('#cloudDialog').close();
+ }catch(e){cloudMsg(e.message||String(e),true)}
+ finally{cloudAuthBusy=false;$('#loginBtn').disabled=false}
+}
+async function logoutCloud(){return window.NexmirSessions.end('logout')}
 async function saveCloudConfig(){const url=$('#sbUrl').value.trim(),key=$('#sbKey').value.trim();if(!/^https:\/\/.+\.supabase\.co\/?$/.test(url)){cloudMsg('Project URL no parece válido.',true);return}if(!/^sb_publishable_/.test(key)&&!/^eyJ/.test(key)){cloudMsg('Usa la Publishable key (sb_publishable_...). También acepto anon legacy si tu proyecto aún la usa.',true);return}setSbCfg(url,key);initSb();cloudMsg('Conexión guardada. Ahora inicia sesión.');await refreshCloudAuth()}
 
 const MIR_AI_SUBJECTS=['Cardiología','Gastroenterología','Enfermedades Infecciosas','Endocrinología y Nutrición','Nefrología','Neumología','Neurología','Ginecología y Obstetricia','Pediatría','Hematología','Reumatología','Psiquiatría','Epidemiología y Medicina Preventiva','Dermatología','Oncología Médica','Traumatología','Oftalmología','Otorrinolaringología','Urología','Geriatría y Cuidados Paliativos','Radiología y Urgencias','Cirugía General','Farmacología','Inmunología y Genética','Bioética y Medicina Legal'];
@@ -496,5 +540,5 @@ $('#togglePasswordBtn').onclick=()=>{const inp=$('#loginPassword'),btn=$('#toggl
 $('#loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginCloud()});
 $('#loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginPassword').focus()});
 
-if(initSb())refreshCloudAuth();else paintCloudState();
+if(initSb())refreshCloudAuth().catch(e=>cloudMsg(e.message,true));else paintCloudState();
 window.addEventListener('online',()=>{if(sb&&!cloudMode)refreshCloudAuth().catch(()=>{})});

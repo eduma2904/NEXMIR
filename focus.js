@@ -94,6 +94,7 @@
     const userId=state.user?.id;
     if(!userId)return Promise.resolve();
     if(focusLoadUser===userId&&focusLoadPromise)return focusLoadPromise;
+    startTicker();
     focusLoadUser=userId;
     focusLoadPending=true;
     focusLoadPromise=loadFocusData().then(()=>{
@@ -105,7 +106,7 @@
     window.nexmirFocusReadyPromise=focusLoadPromise;
     return focusLoadPromise;
   }
-  window.addEventListener('nexmir:signout',()=>{focusLoadUser=null;focusLoadPromise=null;focusLoadPending=false;F.ready=false;window.NEXMIR_FOCUS_BACKEND_READY=false;window.nexmirFocusReadyPromise=null});
+  window.addEventListener('nexmir:signout',()=>{clearInterval(F.tick);F.tick=null;F.session=null;F.pool=[];state.focusActiveSession=null;focusLoadUser=null;focusLoadPromise=null;focusLoadPending=false;F.ready=false;window.NEXMIR_FOCUS_BACKEND_READY=false;window.nexmirFocusReadyPromise=null});
 
   function focusFeatureFlags(){
     const pro=['admin','moderator'].includes(state.profile?.role)||String(state.profile?.plan||'free').toLowerCase()==='pro';

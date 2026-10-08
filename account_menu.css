@@ -1,0 +1,9 @@
+#userAvatar{appearance:none;border:0;font:inherit;font-weight:800;cursor:pointer;flex-shrink:0;min-width:36px;min-height:36px;padding:0;touch-action:manipulation}
+#userAvatar:focus-visible,.account-menu button:focus-visible{outline:3px solid var(--n-primary,var(--primary));outline-offset:3px}
+.account-menu{position:fixed;z-index:1200;width:min(240px,calc(100vw - 24px));padding:8px;border:1px solid var(--n-border,var(--line));border-radius:16px;background:var(--n-card,var(--surface));color:var(--n-text,var(--text));box-shadow:0 16px 44px #0003}
+.account-menu[hidden]{display:none!important}
+.account-menu-name{padding:9px 12px 12px;font-weight:750;overflow-wrap:anywhere;border-bottom:1px solid var(--n-border,var(--line));margin-bottom:5px}
+.account-menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:11px 12px;background:transparent;border:0;border-radius:10px;color:inherit;text-align:left;font:inherit;font-size:14px;cursor:pointer;touch-action:manipulation}
+.account-menu button:hover{background:color-mix(in srgb,var(--n-primary,var(--primary)) 10%,transparent)}
+.account-menu .account-logout{color:var(--red,#c83250)}
+.profile-device-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.profile-device-actions .btn{min-height:44px}

@@ -1,0 +1,66 @@
+NEXMIR 5.1.20 — MENÚ DE CUENTA Y SESIONES
+
+INSTALACIÓN
+1. En el proyecto Supabase que ya utiliza NEXMIR, abre SQL Editor.
+2. Ejecuta completo supabase/SESIONES_5_1_20.sql.
+   La última fila debe decir: SESIONES_5_1_20 OK.
+3. Sube el contenido de este ZIP a tu web, reemplazando los archivos existentes.
+   Incluye session_manager.js, account_menu.js y account_menu.css.
+4. Recarga la web. Si conserva archivos antiguos, usa Ctrl+F5 en ordenador.
+   Los usuarios tendrán que volver a ingresar si su sesión ya caducó.
+
+No necesitas volver a ejecutar los otros SQL para esta actualización.
+Esta versión requiere el nuevo SQL antes de permitir el acceso.
+No se han modificado tus preguntas, bancos, simulacros ni progreso.
+
+COMPORTAMIENTO
+• Pulsar el avatar con la inicial abre «Ir al perfil» y «Cerrar sesión».
+• Cerrar sesión devuelve inmediatamente a la pantalla de acceso, también en móvil.
+• La sesión caduca después de 60 minutos sin interacción. Se aplica a todos,
+  incluidos los administradores. La excepción admin es solo para varios dispositivos.
+• Clics, pulsaciones, desplazamiento y acciones táctiles cuentan como interacción.
+  Abrir la pestaña, refrescar, renovar el token o ejecutar consultas automáticas
+  no cuentan por sí solos como actividad.
+• Un refresh dentro del plazo mantiene la recuperación del estudio.
+• Free y Pro: un nuevo login reemplaza al anterior automáticamente, sin necesidad
+  de pulsar «Vincular este dispositivo». También se aplica a los moderadores.
+• El dispositivo anterior sale cuando comprueba su estado (cada 15 segundos
+  mientras la página está visible, o al volver a la pestaña/conexión).
+• Supabase bloquea nuevas consultas y RPC de la sesión anterior desde el reemplazo,
+  aunque su navegador todavía no haya actualizado la pantalla.
+• Admin (role = admin): varios dispositivos. Cerrar uno no cierra los otros.
+• Varias pestañas que comparten la misma sesión del navegador comparten actividad.
+• Otro navegador o un modo incógnito se considera un acceso independiente.
+• Una sesión reemplazada o caducada no recupera el acceso mediante un refresh:
+  exige ingresar de nuevo con correo y contraseña.
+• Se utiliza el mismo control en la web principal y en el Panel Admin.
+• Reset dispositivo, en el panel de usuarios, cierra las sesiones de esa cuenta
+  y le exige ingresar nuevamente. Esta acción sigue reservada al administrador.
+
+COMPROBACIÓN TRAS SUBIR
+1. Ingresa con Free en el ordenador y abre el menú del avatar.
+2. Ingresa con esa cuenta en un móvil: el ordenador debe salir en unos segundos
+   al tener la pestaña visible. Recarga el ordenador: no debe volver a entrar solo.
+3. Cierra sesión en el móvil desde el avatar y desde Perfil. Recarga: debe seguir fuera.
+4. Repite con Pro. Con admin, ambos equipos deben permanecer conectados.
+5. Deja una sesión sin interacción durante más de 60 minutos y vuelve/refresca:
+   debe solicitar acceso de nuevo.
+
+ALCANCE TÉCNICO
+El control servidor usa el session_id firmado de Supabase y un pre-request de la
+Data API. Conserva las políticas RLS existentes y también controla RPC SECURITY
+DEFINER. No requiere contratar la función de sesión única de Supabase.
+El control no revoca por sí solo enlaces de imágenes que ya fueron firmados,
+ni elimina los tokens de Auth en otros dispositivos desde el SQL: la app anterior
+cierra su sesión local al detectar el reemplazo. La Data API rechaza esos tokens.
+Si un móvil está sin conexión, puede mostrar datos ya cargados hasta que vuelva,
+pero la caducidad local se comprueba al retornar y el servidor mantiene el bloqueo.
+
+Si el SQL informa «Existe un pre-request personalizado», la instalación se cancela
+para conservar el control anterior. Deben integrarse ambos antes de instalar.
+No borres esa configuración para saltarte el error; comparte el mensaje para
+adaptar el SQL al proyecto.
+
+VALIDACIÓN DEL PAQUETE
+Pruebas automatizadas con PostgreSQL local y navegador Chromium usando Supabase
+simulado; no se ejecutaron cambios en tu Supabase ni en la web publicada.

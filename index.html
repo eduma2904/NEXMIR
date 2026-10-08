@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>NEXMIR V5.1.18 · Arcade</title>
+  <title>NEXMIR V5.1.20</title>
   <meta name="theme-color" content="#081525" />
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="layout_refinements.css?v=5.1.5" />
@@ -14,8 +14,10 @@
   <link rel="stylesheet" href="study_layout_fix.css?v=5.1.13" />
   <link rel="stylesheet" href="study_layout_v5_1_14.css?v=5.1.14" />
   <link rel="stylesheet" href="study_layout_v5_1_15.css?v=5.1.15" />
+  <link rel="stylesheet" href="account_menu.css?v=5.1.20" />
 </head>
 <body>
+<div id="accountMenu" class="account-menu" role="menu" aria-label="Opciones de tu cuenta" hidden><div id="accountMenuName" class="account-menu-name"></div><button id="accountProfileBtn" role="menuitem" type="button"><span aria-hidden="true">♙</span>Ir al perfil</button><button id="accountLogoutBtn" class="account-logout" role="menuitem" type="button"><span aria-hidden="true">↪</span>Cerrar sesión</button></div>
 <div id="toast" class="toast hidden"></div>
 
 <section id="bootScreen" class="auth-screen boot-screen" aria-live="polite" aria-busy="true">
@@ -79,7 +81,7 @@
     <header class="topbar">
       <button id="mobileMenu" class="icon-btn">☰</button>
       <div><h2 id="viewTitle">Inicio</h2><p id="crumb" class="muted"></p></div>
-      <div class="top-actions"><button id="tutorialBtn" class="btn mini tutorial-launch" type="button" title="Repetir el recorrido guiado" aria-label="Repetir el recorrido guiado">🐾 <span>Guía</span></button><button id="focusModeBtn" class="btn mini focus-toggle" type="button" title="Inicia una sesión NexMIR Focus">🎯 Modo Focus</button><button id="studyTimerBtn" class="btn mini study-timer" type="button" title="Controla tu cronómetro de estudio">⏱ 00:00:00</button><span id="planPill" class="pill">Free</span><div id="userAvatar" class="avatar">E</div></div>
+      <div class="top-actions"><button id="tutorialBtn" class="btn mini tutorial-launch" type="button" title="Repetir el recorrido guiado" aria-label="Repetir el recorrido guiado">🐾 <span>Guía</span></button><button id="focusModeBtn" class="btn mini focus-toggle" type="button" title="Inicia una sesión NexMIR Focus">🎯 Modo Focus</button><button id="studyTimerBtn" class="btn mini study-timer" type="button" title="Controla tu cronómetro de estudio">⏱ 00:00:00</button><span id="planPill" class="pill">Free</span><button id="userAvatar" class="avatar" type="button" aria-label="Abrir opciones de tu cuenta" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">E</button></div>
     </header>
 
     <section id="view-dashboard" class="view active"></section>
@@ -115,18 +117,19 @@
 <script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
 <script src="content_rules.js?v=5.1.5"></script>
 <script src="taxonomy.js?v=5.1.5"></script>
-<script src="app.js?v=5.1.19"></script>
+<script src="session_manager.js?v=5.1.20"></script>
+<script src="app.js?v=5.1.20"></script>
 <script src="content_admin.js?v=5.1.5.2"></script>
 <script src="plan_rules.js?v=5.1.19"></script>
-<script src="product.js?v=5.1.19.2"></script>
+<script src="product.js?v=5.1.20"></script>
 <script src="diagnostic_plan.js?v=5.1.7"></script>
 <script src="adaptive_features.js?v=5.1.5.2"></script>
 <script src="plan_help.js?v=5.1.5"></script>
-<script src="personalization.js?v=5.1.7"></script>
+<script src="personalization.js?v=5.1.20"></script>
 <script src="dashboard.js?v=5.1.5"></script>
 <script src="mascot.js?v=5.1.5"></script>
 <script src="focus_rules.js?v=5.1.5"></script>
-<script src="focus.js?v=5.1.15"></script>
+<script src="focus.js?v=5.1.20"></script>
 <script src="ui_refinements.js?v=5.1.5"></script>
 <script src="study_resume.js?v=5.1.14"></script>
 <script src="study_display.js?v=5.1.5"></script>
@@ -136,5 +139,6 @@
 <script src="arcade.js?v=5.1.18"></script>
 <script src="tutorial.js?v=5.1.18"></script>
 <script src="study_performance_fix.js?v=5.1.13"></script>
+<script src="account_menu.js?v=5.1.20"></script>
 </body>
 </html>

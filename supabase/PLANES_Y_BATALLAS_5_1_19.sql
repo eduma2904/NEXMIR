@@ -289,6 +289,23 @@ alter table public.battle_rooms enable row level security;
 alter table public.battle_participants enable row level security;
 alter table public.battle_answers enable row level security;
 
+-- Las versiones antiguas de Batallas pudieron crear políticas con nombres
+-- diferentes. Una política RESTRICTIVE residual seguiría bloqueando INSERT
+-- aunque la política actual fuese correcta. Limpiamos únicamente las políticas
+-- de las tres tablas de batalla antes de instalar el conjunto vigente.
+do $$
+declare p record;
+begin
+  for p in
+    select schemaname,tablename,policyname
+    from pg_policies
+    where schemaname='public'
+      and tablename in ('battle_rooms','battle_participants','battle_answers')
+  loop
+    execute format('drop policy if exists %I on %I.%I',p.policyname,p.schemaname,p.tablename);
+  end loop;
+end $$;
+
 drop policy if exists battle_rooms_read_authenticated on public.battle_rooms;
 create policy battle_rooms_read_authenticated on public.battle_rooms for select to authenticated using(status in ('waiting','active','completed') or host_user_id=auth.uid());
 drop policy if exists battle_rooms_create_self on public.battle_rooms;
@@ -300,7 +317,7 @@ create policy battle_rooms_delete_waiting_host on public.battle_rooms for delete
 
 drop policy if exists battle_participants_read_members on public.battle_participants;
 create policy battle_participants_read_members on public.battle_participants for select to authenticated using(
-  public.nexmir_battle_member(room_id)
+  user_id=auth.uid() or public.nexmir_battle_member(room_id)
 );
 drop policy if exists battle_participants_join_self on public.battle_participants;
 create policy battle_participants_join_self on public.battle_participants for insert to authenticated with check(user_id=auth.uid());

@@ -6,7 +6,23 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const fmtDate=s=>s?new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short'}).format(new Date(s)):'—';
 const today=(d=new Date())=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.add('hidden'),2600)}
-function initSb(){state.sb=window.supabase.createClient(DEFAULT_SB.url,DEFAULT_SB.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}
+const AUTH_STORAGE_KEY='sb-'+new URL(DEFAULT_SB.url).hostname.split('.')[0]+'-auth-token';
+let authGeneration=0,authBusy=false;
+function clearSignedInUi(reason,message){
+ authGeneration++;routeGeneration++;authTransition=null;window.nexmirClearStudyResume?.();state.user=null;state.deviceBlocked=false;
+ state.simulation={template:null};clearInterval(simTimerHandle);
+ state.bank={pool:[],index:0,answers:{},results:[]};state.review={pool:[],index:0};
+ for(const name of ['content','questions','reviews','attempts','bookmarks','notes','simulations','errorLog'])state[name]=[];
+ state.studyPlan=null;state.mySuggestions=[];state.battle=null;state.battleHistory=[];
+ $$('.dialog[open],dialog[open]').forEach(d=>d.close());
+ $$('.view').forEach(v=>{v.innerHTML='';v.classList.remove('active')});
+ document.querySelector('.sidebar')?.classList.remove('open');
+ showAuth();$('#authMsg').textContent=message||'';$('#loginPassword').value='';
+}
+function initSb(){
+ state.sb=window.supabase.createClient(DEFAULT_SB.url,DEFAULT_SB.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:AUTH_STORAGE_KEY},global:{fetch:window.NexmirSessions.fetch}});
+ window.NexmirSessions.configure({client:state.sb,url:DEFAULT_SB.url,key:DEFAULT_SB.key,storageKey:AUTH_STORAGE_KEY,onEnd:clearSignedInUi});
+}
 async function fetchAllPages(makeQuery,pageSize=1000){const out=[];for(let from=0;;from+=pageSize){const {data,error}=await makeQuery().range(from,from+pageSize-1);if(error)throw error;const rows=data||[];out.push(...rows);if(rows.length<pageSize)break}return out}
 function cleanRemnoteMarks(s=''){return String(s??'').replace(/\^\^/g,'').replace(/\u200b/g,'')}
 function unclassifiedSpecialty(s=''){return RemnoteTaxonomy.unclassified(s)}
@@ -22,29 +38,42 @@ function cardAnswer(p){if(p.type==='multiple_choice')return p.back||p.options?.f
 function pathOf(x){return [displaySpecialty(x.specialty),x.topic,x.subtopic,x.section].filter(Boolean).map(cleanRemnoteMarks).join(' › ')}
 function profileName(){return state.profile?.display_name||state.user?.email?.split('@')[0]||'MIR'}
 let authTransition=null;
-async function enterSession(user){
+async function enterSession(user,{session=null,fresh=false}={}){
  if(!user)return;
  if(authTransition)return authTransition;
- authTransition=(async()=>{state.user=user;$('#authMsg').textContent='Cargando tu contenido…';await loadAll();showApp();$('#authMsg').textContent=''})().finally(()=>{authTransition=null});
- return authTransition;
+ const generation=authGeneration;
+ const work=(async()=>{
+   if(!session){const result=await state.sb.auth.getSession();session=result.data?.session}
+   if(!await window.NexmirSessions.open(session,{fresh})||generation!==authGeneration)return;
+   state.user=user;$('#authMsg').textContent='Cargando tu contenido…';
+   await loadAll();
+   if(generation!==authGeneration||state.user?.id!==user.id||!window.NexmirSessions.active())return;
+   showApp();$('#authMsg').textContent='';
+ })().finally(()=>{if(authTransition===work)authTransition=null});
+ authTransition=work;return work;
 }
 async function start(){
  initSb();
  let session=null,lastError=null;
  for(let attempt=0;attempt<2&&!session;attempt++){
    if(attempt)await new Promise(resolve=>setTimeout(resolve,350));
-   const result=await state.sb.auth.getSession();
-   session=result.data?.session||null;lastError=result.error||null;
+   const result=await state.sb.auth.getSession();session=result.data?.session||null;lastError=result.error||null;
  }
  if(lastError&&!session)console.warn('No se pudo recuperar la sesión',lastError);
- // Los módulos de estudio deben haber registrado sus restauradores antes de abrir la sesión.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
- if(session)await enterSession(session.user);else showAuth();
- state.sb.auth.onAuthStateChange((event,session)=>{
-   // Release the authentication lock before requesting content with the same client.
-   if(session){setTimeout(()=>{if(state.user?.id!==session.user.id||$('#app')?.classList.contains('hidden'))enterSession(session.user).catch(e=>{console.error(e);$('#authMsg').textContent='No pude cargar la app: '+(e.message||e)})},0)}
-   else if(event==='SIGNED_OUT'&&state.user){window.nexmirClearStudyResume?.();state.user=null;showAuth()}
+ state.sb.auth.onAuthStateChange((event,newSession)=>{
+   // Never request Supabase work inside the authentication callback/lock.
+   if(authBusy)return;
+   if(event==='SIGNED_OUT'){const generation=authGeneration;setTimeout(()=>{if(generation!==authGeneration||authBusy)return;window.NexmirSessions.reset();if(state.user)clearSignedInUi('logout','Has cerrado sesión.')},0);return}
+   if(!newSession||event==='INITIAL_SESSION')return;
+   if(window.NexmirSessions.observe(newSession))return;
+   setTimeout(()=>{
+     if(authBusy)return;
+     if(event==='PASSWORD_RECOVERY')$('#resetPasswordDialog')?.showModal();
+     enterSession(newSession.user,{session:newSession,fresh:event==='PASSWORD_RECOVERY'}).catch(e=>{showAuth();$('#authMsg').textContent=e.message});
+   },0);
  });
+ if(session)await enterSession(session.user,{session});else showAuth();
 }
 function hideBootScreen(){const boot=$('#bootScreen');if(boot){boot.classList.add('hidden');boot.setAttribute('aria-busy','false')}}
 function showStartupError(error){
@@ -57,7 +86,7 @@ function showAuth(){hideBootScreen();state.profile=null;$('#adminLink')?.classLi
 function showApp(){ hideBootScreen();$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden');const n=profileName();$('#userAvatar').textContent=n[0]?.toUpperCase()||'N';$('#planPill').textContent=(state.profile?.role==='admin'?'Admin':state.profile?.plan||'Free');if(['admin','moderator'].includes(state.profile?.role))$('#adminLink').classList.remove('hidden');const restored=window.nexmirRestoreStudy?.();if(!restored)route('dashboard');window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}))}
 async function safeLoad(label,fn,fallback=[]){try{return await fn()}catch(e){console.warn('Carga opcional falló:',label,e);return fallback}}
 async function loadAll(){
- const uid=state.user.id;
+ const uid=state.user.id,generation=authGeneration;
  // Empieza las lecturas personales mientras llega el catálogo; ambas son independientes.
  const secondary=Promise.all([
    safeLoad('repasos',()=>fetchAllPages(()=>state.sb.from('user_flashcard_reviews').select('*').eq('user_id',uid))),
@@ -73,12 +102,14 @@ async function loadAll(){
    fetchAllPages(()=>state.sb.from('content_items').select('id,source_uid,kind,card_type,status,current_version,payload,source_hash,source_path,specialty,topic,subtopic,section,last_reviewed_at,created_at,updated_at').eq('status','published').order('specialty')),
    fetchAllPages(()=>state.sb.from('questions').select('id,source_uid,source_number,source_exam,source,status,stem,options,correct_index,explanation,specialty,topic,subtopic,section,image_path,year,remnote_metadata,created_at,updated_at').eq('status','published').order('created_at',{ascending:false}))
  ]);
+ if(generation!==authGeneration||state.user?.id!==uid){await secondary;return}
  if(pr.error)throw pr.error;
  state.profile=pr.data||{id:uid,role:'user',plan:'free',display_name:state.user?.email?.split('@')[0]||'MIR'};
  state.content=(ct||[]).map(repairImportedClassification);
  state.questions=(qs||[]).map(repairImportedClassification);
  // Datos secundarios: nunca deben impedir entrar a la app.
  const [rv,at,bm,nt,sm,el]=await secondary;
+ if(generation!==authGeneration||state.user?.id!==uid)return;
  state.reviews=rv||[];state.attempts=at||[];state.bookmarks=bm||[];state.notes=nt||[];state.simulations=sm||[];state.errorLog=el||[];
  updateDueBadge();
  // Las URLs firmadas de imágenes se cargan después y no bloquean el login.
@@ -119,15 +150,27 @@ function repairImportedClassification(x){
 }
 function updateDueBadge(){const due=dueCards().length;$('#dueBadge').textContent=due;$('#dueBadge').classList.toggle('hidden',!due)}
 async function login(){
+ if(authBusy)return;authBusy=true;$('#loginBtn').disabled=true;
  const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value;
  $('#authMsg').textContent='Entrando…';
  try{
-   const {data,error}=await state.sb.auth.signInWithPassword({email,password});
-   if(error)throw error;
-   await enterSession(data.user);
- }catch(e){console.error('Login NEXMIR',e);$('#authMsg').textContent='No se pudo entrar: '+(e.message||e)}
+   const {data,error}=await state.sb.auth.signInWithPassword({email,password});if(error)throw error;
+   await enterSession(data.user,{session:data.session,fresh:true});
+ }catch(e){console.error('Login NEXMIR',e);showAuth();$('#authMsg').textContent='No se pudo entrar: '+(e.message||e)}
+ finally{authBusy=false;$('#loginBtn').disabled=false}
 }
-async function signup(){const name=$('#signupName').value.trim(),email=$('#signupEmail').value.trim(),password=$('#signupPassword').value;if(password.length<8){$('#authMsg').textContent='Usa al menos 8 caracteres.';return}const {data,error}=await state.sb.auth.signUp({email,password,options:{data:{display_name:name}}});if(error){$('#authMsg').textContent=error.message;return}if(data.user&&data.session){await state.sb.from('profiles').update({display_name:name}).eq('id',data.user.id);state.user=data.user;await loadAll();showApp()}else $('#authMsg').textContent='Cuenta creada. Revisa tu correo si Supabase solicita confirmación.'}
+async function signup(){
+ if(authBusy)return;
+ const name=$('#signupName').value.trim(),email=$('#signupEmail').value.trim(),password=$('#signupPassword').value;
+ if(password.length<8){$('#authMsg').textContent='Usa al menos 8 caracteres.';return}
+ authBusy=true;$('#signupBtn').disabled=true;
+ try{
+   const {data,error}=await state.sb.auth.signUp({email,password,options:{data:{display_name:name}}});if(error)throw error;
+   if(data.user&&data.session){await enterSession(data.user,{session:data.session,fresh:true});await state.sb.from('profiles').update({display_name:name}).eq('id',data.user.id)}
+   else $('#authMsg').textContent='Cuenta creada. Revisa tu correo si Supabase solicita confirmación.';
+ }catch(e){$('#authMsg').textContent=e.message||String(e)}
+ finally{authBusy=false;$('#signupBtn').disabled=false}
+}
 // Lookup indexes rebuild after a content refresh; attempt calculations no longer scan the bank.
 let attemptQuestionIndex;
 function getAttemptQuestion(a){
@@ -164,10 +207,10 @@ function route(v){
  $$('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
  $('#viewTitle').textContent=viewNames[v]||v;$('#crumb').textContent='';
  const paint=async()=>{
-  if(generation!==routeGeneration)return;
+  if(generation!==routeGeneration||!state.user)return;
   try{await render(v)}catch(e){
    console.error('Error renderizando vista',v,e);
-   if(target)target.innerHTML=`<div class="card view-error"><h3>No se pudo cargar esta sección</h3><p class="muted">${esc(e?.message||'Error inesperado')}</p><button class="btn" onclick="route('${esc(v)}')">Reintentar</button></div>`;
+   if(target&&state.user&&generation===routeGeneration)target.innerHTML=`<div class="card view-error"><h3>No se pudo cargar esta sección</h3><p class="muted">${esc(e?.message||'Error inesperado')}</p><button class="btn" onclick="route('${esc(v)}')">Reintentar</button></div>`;
   }
  };
  const pending=runPlanLoading(paint,'Cargando '+(viewNames[v]||v)+'…');
@@ -602,7 +645,7 @@ function renderGoal(){const current=state.profile?.goal_specialty||'',hospital=s
 async function saveGoal(){const baremoVal=$('#goalBaremo').value.trim();const row={goal_specialty:$('#goalSpecialty').value||null,goal_city:$('#goalCity').value.trim()||null,goal_hospital:$('#goalHospital').value.trim()||null,academic_average:baremoVal===''?null:Number(baremoVal),target_number:+$('#goalNumber').value||null,updated_at:new Date().toISOString()};if(row.academic_average!=null&&(row.academic_average<0||row.academic_average>10))return toast('El baremo debe estar entre 0 y 10');const {error}=await state.sb.from('profiles').update(row).eq('id',state.user.id);if(error){if(/permission denied.*profiles/i.test(error.message))return toast('Faltan permisos de perfil en Supabase. Ejecuta la migración NEXMIR V3.6.');if(/goal_hospital|academic_average|column/i.test(error.message))return toast('Faltan columnas de Mi plaza MIR en Supabase. Ejecuta la migración NEXMIR V3.6.');return toast(error.message)}Object.assign(state.profile,row);toast('Objetivo guardado');window.dispatchEvent(new Event('nexmir:goal-saved'));renderGoal()}
 function renderProfile(){$('#view-profile').innerHTML=`<div class="grid cols-2"><div class="card"><h3>Perfil</h3><label>Nombre<input id="profileName" value="${esc(state.profile?.display_name||'')}"></label><label>Correo<input value="${esc(state.user.email)}" disabled></label><div class="row"><span>Plan</span><span class="pill">${esc(state.profile?.plan||'free')}</span></div><div class="row" style="margin-top:10px"><span>Rol</span><span class="chip">${esc(state.profile?.role||'user')}</span></div><button class="btn primary" style="margin-top:15px" onclick="saveProfile()">Guardar</button></div><div class="card"><h3>Cuenta</h3><p class="muted">Tu progreso se guarda automáticamente en tu cuenta.</p><button class="btn danger" onclick="logout()">Cerrar sesión</button></div></div>`}
 async function saveProfile(){const display_name=$('#profileName').value.trim();const {error}=await state.sb.from('profiles').update({display_name,updated_at:new Date().toISOString()}).eq('id',state.user.id);if(error)return toast(error.message);state.profile.display_name=display_name;toast('Perfil actualizado');showApp()}
-async function logout(){await state.sb.auth.signOut()}
+async function logout(){return window.NexmirSessions.end('logout')}
 
 $$('.auth-tab').forEach(b=>b.onclick=()=>{$$('.auth-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#loginPanel').classList.toggle('hidden',b.dataset.auth!=='login');$('#signupPanel').classList.toggle('hidden',b.dataset.auth!=='signup')});
 $('#loginBtn').onclick=login;$('#signupBtn').onclick=signup;$$('[data-password-toggle]').forEach(button=>button.addEventListener('click',()=>{const field=document.getElementById(button.dataset.passwordToggle);const visible=field.type==='password';field.type=visible?'text':'password';button.textContent=visible?'Ocultar':'Mostrar';button.setAttribute('aria-pressed',String(visible));button.setAttribute('aria-label',visible?'Ocultar contraseña':'Mostrar contraseña');field.focus({preventScroll:true})}));$$('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).close());$$('.nav-item[data-view]').forEach(b=>b.onclick=()=>route(b.dataset.view));$('#mobileMenu').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
