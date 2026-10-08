@@ -6,7 +6,34 @@ begin;
 create extension if not exists pgcrypto;
 
 -- ============================================================
--- 1) PLAN FREE/PRO
+-- 1) HISTORIAL DE SIMULACROS
+-- Algunos proyectos antiguos aún no tienen esta tabla. La aplicación la usa
+-- para guardar Mini-MIR, simulacros completos y calcular los límites del plan.
+-- ============================================================
+create table if not exists public.simulations(
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null default 'Simulacro',
+  mode text not null default 'mini',
+  question_ids uuid[] not null default '{}'::uuid[],
+  total integer not null default 0 check(total>=0),
+  correct integer not null default 0 check(correct>=0),
+  incorrect integer not null default 0 check(incorrect>=0),
+  blank integer not null default 0 check(blank>=0),
+  net_score numeric(8,2),
+  started_at timestamptz not null default now(),
+  finished_at timestamptz not null default now()
+);
+create index if not exists simulations_user_finished_idx on public.simulations(user_id,finished_at desc);
+alter table public.simulations enable row level security;
+drop policy if exists simulations_select_self on public.simulations;
+create policy simulations_select_self on public.simulations for select to authenticated using(user_id=auth.uid());
+drop policy if exists simulations_insert_self on public.simulations;
+create policy simulations_insert_self on public.simulations for insert to authenticated with check(user_id=auth.uid());
+grant select,insert on public.simulations to authenticated;
+
+-- ============================================================
+-- 2) PLAN FREE/PRO
 -- ============================================================
 alter table public.profiles add column if not exists plan text not null default 'free';
 update public.profiles set plan='free' where plan is null or lower(plan) not in ('free','pro');
@@ -68,7 +95,7 @@ create trigger nexmir_free_simulation_limit before insert on public.simulations
 for each row execute function public.nexmir_enforce_free_plan();
 
 -- ============================================================
--- 2) BATALLAS 1 VS 1
+-- 3) BATALLAS 1 VS 1
 -- ============================================================
 create table if not exists public.battle_rooms(
   id uuid primary key default gen_random_uuid(),
