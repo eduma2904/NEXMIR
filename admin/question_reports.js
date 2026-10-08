@@ -20,9 +20,10 @@ function renderQuestionReports(){
 }
 async function openReportedQuestion(id){
   const r=questionReports.find(x=>x.id===id);if(!r)return;
+  const classification=r.source_type==='arcade'&&r.source_id.startsWith('classification:');
   const table=r.source_type==='questions'?'questions':r.source_type==='arcade'?'arcade_questions':'content_items';
-  const {data,error}=await sb.from(table).select('*').eq('id',r.source_id).maybeSingle();
-  const text=data?(r.source_type==='questions'?data.stem||data.question:r.source_type==='arcade'?data.clue+' · '+data.answer:data.payload?.front||data.payload?.question):'';
+  const {data,error}=classification?{data:null,error:null}:await sb.from(table).select('*').eq('id',r.source_id).maybeSingle();
+  const text=classification?'Clasificaciones MIR · El enunciado original figura entre corchetes en el reporte. Revisa esta tabla en Arcade · Clasificaciones.':data?(r.source_type==='questions'?data.stem||data.question:r.source_type==='arcade'?data.clue+' · '+data.answer:data.payload?.front||data.payload?.question):'';
   const explanation=data?(r.source_type==='questions'||r.source_type==='arcade'?data.explanation:data.payload?.explanation):'';
   const body=document.getElementById('dialogBody');
   body.innerHTML=`<div class="detail"><h2>Reporte editorial</h2><p><strong>${esc(reportPartLabels[r.part]||r.part)}:</strong> ${esc(r.detail)}</p><p class="muted">${esc(r.source_type)} · ${esc(r.source_id)}</p><hr><h3>Contenido actual</h3><p>${error?'No se pudo leer: '+esc(error.message):esc(text||'El contenido fue archivado o eliminado.')}</p>${explanation?`<p><strong>Explicación:</strong> ${esc(Array.isArray(explanation)?explanation.join(' '):explanation)}</p>`:''}<hr><label class="fieldLabel">Estado<select id="editReportStatus">${Object.entries(reportStatusLabels).map(([value,label])=>`<option value="${value}" ${r.status===value?'selected':''}>${label}</option>`).join('')}</select></label><label class="fieldLabel">Nota administrativa<textarea id="editReportNote" maxlength="2000" rows="3">${esc(r.admin_note||'')}</textarea></label><div class="actions"><button class="primary" onclick="saveReportedQuestion('${r.id}')">Guardar revisión</button></div><p id="editReportMessage" class="muted"></p></div>`;

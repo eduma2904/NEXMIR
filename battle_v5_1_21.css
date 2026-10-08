@@ -38,3 +38,46 @@
 @keyframes battle-celebrate{50%{transform:translateY(-10px) rotate(-8deg)}}
 @keyframes battle-sad{50%{transform:translateY(4px) rotate(5deg)}}
 @media (prefers-reduced-motion:reduce){#view-battles .battle-result,#view-battles .battle-avatar,#view-battles .battle-wait-icon{animation:none!important}}
+
+/* Review is available to every plan; only the explanation block is gated. */
+#view-battles .battle-review-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin:0 0 16px}
+#view-battles .battle-review-head h2{margin:8px 0 2px}
+#view-battles .battle-review-head p{margin:0}
+#view-battles .battle-review-layout{display:grid;grid-template-columns:minmax(190px,240px) minmax(0,1fr);gap:16px;align-items:start}
+#view-battles .battle-review-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;position:sticky;top:104px}
+#view-battles .battle-review-nav-item{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:3px;padding:7px;border:1px solid var(--ui-border);border-radius:10px;background:var(--n-card);color:var(--ui-text);font-weight:750;cursor:pointer}
+#view-battles .battle-review-nav-item.correct{border-color:var(--green)}
+#view-battles .battle-review-nav-item.wrong{border-color:var(--red)}
+#view-battles .battle-review-nav-item.active{outline:2px solid var(--ui-accent);outline-offset:1px}
+#view-battles .battle-review-nav-item.correct span{color:var(--green)}
+#view-battles .battle-review-nav-item.wrong span{color:var(--red)}
+#view-battles .battle-review-detail{min-width:0}
+#view-battles .battle-review-detail-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+#view-battles .battle-review-options{display:grid;gap:9px;margin:20px 0}
+#view-battles .battle-review-option{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border:1px solid var(--ui-border);border-radius:10px;overflow-wrap:anywhere}
+#view-battles .battle-review-option.is-correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--n-card))}
+#view-battles .battle-review-option.is-wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--n-card))}
+#view-battles .battle-review-number{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:7px;background:var(--ui-accent);color:var(--ui-on-accent);font-weight:750}
+#view-battles .battle-review-option>span:nth-child(2){flex:1;min-width:0}
+#view-battles .battle-review-option strong,#view-battles .battle-review-option em{font-size:12px;white-space:nowrap;font-style:normal}
+#view-battles .battle-review-option strong{color:var(--green)}
+#view-battles .battle-review-option em{color:var(--red)}
+#view-battles .battle-review-answerline{padding-top:12px;border-top:1px solid var(--ui-border)}
+#view-battles .battle-review-explanation,#view-battles .battle-review-pro{padding:14px 16px;border:1px solid var(--ui-border);border-radius:12px;margin-top:18px}
+#view-battles .battle-review-explanation h4,#view-battles .battle-review-pro p{margin:0 0 8px}
+#view-battles .battle-review-pro{background:color-mix(in srgb,var(--ui-accent) 7%,var(--n-card))}
+#view-battles .battle-review-history{margin-top:16px}
+#view-battles .battle-review-history>div{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid var(--ui-border)}
+@media(max-width:760px){#view-battles .battle-review-layout{grid-template-columns:minmax(0,1fr)}#view-battles .battle-review-nav{position:static;grid-template-columns:repeat(5,minmax(0,1fr))}#view-battles .battle-review-option{flex-wrap:wrap}}
+.battle-scope{border:1px solid var(--ui-border);border-radius:14px;margin:15px 0;padding:14px;min-width:0}
+.battle-scope legend{font-weight:750;padding:0 5px}
+.battle-scope-modes{display:flex;flex-wrap:wrap;gap:10px;margin:5px 0 12px}
+.battle-scope-modes label,.battle-specialty-choice{display:flex;align-items:center;gap:8px;cursor:pointer}
+.battle-scope-modes input,.battle-specialty-choice input{width:auto;min-width:16px;min-height:16px;accent-color:var(--ui-accent)}
+.battle-specialty-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:240px;overflow:auto;padding:10px;border:1px solid var(--ui-border);border-radius:10px}
+.battle-specialty-list[hidden]{display:none!important}
+.battle-specialty-choice{border:1px solid var(--ui-border);border-radius:9px;padding:8px 9px;min-width:0}
+.battle-specialty-choice span{min-width:0;overflow-wrap:anywhere}
+.battle-specialty-choice small{color:var(--ui-muted);margin-left:auto;white-space:nowrap}
+.battle-scope p{margin:10px 0 0}
+@media(max-width:600px){.battle-specialty-list{grid-template-columns:1fr}.battle-scope{padding:11px}}

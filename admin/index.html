@@ -22,6 +22,7 @@
       <button class="nav" data-view="import">⇧ <span>Importar contenido</span></button>
       <button class="nav" data-view="questions">❓ <span>Gestionar preguntas</span></button>
       <button class="nav" data-view="arcade">✦ <span>Arcade · Preguntas</span></button>
+      <button class="nav" data-view="arcadeclasses">▦ <span>Arcade · Clasificaciones</span></button>
       <button class="nav" data-view="content">▤ <span>Contenido</span></button>
       <button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button>
       <button class="nav" data-view="simmanager">🗂 <span>Gestionar simulacros</span></button>
@@ -40,6 +41,25 @@
 
   <main class="main">
     <section id="arcadeView" class="view hidden"></section>
+    <section id="arcadeclassesView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Clasificaciones MIR</h1><p>Importa nuevas tablas o añade casos a las 13 incluidas. Publica solo después de revisar las respuestas y la tabla final.</p></div><button id="classesRefresh" class="secondary">Actualizar</button></div>
+      <p id="classesMessage" role="status" aria-live="polite" class="muted"></p>
+      <div id="classesBody" hidden>
+        <div class="cardBox">
+          <h2 id="classesTitle">Subir una clasificación</h2>
+          <p class="muted">Puedes elegir un archivo JSON o pegar su contenido. Para una escala incluida, usa su identificador y añade casos en <code>cases</code>; se conservarán los casos originales. Para una escala nueva, define también las opciones o componentes, una fuente y la tabla de repaso.</p>
+          <div class="actions"><button class="secondary" type="button" id="classesChoiceExample">Ejemplo: elegir grado</button><button class="secondary" type="button" id="classesScoreExample">Ejemplo: puntuar</button><button class="secondary" type="button" id="classesExtraExample">Ejemplo: añadir casos</button></div>
+          <form id="classesForm">
+            <label class="fieldLabel">Archivo JSON (máximo 500 KB)<input id="classesFile" type="file" accept=".json,application/json"></label>
+            <label class="fieldLabel">Definición JSON<textarea id="classesJson" rows="19" required spellcheck="false" placeholder="Elige un ejemplo o pega tu JSON aquí"></textarea></label>
+            <label class="arcadePublish"><input id="classesPublished" type="checkbox"> Publicada para los alumnos</label>
+            <div class="actions"><button type="button" class="secondary" id="classesPreview">Validar y previsualizar</button><button type="submit" class="primary" id="classesSave">Guardar en Arcade</button><button type="button" class="ghost" id="classesCancel">Cancelar edición</button></div>
+          </form>
+          <div id="classesPreviewBox" class="cardBox" hidden></div>
+        </div>
+        <h2>Contenido añadido desde el panel</h2><p id="classesCount" class="muted"></p><div id="classesList"></div>
+      </div>
+    </section>
     <section id="dashboardView" class="view">
       <div class="pageHead"><div><div class="eyebrow">PANEL ADMIN</div><h1>Tu biblioteca, en orden</h1><p>Importa RemNote sin duplicar información, clasifica automáticamente por especialidad y conserva tablas reales.</p></div></div>
       <div class="import-callout"><div><strong>Una carga, cada contenido en su lugar</strong><p>Sube un ZIP y revisa el destino antes de publicar.</p></div><button type="button" class="primary" onclick="go('import')">Importar contenido →</button></div>
@@ -235,5 +255,13 @@
 <script src="../interaction_polish.js?v=5.1.5"></script>
 <link rel="stylesheet" href="arcade_manager.css?v=5.1.18">
 <script src="arcade_manager.js?v=5.1.18"></script>
+<script src="classification_arcade_manager.js?v=5.1.24"></script>
+<style>
+#classesJson{width:100%;min-height:360px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
+#classesPreviewBox{overflow-x:auto;margin-top:18px}
+.arcadeClassReview{border-collapse:collapse;min-width:520px}
+.arcadeClassReview th,.arcadeClassReview td{padding:9px;border:1px solid var(--line,#cad5e0);text-align:left;vertical-align:top}
+#classesList .arcadeAdminRow{margin-bottom:12px}
+</style>
 </body>
 </html>

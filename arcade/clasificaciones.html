@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071827"><title>NEXMIR · Clasificaciones MIR</title>
+<style>
+:root{--bg:#071827;--panel:#102a40;--card:#17364d;--line:#31536c;--text:#eef7ff;--muted:#aec5d4;--cyan:#5ed8eb;--blue:#4896ed;--green:#42d5a0;--red:#fb8390;--amber:#f8c973}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -20%,#224965,transparent 48%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}a{color:var(--cyan)}.wrap{max-width:1120px;margin:auto;padding:22px 18px 68px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px}.mark{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(130deg,var(--blue),var(--cyan));font-size:22px;font-weight:900}.brand strong{display:block;letter-spacing:.08em}.brand small,.muted{color:var(--muted)}.badge{border:1px solid var(--line);border-radius:99px;color:var(--cyan);padding:7px 12px;font-size:12px}.hero,.board{background:linear-gradient(140deg,#16354d,#0c2134);border:1px solid var(--line);border-radius:24px;box-shadow:0 22px 52px #0002;padding:clamp(20px,4vw,38px)}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800;color:var(--cyan)}h1{font-size:clamp(30px,4.5vw,48px);line-height:1.08;letter-spacing:-.035em;margin:8px 0 13px}h2{font-size:clamp(24px,3vw,32px);line-height:1.15;margin:6px 0 12px}h3{font-size:17px;margin:0 0 10px}p{margin:0 0 12px}.lead{max-width:750px;color:var(--muted);line-height:1.65}.pulse{width:min(100%,450px);height:95px;margin:7px 0}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:23px 0 15px}.search{flex:1;min-width:210px;background:#102b40;color:var(--text);border:1px solid var(--line);border-radius:11px;min-height:43px;padding:9px 13px}.chip{border:1px solid var(--line);background:#123046;color:var(--muted);border-radius:99px;padding:8px 12px}.chip[aria-pressed=true]{background:#19566b;color:var(--text);border-color:var(--cyan)}.deck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.module{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:20px;text-align:left;min-height:175px;display:flex;flex-direction:column;gap:8px}.module:hover{border-color:var(--cyan);background:#173b51}.module .icon{display:grid;place-items:center;background:#20506a;color:var(--cyan);width:44px;height:44px;border-radius:13px;font-size:22px}.module b{font-size:20px}.module p{color:var(--muted);font-size:13px;margin:0}.module em{color:var(--cyan);font-style:normal;font-weight:750;margin-top:auto}.meta{font-size:11px;color:var(--amber);font-weight:700}.hint{font-size:13px;color:var(--muted);margin-top:18px}.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}.stat{border:1px solid var(--line);border-radius:12px;padding:10px 13px;background:#0b2438}.stat small{display:block;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-size:11px}.stat strong{font-size:20px;color:var(--cyan)}.stat.hearts strong{color:var(--red)}.empty{opacity:.32}.board-head{display:flex;align-items:start;justify-content:space-between;gap:16px}.round{white-space:nowrap;border-radius:99px;background:#143d52;color:var(--cyan);padding:8px 12px;font-weight:800;font-size:12px}.track{height:8px;background:#21394c;border-radius:99px;overflow:hidden;margin:17px 0 23px}.track span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}.case{border:1px solid #386581;background:#0b2235;border-radius:16px;padding:18px 20px;line-height:1.7;margin:15px 0 18px}.case strong{color:var(--cyan)}.source-note{color:var(--muted);font-size:12px}.rows{display:grid;gap:9px}.row{display:grid;grid-template-columns:minmax(120px,1fr) auto;align-items:center;gap:13px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:13px}.row b{display:block}.row small{display:block;color:var(--muted);line-height:1.35}.row.ok,.pick.ok{border-color:var(--green)}.row.no,.pick.no{border-color:var(--red)}.points{display:flex;gap:5px;flex-wrap:wrap}.points button{min-width:39px;height:42px;background:#0b273a;color:var(--text);border:1px solid #54758a;border-radius:10px;font-weight:800}.points button[aria-pressed=true]{background:var(--blue);border-color:#a6d4ff;box-shadow:0 0 0 2px #4896ed55;color:#fff}.points button:disabled,.pick:disabled{cursor:default}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.pick{border:1px solid var(--line);background:var(--card);border-radius:14px;min-height:70px;text-align:left;color:var(--text);padding:12px;display:flex;align-items:center;gap:12px}.pick:hover{border-color:var(--cyan)}.pick[aria-pressed=true]{background:#164860;border-color:var(--cyan);box-shadow:inset 4px 0 var(--cyan)}.pick .symbol{display:grid;place-items:center;min-width:42px;height:42px;border-radius:11px;background:#28556c;color:var(--cyan);font-weight:900;font-size:17px}.pick span:last-child{font-size:13px}.feedback{margin-top:17px;background:#153e38;border:1px solid #388c72;border-radius:13px;padding:16px;line-height:1.6}.feedback.bad{background:#342832;border-color:#995560}.feedback p:last-child{margin-bottom:0}.feedback ul{margin:8px 0 0;padding-left:22px}.feedback strong{color:var(--amber)}.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:21px}.primary,.secondary{border-radius:11px;border:1px solid transparent;min-height:46px;padding:10px 17px;font-weight:750}.primary{background:var(--blue);color:white}.primary:hover{background:#65a6f0}.secondary{background:#1b3b53;border-color:var(--line);color:var(--text)}.secondary:hover{background:#28506b}.summary-num{font-size:clamp(38px,7vw,70px);font-weight:900;color:var(--cyan);line-height:1}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.summary-grid div{background:#102b40;border:1px solid var(--line);border-radius:13px;padding:14px}.summary-grid b{display:block;font-size:23px;color:var(--cyan)}.summary-grid small{color:var(--muted)}.review{display:grid;gap:8px;margin:15px 0 24px}.review div{border:1px solid var(--line);background:#142f45;border-radius:11px;padding:12px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;margin:12px 0 24px}.recap{width:100%;border-collapse:collapse;min-width:560px;background:#102b40}.recap th,.recap td{padding:11px 13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}.recap th{background:#173d55;color:var(--cyan);font-size:13px}.recap tr:last-child td{border-bottom:0}.recap th:last-child,.recap td:last-child{border-right:0}.recap-note{color:var(--muted);font-size:13px}.reference{font-size:12px;color:var(--muted);margin-top:22px}@media(max-width:850px){.deck{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.wrap{padding:15px 13px 44px}.badge{display:none}.deck,.choices{grid-template-columns:1fr}.module{min-height:142px}.row{grid-template-columns:1fr}.points button{flex:1}.footer .primary{width:100%}.summary-grid{grid-template-columns:1fr 1fr}.summary-grid div:last-child{grid-column:span 2}}
+:root{--accent:#76b7ff;--accent-strong:#245bc4;--accent-rgb:36,91,196;--bg:#07121f;--panel:#0e1b2c;--card:#13243a;--line:#29415c;--text:#f4f8ff;--muted:#9db0c6;--cyan:var(--accent);--blue:var(--accent-strong);--green:#47d6a3;--red:#ff6f87;--amber:#ffc95b}
+:root[data-palette="green"]{--accent-strong:#087755;--accent:#65d5ae;--accent-rgb:8,119,85}
+:root[data-palette="orange"]{--accent-strong:#ac4814;--accent:#ffb47d;--accent-rgb:172,72,20}
+:root[data-palette="pink"]{--accent-strong:#af316f;--accent:#ff9bc8;--accent-rgb:175,49,111}
+:root[data-theme-mode="light"]{--bg:#edf4ff;--panel:#fff;--card:#f6f9fd;--line:#d3dfed;--text:#17283b;--muted:#60738a}
+:root[data-theme-mode="dark"][data-palette="blue"]{--accent-strong:#a5c5ff;--accent:#7bb7ff;--accent-rgb:165,197,255}
+:root[data-theme-mode="dark"][data-palette="green"]{--accent-strong:#76dfb7;--accent:#63d7ad;--accent-rgb:118,223,183}
+:root[data-theme-mode="dark"][data-palette="orange"]{--accent-strong:#ffc28e;--accent:#ffad6f;--accent-rgb:255,194,142}
+:root[data-theme-mode="dark"][data-palette="pink"]{--accent-strong:#ffb0d6;--accent:#ff8fc4;--accent-rgb:255,176,214}
+body{background:radial-gradient(circle at 8% 0%,rgba(var(--accent-rgb),.16),transparent 28%),var(--bg)}
+.hero,.board{background:var(--panel)}.module,.row,.pick,.summary-grid div,.review div{background:var(--card)}.case,.stat,.search,.chip,.points button,.secondary,.recap{background:var(--card);color:var(--text)}
+.chip[aria-pressed=true],.pick[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 20%,var(--card));color:var(--text)}
+.recap th{background:color-mix(in srgb,var(--accent) 13%,var(--card))}.primary{background:var(--accent-strong);color:#fff}:root[data-theme-mode="dark"] .primary{color:#10233c}
+.primary:hover{background:var(--accent)}.feedback{background:color-mix(in srgb,var(--green) 14%,var(--panel));color:var(--text)}.feedback.bad{background:color-mix(in srgb,var(--red) 13%,var(--panel))}
+.game-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:18px}.game-actions button{min-height:38px;padding:7px 11px;font-size:12px}.game-actions .danger-action{color:var(--red)}
+.footer .secondary{min-height:42px}.case strong{color:var(--text)}.round{background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--accent)}
+</style></head><body><main class="wrap"><header class="top"><div class="brand"><div class="mark">N</div><div><strong>NEXMIR · CLASIFICA</strong><small>Arcade · memoria clínica</small></div></div><span class="badge">Casos listos para jugar</span></header><nav class="game-actions" aria-label="Acciones del juego"><button class="secondary" id="leaveGame" type="button">← Salir del juego</button><button class="secondary" id="reportGame" type="button" hidden>⚑ Reportar pregunta</button><button class="secondary" id="suggestGame" type="button">＋ Sugerir nueva clasificación</button></nav><div id="app"></div></main>
+<script>
+(()=>{'use strict';
+const root=document.getElementById('app');
+const scales=[
+ {id:'apgar',name:'Apgar',icon:'♥',topic:'Pediatría',type:'score',origin:'ambos',note:'Puntúa los cinco criterios (0–2) de cada recién nacido.',source:'https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2015/10/the-apgar-score',labels:['Frecuencia cardíaca','Respiración','Tono muscular','Respuesta al estímulo','Coloración'],rules:['0 ausente; 1 <100 lpm; 2 ≥100 lpm.','0 apnea; 1 lenta o irregular; 2 llanto vigoroso.','0 flácido; 1 flexión; 2 movimientos activos.','0 sin respuesta; 1 mueca; 2 tos, estornudo o retirada vigorosa.','0 pálido/azul; 1 tronco rosado y extremidades azules; 2 totalmente rosado.'],values:[0,1,2],cases:[
+  {text:'Al primer minuto de vida',observations:['110 lpm','respiración lenta e irregular','ligera flexión','tose ante el estímulo','tronco rosado con manos y pies azulados'],answer:[2,1,1,2,1]},
+  {text:'A los cinco minutos',observations:['80 lpm','sin respiración','flácido','mueca al estímulo','palidez generalizada'],answer:[1,0,0,1,0]},
+  {text:'Al primer minuto de vida',observations:['140 lpm','llanto vigoroso','movimientos activos','tose al estímulo','piel completamente rosada'],answer:[2,2,2,2,2]},
+  {text:'Al primer minuto de vida',observations:['sin latido cardíaco','sin respiración','sin movimiento muscular','sin respuesta al estímulo','coloración azulada generalizada'],answer:[0,0,0,0,0]},
+  {text:'A los cinco minutos',observations:['95 lpm','llanto vigoroso','flexión discreta','mueca al estímulo','tronco rosado con extremidades azuladas'],answer:[1,2,1,1,1]},
+  {text:'Al primer minuto de vida',observations:['120 lpm','sin respiración','movimiento activo de extremidades','no reacciona al estímulo','piel completamente rosada'],answer:[2,0,2,0,2]}
+ ]},
+ {id:'hinchey',name:'Hinchey original',icon:'✣',topic:'Cirugía',type:'choice',origin:'usuario',note:'Relaciona hallazgos de diverticulitis con grados I–IV.',source:'https://pmc.ncbi.nlm.nih.gov/articles/PMC3031281/',options:['I','II','III','IV'],cases:[
+  {text:'Absceso pegado al segmento de colon con diverticulitis, sin colección distante.',answer:'I',why:'Absceso pericólico localizado.'},{text:'Absceso pericólico delimitado, sin peritonitis generalizada.',answer:'I',why:'Colección localizada junto al colon.'},
+  {text:'Colección pélvica separada del segmento diverticular inflamado.',answer:'II',why:'Absceso pélvico distante.'},{text:'Absceso intraabdominal alejado del colon afectado.',answer:'II',why:'Absceso intraabdominal distante.'},
+  {text:'Pus libre y difuso en la cavidad, sin material fecal libre.',answer:'III',why:'Peritonitis purulenta generalizada.'},{text:'Peritonitis purulenta difusa sin contaminación fecaloidea.',answer:'III',why:'El contenido difuso es purulento.'},
+  {text:'Contenido fecal libre difuso y peritonitis generalizada.',answer:'IV',why:'Peritonitis fecaloidea generalizada.'},{text:'Contaminación fecaloidea generalizada tras perforación diverticular.',answer:'IV',why:'Hay material fecal libre difuso.'}
+ ]},
+ {id:'asma',name:'Gravedad del asma',icon:'≈',topic:'Neumología',type:'choice',origin:'ambos',note:'Tabla histórica aportada: intermitente y persistente leve, moderada o severa.',caution:'Tabla histórica de estudio. GINA 2026 valora la gravedad retrospectivamente según el tratamiento necesario.',source:'https://ginasthma.org/wp-content/uploads/2026/05/GINA-2026-Strategy-Report-WMS.pdf',options:['Intermitente','Persistente leve','Persistente moderada','Persistente severa'],cases:[
+  {text:'Síntomas 1 día por semana, una noche al mes; VEF1 92 %, variabilidad del PEF 15 %, episodios breves.',answer:'Intermitente',why:'Todos los datos pertenecen a la columna intermitente.'},
+  {text:'Síntomas 4 días por semana, 3 noches al mes; VEF1 88 %, variabilidad 25 %; limitación ocasional del ejercicio.',answer:'Persistente leve',why:'Más de dos días por semana sin síntomas diarios, 3 noches al mes y variabilidad 20–30 %.'},
+  {text:'Síntomas diarios, despertares 2 noches por semana; VEF1 70 %, variabilidad 35 %; limita actividad y sueño.',answer:'Persistente moderada',why:'Síntomas diarios y VEF1 de 60–80 %. La variabilidad >30 % no distingue moderada de severa en la tabla aportada.'},
+  {text:'Síntomas durante todo el día y casi todas las noches; VEF1 52 %, variabilidad 42 % y exacerbaciones frecuentes.',answer:'Persistente severa',why:'Síntomas continuos y VEF1 <60 %.'},
+  {text:'Síntomas diurnos solo una vez por semana, pero despierta 2 noches por semana; VEF1 85 %, variabilidad 16 %.',answer:'Persistente moderada',why:'El dato nocturno de más de una vez por semana determina la categoría en la tabla propuesta.'}
+ ]},
+ {id:'curb',name:'CURB-65',icon:'＋',topic:'Neumología',type:'score',origin:'usuario',note:'Decide si cada parámetro aporta 0 o 1 punto en neumonía adquirida en la comunidad.',source:'https://www.nice.org.uk/guidance/NG250/chapter/recommendations',labels:['Estado mental','Urea','Frecuencia respiratoria','Presión arterial','Edad'],rules:['Un punto por desorientación/confusión nueva.','Un punto solo si la urea supera 7 mmol/L.','Un punto con 30 respiraciones/min o más.','Un punto si sistólica <90 o diastólica ≤60 mmHg; nunca dos.','Un punto desde los 65 años, inclusive.'],values:[0,1],cases:[
+  {text:'Neumonía: 38 años, orientado, urea 5,5 mmol/L, FR 22/min, PA 120/75 mmHg.',observations:['orientado','5,5 mmol/L','22/min','120/75 mmHg','38 años'],answer:[0,0,0,0,0]},
+  {text:'Neumonía: 65 años, orientado, urea 7,0 mmol/L, FR 29/min, PA 110/70 mmHg.',observations:['orientado','7,0 mmol/L','29/min','110/70 mmHg','65 años'],answer:[0,0,0,0,1],why:'Urea igual a 7 no cumple el umbral >7.'},
+  {text:'Neumonía: 52 años, desorientación nueva, urea 8,2 mmol/L, FR 26/min, PA 125/78 mmHg.',observations:['desorientación nueva','8,2 mmol/L','26/min','125/78 mmHg','52 años'],answer:[1,1,0,0,0]},
+  {text:'Neumonía: 70 años, orientado, urea 9,1 mmol/L, FR 32/min, PA 118/72 mmHg.',observations:['orientado','9,1 mmol/L','32/min','118/72 mmHg','70 años'],answer:[0,1,1,0,1]},
+  {text:'Neumonía: 68 años, confusión nueva, urea 9,0 mmol/L, FR 34/min, PA 88/58 mmHg.',observations:['confusión nueva','9,0 mmol/L','34/min','88/58 mmHg','68 años'],answer:[1,1,1,1,1],why:'La presión arterial aporta un solo punto aunque ambas cifras sean bajas.'}
+ ]},
+ {id:'forrest',name:'Forrest',icon:'◉',topic:'Digestivo',type:'choice',origin:'ambos',note:'Identifica el estigma endoscópico y consulta la conducta.',source:'https://www.esge.com/endoscopic-diagnosis-and-management-of-nonvariceal-upper-gastrointestinal-hemorrhage-esge-update-2021',options:['Ia','Ib','IIa','IIb','IIc','III'],cases:[
+  {text:'Úlcera péptica con sangrado activo en chorro.',answer:'Ia',why:'Sangrado arterial en chorro. Se indica hemostasia endoscópica.'},
+  {text:'Úlcera péptica con sangrado activo rezumante continuo.',answer:'Ib',why:'Sangrado en sábana o rezumante. Se indica hemostasia endoscópica.'},
+  {text:'Úlcera sin sangrado activo, con vaso visible en el lecho.',answer:'IIa',why:'Vaso visible no sangrante. Se indica hemostasia endoscópica.'},
+  {text:'Coágulo firmemente adherido al lecho de una úlcera, sin sangrado visible alrededor.',answer:'IIb',why:'Coágulo adherido. Considerar retirada; tratar si se descubre sangrado activo o un vaso visible.'},
+  {text:'Mancha plana oscura de hematina en el lecho, sin vaso visible.',answer:'IIc',why:'Mancha plana pigmentada. No se recomienda hemostasia endoscópica de esa lesión.'},
+  {text:'Úlcera de base limpia, sin sangrado ni estigmas de hemorragia reciente.',answer:'III',why:'Base limpia. No se recomienda hemostasia endoscópica de esa lesión.'}
+ ]},
+ {id:'glasgow',name:'Glasgow (GCS)',icon:'✦',topic:'Neurología',type:'score',origin:'ambos',note:'Asigna E, V y M antes de sumar. Incluye un caso no evaluable.',source:'https://www.glasgowcomascale.org/gcs-aid/',labels:['Apertura ocular (E)','Respuesta verbal (V)','Respuesta motora (M)'],rules:['E4 espontánea, E3 a la voz, E2 a la presión, E1 ninguna.','V5 orientada, V4 confusa, V3 palabras, V2 sonidos, V1 ninguna; NT si no evaluable.','M6 obedece, M5 localiza, M4 flexión normal, M3 anormal, M2 extensión, M1 ninguna.'],values:[[1,2,3,4],[1,2,3,4,5,'NT'],[1,2,3,4,5,6]],cases:[
+  {text:'Abre los ojos espontáneamente, está orientado y cumple órdenes.',observations:['espontánea','orientado','cumple órdenes'],answer:[4,5,6]},
+  {text:'Abre los ojos al llamarlo, conversa pero está desorientado y localiza la presión.',observations:['a la voz','conversación confusa','localiza la presión'],answer:[3,4,5]},
+  {text:'Abre los ojos a la presión, dice palabras aisladas sin frases y flexiona el brazo normalmente ante el estímulo.',observations:['a la presión','palabras aisladas','flexión normal'],answer:[2,3,4]},
+  {text:'No abre los ojos, solo emite sonidos y presenta extensión anormal al estímulo.',observations:['sin apertura','solo sonidos','extensión anormal'],answer:[1,2,2]},
+  {text:'Abre los ojos al llamarlo y localiza la presión. Está intubado y la respuesta verbal no puede evaluarse.',observations:['a la voz','intubado: verbal no evaluable','localiza la presión'],answer:[3,'NT',5],why:'V-NT significa no evaluable; no equivale a V1 ni permite un total numérico completo.'}
+ ]},
+ {id:'garden',name:'Garden',icon:'⌁',topic:'Traumatología',type:'choice',origin:'usuario',note:'Fracturas subcapitales: completa/incompleta y grado de desplazamiento.',source:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6259691/',options:['I','II','III','IV'],cases:[
+  {text:'Fractura subcapital incompleta, impactada en valgo, sin desplazamiento evidente.',answer:'I',why:'Incompleta e impactada en valgo.'},
+  {text:'Trazo subcapital completo; los fragmentos mantienen la alineación, sin desplazamiento.',answer:'II',why:'Completa y no desplazada.'},
+  {text:'Fractura completa con desplazamiento parcial y angulación en varo; persiste contacto entre fragmentos.',answer:'III',why:'Completa y parcialmente desplazada.'},
+  {text:'Fractura subcapital completa con desplazamiento total y pérdida de alineación entre fragmentos.',answer:'IV',why:'Completa y totalmente desplazada.'}
+ ]},
+ {id:'nyha',name:'NYHA',icon:'♡',topic:'Cardiología',type:'choice',origin:'zip',note:'Clasifica la limitación funcional por síntomas de insuficiencia cardíaca.',source:'https://www.heart.org/en/health-topics/heart-failure/what-is-heart-failure/classes-of-heart-failure',options:['I','II','III','IV'],cases:[
+  {text:'Paciente con cardiopatía conocida: sus actividades habituales no le producen disnea, fatiga ni palpitaciones.',answer:'I',why:'Sin limitación para la actividad física ordinaria.'},
+  {text:'Cómodo en reposo; al caminar a paso habitual varias cuadras aparece disnea, pero tolera actividades menores.',answer:'II',why:'Ligera limitación: la actividad ordinaria produce síntomas.'},
+  {text:'Cómodo en reposo; vestirse o caminar unos pocos metros le causa disnea.',answer:'III',why:'Limitación marcada: una actividad menor que la ordinaria produce síntomas.'},
+  {text:'Disnea de insuficiencia cardíaca incluso en reposo, que aumenta con cualquier actividad.',answer:'IV',why:'Síntomas de insuficiencia cardíaca en reposo.'}
+ ]},
+ {id:'child',name:'Child–Pugh',icon:'◆',topic:'Digestivo',type:'score',origin:'zip',note:'Cinco componentes (1–3 puntos) y clase A, B o C.',source:'https://www.merckmanuals.com/professional/multimedia/table/child-turcotte-pugh-scoring-system',labels:['Bilirrubina','Albúmina','INR','Ascitis','Encefalopatía'],rules:['<2 / 2–3 / >3 mg/dL = 1 / 2 / 3 puntos.','>3,5 / 2,8–3,5 / <2,8 g/dL = 1 / 2 / 3.','<1,7 / 1,7–2,3 / >2,3 = 1 / 2 / 3.','Ausente / leve-controlada / al menos moderada pese a diuréticos = 1 / 2 / 3.','Ausente / grado I–II / grado III–IV = 1 / 2 / 3.'],values:[1,2,3],cases:[
+  {text:'Cirrosis: bilirrubina 1,2 mg/dL, albúmina 3,9 g/dL, INR 1,3, sin ascitis ni encefalopatía.',observations:['1,2 mg/dL','3,9 g/dL','1,3','ausente','ausente'],answer:[1,1,1,1,1]},
+  {text:'Cirrosis: bilirrubina 2,4 mg/dL, albúmina 3,2 g/dL, INR 1,5, ascitis leve controlada con diuréticos, sin encefalopatía.',observations:['2,4 mg/dL','3,2 g/dL','1,5','leve/controlada','ausente'],answer:[2,2,1,2,1]},
+  {text:'Cirrosis: bilirrubina 3,6 mg/dL, albúmina 2,5 g/dL, INR 2,5, ascitis moderada pese a diuréticos y encefalopatía grado III.',observations:['3,6 mg/dL','2,5 g/dL','2,5','moderada pese a diuréticos','grado III'],answer:[3,3,3,3,3]},
+  {text:'Cirrosis: bilirrubina 1,5 mg/dL, albúmina 3,0 g/dL, INR 1,9, sin ascitis, encefalopatía grado I.',observations:['1,5 mg/dL','3,0 g/dL','1,9','ausente','grado I'],answer:[1,2,2,1,2]},
+  {text:'Cirrosis: bilirrubina 2,8 mg/dL, albúmina 2,7 g/dL, INR 2,0, ascitis leve y encefalopatía grado II.',observations:['2,8 mg/dL','2,7 g/dL','2,0','leve','grado II'],answer:[2,3,2,2,2]}
+ ]},
+ {id:'ann',name:'Ann Arbor',icon:'✣',topic:'Hematología',type:'choice',origin:'zip',note:'Extensión anatómica del linfoma; versión histórica presente en simulacros.',caution:'Para estadificación clínica actual de linfomas se emplea la adaptación de Lugano.',source:'https://www.cancer.gov/types/lymphoma/hp/adult-hodgkin-treatment-pdq',options:['I','II','III','IV'],cases:[
+  {text:'Linfoma en una sola región ganglionar cervical, sin enfermedad en otras regiones.',answer:'I',why:'Una sola región ganglionar.'},
+  {text:'Adenopatías cervicales y mediastínicas, ambas por encima del diafragma; sin otra afectación.',answer:'II',why:'Dos o más regiones ganglionares en el mismo lado del diafragma.'},
+  {text:'Adenopatías cervicales y retroperitoneales, a ambos lados del diafragma, sin infiltración extranodal difusa.',answer:'III',why:'Regiones ganglionares a ambos lados del diafragma.'},
+  {text:'Linfoma con infiltración difusa de médula ósea y afectación ganglionar.',answer:'IV',why:'Afectación extranodal difusa/diseminada.'}
+ ]},
+ {id:'birads',name:'BI-RADS',icon:'◈',topic:'Mama',type:'choice',origin:'zip',note:'Categoría del informe y recomendación habitual; sin inferirla de imágenes no disponibles.',source:'https://cs.acr.org/-/media/ACR/Files/RADS/BI-RADS/BIRADS-Reference-Card.pdf',options:['0','1','2','3','4','5','6'],cases:[
+  {text:'Mamografía de cribado incompleta: se requieren proyecciones adicionales antes de asignar categoría final.',answer:'0',why:'Evaluación incompleta: realizar imágenes adicionales.'},
+  {text:'Estudio mamario sin hallazgos anormales.',answer:'1',why:'Negativo.'},
+  {text:'Hallazgo inequívocamente benigno, como calcificación vascular típica.',answer:'2',why:'Hallazgo benigno.'},
+  {text:'Después de completar el estudio diagnóstico se describe hallazgo probablemente benigno y se recomienda control a corto intervalo.',answer:'3',why:'Probablemente benigno; seguimiento a corto intervalo, habitualmente seis meses.'},
+  {text:'Informe de imagen mamaria: lesión sospechosa de malignidad, se recomienda diagnóstico tisular.',answer:'4',why:'Sospechoso; se recomienda biopsia/diagnóstico tisular.'},
+  {text:'Informe de imagen altamente sugestivo de malignidad, antes de confirmación histológica.',answer:'5',why:'Altamente sugestivo de malignidad; requiere diagnóstico tisular.'},
+  {text:'Lesión mamaria con malignidad ya confirmada por biopsia y pendiente de tratamiento definitivo.',answer:'6',why:'Malignidad conocida demostrada por biopsia.'}
+ ]},
+ {id:'breslow',name:'Breslow → T melanoma',icon:'↧',topic:'Dermatología',type:'choice',origin:'zip',note:'Espesor en mm + ulceración → subcategoría T, AJCC 8.ª edición.',source:'https://www.cancer.gov/types/skin/hp/melanoma-treatment-pdq',options:['T1a','T1b','T2a','T2b','T3a','T3b','T4a','T4b'],cases:[
+  {text:'Melanoma cutáneo de 0,6 mm de Breslow, sin ulceración.',answer:'T1a',why:'Menos de 0,8 mm sin ulceración.'},
+  {text:'Melanoma cutáneo de 0,6 mm de Breslow, con ulceración histológica.',answer:'T1b',why:'Menos de 0,8 mm con ulceración.'},
+  {text:'Melanoma cutáneo de 0,9 mm de Breslow, sin ulceración.',answer:'T1b',why:'Entre 0,8 y 1,0 mm: T1b, incluso sin ulceración.'},
+  {text:'Melanoma cutáneo de 1,5 mm de Breslow, sin ulceración.',answer:'T2a',why:'Más de 1,0 hasta 2,0 mm, sin ulceración.'},
+  {text:'Melanoma cutáneo de 1,5 mm de Breslow, con ulceración.',answer:'T2b',why:'Más de 1,0 hasta 2,0 mm, con ulceración.'},
+  {text:'Melanoma cutáneo de 2,5 mm de Breslow, sin ulceración.',answer:'T3a',why:'Más de 2,0 hasta 4,0 mm, sin ulceración.'},
+  {text:'Melanoma cutáneo de 2,5 mm de Breslow, con ulceración.',answer:'T3b',why:'Más de 2,0 hasta 4,0 mm, con ulceración.'},
+  {text:'Melanoma cutáneo de 4,5 mm de Breslow, sin ulceración.',answer:'T4a',why:'Más de 4,0 mm, sin ulceración.'},
+  {text:'Melanoma cutáneo de 4,5 mm de Breslow, con ulceración.',answer:'T4b',why:'Más de 4,0 mm, con ulceración.'}
+ ]},
+ {id:'killip',name:'Killip–Kimball',icon:'✚',topic:'Cardiología',type:'choice',origin:'zip',note:'Datos de insuficiencia cardíaca en el contexto de infarto.',source:'https://www.escardio.org/static-file/Escardio/Guidelines/publications/AHFguidelines-AHF-slides.pdf',options:['I','II','III','IV'],cases:[
+  {text:'Infarto agudo sin signos de insuficiencia cardíaca en la exploración.',answer:'I',why:'Sin signos clínicos de insuficiencia cardíaca.'},
+  {text:'Infarto con crepitantes en bases y tercer ruido, sin edema pulmonar franco.',answer:'II',why:'Insuficiencia cardíaca leve-moderada: crepitantes basales y/o S3.'},
+  {text:'Infarto con edema agudo de pulmón y crepitantes extensos.',answer:'III',why:'Edema pulmonar franco.'},
+  {text:'Infarto con hipotensión sostenida y datos de hipoperfusión compatibles con shock cardiogénico.',answer:'IV',why:'Shock cardiogénico.'}
+ ]}
+];
+// Casos adicionales originales: cada clasificación ofrece al menos seis ejercicios.
+const extraCases={
+ apgar:[
+  {text:'A los cinco minutos',observations:['100 lpm','llanto vigoroso','ligera flexión','mueca al estímulo','completamente rosado'],answer:[2,2,1,1,2]},
+  {text:'Al primer minuto de vida',observations:['75 lpm','respiración irregular','flácido','sin respuesta al estímulo','tronco rosado con acrocianosis'],answer:[1,1,0,0,1]}],
+ hinchey:[
+  {text:'Diverticulitis con absceso pericólico adyacente de pequeño tamaño, sin pus libre.',answer:'I',why:'El absceso se limita al espacio pericólico.'},
+  {text:'Tras perforación diverticular se aprecia exudado purulento difuso en toda la cavidad, sin heces libres.',answer:'III',why:'Peritonitis purulenta generalizada.'}],
+ asma:[
+  {text:'Síntomas 3 días por semana, 4 despertares al mes, VEF1 90 % y variabilidad del PEF 22 %.',answer:'Persistente leve',why:'Síntomas más de dos veces por semana, no diarios; variabilidad 20–30 %.'},
+  {text:'Molestias diurnas continuas, despertares casi cada noche, VEF1 55 % y exacerbaciones graves recurrentes.',answer:'Persistente severa',why:'Síntomas continuos y VEF1 inferior al 60 %.'}],
+ curb:[
+  {text:'Neumonía: 64 años, orientado, urea 7,1 mmol/L, FR 30/min, PA 130/60 mmHg.',observations:['orientado','7,1 mmol/L','30/min','130/60 mmHg','64 años'],answer:[0,1,1,1,0]},
+  {text:'Neumonía: 73 años, confusión de nueva aparición, urea 6,4 mmol/L, FR 28/min, PA 89/78 mmHg.',observations:['confusión nueva','6,4 mmol/L','28/min','89/78 mmHg','73 años'],answer:[1,0,0,1,1]}],
+ forrest:[
+  {text:'Tras lavar la úlcera se observa un punto vascular protruyente sin hemorragia activa.',answer:'IIa',why:'Vaso visible no sangrante; precisa hemostasia endoscópica.'},
+  {text:'Úlcera con depósito negro plano de hematina, sin coágulo ni vaso expuesto.',answer:'IIc',why:'Mancha plana pigmentada; no se recomienda hemostasia endoscópica.'}],
+ glasgow:[
+  {text:'No abre los ojos, no emite respuesta verbal y no hay respuesta motora al estímulo.',observations:['ninguna','ninguna','ninguna'],answer:[1,1,1]},
+  {text:'Abre los ojos espontáneamente, habla de forma confusa y obedece instrucciones.',observations:['espontánea','conversación confusa','obedece órdenes'],answer:[4,4,6]}],
+ garden:[
+  {text:'Fractura intracapsular subcapital con trazo completo, pero sin desplazamiento de los fragmentos.',answer:'II',why:'Trazo completo conservando alineación.'},
+  {text:'Fractura subcapital completa con desplazamiento parcial en varo y continuidad entre fragmentos.',answer:'III',why:'Desplazamiento parcial de una fractura completa.'}],
+ nyha:[
+  {text:'Insuficiencia cardíaca: asintomático en reposo, presenta fatiga al realizar su actividad física habitual.',answer:'II',why:'La actividad ordinaria provoca síntomas.'},
+  {text:'Insuficiencia cardíaca: está cómodo sentado, pero tareas menores que la actividad cotidiana le provocan disnea.',answer:'III',why:'Actividad menor que la ordinaria desencadena síntomas.'}],
+ child:[
+  {text:'Cirrosis: bilirrubina 1,8 mg/dL, albúmina 3,7 g/dL, INR 1,8, ascitis leve controlada y encefalopatía grado II.',observations:['1,8 mg/dL','3,7 g/dL','1,8','leve/controlada','grado II'],answer:[1,1,2,2,2]},
+  {text:'Cirrosis: bilirrubina 3,4 mg/dL, albúmina 2,6 g/dL, INR 2,4, sin ascitis ni encefalopatía.',observations:['3,4 mg/dL','2,6 g/dL','2,4','ausente','ausente'],answer:[3,3,3,1,1]}],
+ ann:[
+  {text:'Linfoma localizado en una única cadena ganglionar axilar, sin otros focos.',answer:'I',why:'Una sola región ganglionar.'},
+  {text:'Linfoma con adenopatías mediastínicas e inguinales, sin infiltración extranodal difusa.',answer:'III',why:'Regiones ganglionares a ambos lados del diafragma.'}],
+ birads:[
+  {text:'Tras estudio completo, el informe concluye hallazgo benigno típico y recomienda cribado ordinario.',answer:'2',why:'Hallazgo benigno conocido.'},
+  {text:'Lesión sospechosa en estudio mamario que requiere biopsia, sin confirmación histológica aún.',answer:'4',why:'Categoría sospechosa; se indica diagnóstico tisular.'}],
+ breslow:[
+  {text:'Melanoma cutáneo de 3,1 mm de Breslow, sin ulceración.',answer:'T3a',why:'Más de 2 y hasta 4 mm, sin ulceración.'},
+  {text:'Melanoma cutáneo de 4,2 mm de Breslow, con ulceración.',answer:'T4b',why:'Más de 4 mm con ulceración.'}],
+ killip:[
+  {text:'En el contexto de infarto, exploración con tercer ruido y crepitantes bibasales, sin edema pulmonar difuso.',answer:'II',why:'Signos leves de insuficiencia cardíaca tras infarto.'},
+  {text:'Infarto con hipotensión persistente, extremidades frías y signos de hipoperfusión compatibles con shock cardiogénico.',answer:'IV',why:'Shock cardiogénico.'}]
+};
+for(const scale of scales)scale.cases.push(...extraCases[scale.id]);
+const state={scale:null,deck:[],index:0,answers:{},choice:null,locked:false,points:0,hearts:3,perfect:0,errors:[],filter:'all',query:''};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=items=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function mount(html){root.innerHTML=html;document.getElementById('reportGame').hidden=!state.scale||state.index>=state.deck.length;root.scrollIntoView({block:'start',behavior:'smooth'})}
+function home(){state.scale=null;mount(`<section class="hero"><div class="eyebrow">Elige una clasificación · ${scales.length} disponibles</div><h1>Un caso, una decisión, otra oportunidad.</h1><p class="lead">Practica con casos originales de las tablas que pediste y de clasificaciones identificadas en tus simulacros MIR. Puntúa criterios o elige un grado; comprueba la respuesta antes de avanzar.</p><svg class="pulse" viewBox="0 0 450 95" role="img" aria-label="Trazo de monitor de práctica"><path d="M0 62 H56 L70 47 L82 83 L97 15 L113 62 H215 L230 43 L242 75 L256 62 H450" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="170" cy="62" r="12" fill="#42d5a0"/><circle cx="339" cy="62" r="12" fill="#4896ed"/></svg><p class="hint">Sin límite de tiempo ni penalización por pensar. Tres escudos indican cuántos casos fallaste; puedes seguir aunque se agoten.</p></section><div class="toolbar"><input class="search" id="search" aria-label="Buscar clasificación" placeholder="Buscar clasificación o especialidad…" value="${esc(state.query)}"><button class="chip" type="button" data-filter="all" aria-pressed="${state.filter==='all'}">Todas</button><button class="chip" type="button" data-filter="score" aria-pressed="${state.filter==='score'}">Puntuar</button><button class="chip" type="button" data-filter="choice" aria-pressed="${state.filter==='choice'}">Elegir grado</button><button class="chip" type="button" data-filter="zip" aria-pressed="${state.filter==='zip'}">En simulacros</button></div><section id="catalog" class="deck" aria-label="Clasificaciones disponibles"></section><p class="hint">Casos originales para practicar. El progreso de Arcade no consume cupos ni altera tu racha.</p>`);root.querySelector('#search').oninput=e=>{state.query=e.target.value;catalog()};root.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;root.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));catalog()});catalog()}
+function catalog(){const q=state.query.toLocaleLowerCase('es');const selected=scales.filter(s=>(state.filter==='all'||s.type===state.filter||(state.filter==='zip'&&['zip','ambos'].includes(s.origin)))&&`${s.name} ${s.topic}`.toLocaleLowerCase('es').includes(q));const el=root.querySelector('#catalog');el.innerHTML=selected.map(s=>`<button class="module" type="button" data-scale="${s.id}"><span class="icon">${s.icon}</span><b>${esc(s.name)}</b><span class="meta">${esc(s.topic)} · ${s.cases.length} casos${['zip','ambos'].includes(s.origin)?' · aparece en simulacros':''}</span><p>${esc(s.note)}</p><em>Practicar →</em></button>`).join('')||'<p class="muted">No hay clasificaciones con ese filtro.</p>';el.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>start(b.dataset.scale))}
+function start(id){state.scale=scales.find(s=>s.id===id);state.deck=shuffle(state.scale.cases);state.index=0;state.answers={};state.choice=null;state.locked=false;state.points=0;state.hearts=3;state.perfect=0;state.errors=[];render()}
+function hud(){return `<div class="hud"><div class="stat"><small>Puntos</small><strong id="points">${state.points}</strong></div><div class="stat hearts"><small>Escudos</small><strong id="hearts">${'♥'.repeat(state.hearts)}<span class="empty">${'♥'.repeat(3-state.hearts)}</span></strong></div><div class="stat"><small>Casos perfectos</small><strong id="perfect">${state.perfect}</strong></div></div>`}
+function frame(body){const s=state.scale,n=state.deck.length;mount(`<section class="board">${hud()}<div class="board-head"><div><div class="eyebrow">${esc(s.topic)} · ${esc(s.name)}</div><h2>${s.type==='score'?'Asigna los puntos':'Elige la clasificación'}</h2></div><span class="round">Caso ${state.index+1} de ${n}</span></div><div class="track" role="progressbar" aria-label="Progreso" aria-valuenow="${state.index}" aria-valuemin="0" aria-valuemax="${n}"><span style="width:${Math.round(state.index/n*100)}%"></span></div><p class="muted">${esc(s.note)}</p>${s.caution?`<p class="source-note">${esc(s.caution)}</p>`:''}${body}<div id="feedback" class="feedback" role="status" hidden></div><div class="footer"><button class="secondary" id="finish" type="button">Terminar partida</button><button class="primary" id="submit" type="button">Comprobar respuesta</button></div></section>`);root.querySelector('#finish').onclick=()=>summary(true)}
+function reward(hits,total,description){const earned=Math.round(hits/total*100);state.points+=earned;if(hits===total)state.perfect++;else{state.hearts=Math.max(0,state.hearts-1);state.errors.push(description)}root.querySelector('#points').textContent=state.points;root.querySelector('#perfect').textContent=state.perfect;root.querySelector('#hearts').innerHTML='♥'.repeat(state.hearts)+`<span class="empty">${'♥'.repeat(3-state.hearts)}</span>`;return earned}
+function notice(msg){const el=root.querySelector('#feedback');el.hidden=false;el.className='feedback bad';el.textContent=msg}
+function feedback(html,good){const el=root.querySelector('#feedback');el.hidden=false;el.className='feedback'+(good?'':' bad');el.innerHTML=html;el.scrollIntoView({block:'nearest',behavior:'smooth'});const b=root.querySelector('#submit');b.textContent=state.index+1===state.deck.length?'Ver resultado →':'Siguiente caso →';b.onclick=()=>{state.index++;state.answers={};state.choice=null;state.locked=false;state.index===state.deck.length?summary():render()}}
+function scoreCategory(s,answer){const total=answer.reduce((a,b)=>a+(typeof b==='number'?b:0),0);if(s.id==='glasgow')return answer.includes('NT')?`E${answer[0]} V-NT M${answer[2]} · sin total numérico completo`:`E${answer[0]} V${answer[1]} M${answer[2]} = ${total}/15`;if(s.id==='child')return `${total} puntos · Child–Pugh ${total<=6?'A':total<=9?'B':'C'}`;return s.id==='apgar'?`${total}/10`:`${total} punto${total===1?'':'s'}`}
+const reviewData={
+ apgar:{headers:['Parámetro','0 puntos','1 punto','2 puntos'],rows:[['Frecuencia cardíaca','Ausente','<100 lpm','≥100 lpm'],['Respiración','Ausente','Lenta o irregular','Llanto vigoroso'],['Tono muscular','Flácido','Alguna flexión','Movimientos activos'],['Respuesta al estímulo','Sin respuesta','Mueca','Tos, estornudo o retirada vigorosa'],['Coloración','Pálido o azul','Tronco rosado; extremidades azules','Completamente rosado']]},
+ hinchey:{headers:['Grado','Significado'],rows:[['I','Absceso pericólico localizado'],['II','Absceso pélvico o intraabdominal distante'],['III','Peritonitis purulenta generalizada'],['IV','Peritonitis fecaloidea generalizada']]},
+ asma:{headers:['Característica','Intermitente','Persistente leve','Persistente moderada','Persistente severa'],rows:[['Síntomas diurnos','≤2/semana','>2/semana, no diarios','Diarios','Continuos todo el día'],['Síntomas nocturnos','≤2/mes','3–4/mes','>1/semana','Frecuentes, casi todas las noches'],['VEF1 o PEF','≥80 %','≥80 %','60–80 %','<60 %'],['Variabilidad del PEF','<20 %','20–30 %','>30 %','>30 %'],['Exacerbaciones','Breves','Pueden afectar actividad','Afectan actividad y sueño','Frecuentes y graves']],note:'Tabla histórica aportada para el ejercicio. Si distintos rasgos caen en categorías diferentes, se usa el de mayor gravedad. GINA actual define la gravedad retrospectivamente según el tratamiento requerido.'},
+ curb:{headers:['Parámetro','Suma 1 punto si…'],rows:[['Confusión','Desorientación o confusión nueva'],['Urea','>7 mmol/L'],['Frecuencia respiratoria','≥30/min'],['Presión arterial','Sistólica <90 o diastólica ≤60 mmHg'],['Edad','≥65 años']],note:'Cada criterio suma como máximo un punto. Total: 0–5. La puntuación se interpreta junto con el juicio clínico.'},
+ forrest:{headers:['Forrest','Hallazgo','Hemostasia endoscópica'],rows:[['Ia','Sangrado activo en chorro','Sí'],['Ib','Sangrado activo rezumante','Sí'],['IIa','Vaso visible no sangrante','Sí'],['IIb','Coágulo adherido','Considerar retirada; tratar el hallazgo subyacente'],['IIc','Mancha plana pigmentada','No'],['III','Base limpia','No']]},
+ glasgow:{headers:['Componente','Respuesta','Puntos'],rows:[['Ocular','Espontánea / voz / presión / ninguna','4 / 3 / 2 / 1'],['Verbal','Orientada / confusa / palabras / sonidos / ninguna','5 / 4 / 3 / 2 / 1'],['Motora','Obedece / localiza / flexión normal / flexión anormal / extensión / ninguna','6 / 5 / 4 / 3 / 2 / 1']],note:'Registrar E, V y M por separado. Si un componente no puede evaluarse, se anota NT y no se inventa una puntuación.'},
+ garden:{headers:['Garden','Fractura subcapital'],rows:[['I','Incompleta, impactada en valgo'],['II','Completa, no desplazada'],['III','Completa, parcialmente desplazada y en varo'],['IV','Completa, totalmente desplazada']]},
+ nyha:{headers:['Clase','Limitación funcional'],rows:[['I','Sin limitación; actividad ordinaria sin síntomas'],['II','Limitación ligera; actividad ordinaria causa síntomas'],['III','Limitación marcada; actividad menor que la ordinaria causa síntomas'],['IV','Síntomas en reposo']]},
+ child:{headers:['Parámetro','1 punto','2 puntos','3 puntos'],rows:[['Bilirrubina','<2 mg/dL','2–3 mg/dL','>3 mg/dL'],['Albúmina','>3,5 g/dL','2,8–3,5 g/dL','<2,8 g/dL'],['INR','<1,7','1,7–2,3','>2,3'],['Ascitis','Ausente','Leve o controlada','Al menos moderada pese a diuréticos'],['Encefalopatía','Ausente','Grado I–II','Grado III–IV']],note:'Clase A: 5–6 puntos. Clase B: 7–9. Clase C: 10–15.'},
+ ann:{headers:['Estadio','Extensión'],rows:[['I','Una región ganglionar'],['II','Dos o más regiones, mismo lado del diafragma'],['III','Regiones ganglionares a ambos lados del diafragma'],['IV','Afectación extranodal difusa o diseminada']],note:'Resumen histórico de Ann Arbor. La estadificación moderna de linfomas utiliza la adaptación de Lugano.'},
+ birads:{headers:['BI-RADS','Significado','Conducta habitual'],rows:[['0','Incompleto','Evaluación adicional'],['1','Negativo','Cribado habitual'],['2','Benigno','Cribado habitual'],['3','Probablemente benigno','Seguimiento a corto intervalo'],['4','Sospechoso','Diagnóstico tisular'],['5','Altamente sugestivo de malignidad','Diagnóstico tisular y manejo adecuado'],['6','Malignidad conocida por biopsia','Tratamiento según corresponda']]},
+ breslow:{headers:['Categoría T','Espesor','Ulceración'],rows:[['T1a','<0,8 mm','No'],['T1b','<0,8 mm con ulceración, o 0,8–1,0 mm','Con o sin ulceración en 0,8–1,0 mm'],['T2a','>1–2 mm','No'],['T2b','>1–2 mm','Sí'],['T3a','>2–4 mm','No'],['T3b','>2–4 mm','Sí'],['T4a','>4 mm','No'],['T4b','>4 mm','Sí']],note:'Clasificación T del melanoma cutáneo según AJCC, 8.ª edición.'},
+ killip:{headers:['Clase','Hallazgo tras infarto'],rows:[['I','Sin signos de insuficiencia cardíaca'],['II','Insuficiencia cardíaca leve-moderada: crepitantes basales y/o S3'],['III','Edema agudo de pulmón'],['IV','Shock cardiogénico']]}
+};
+function reviewContent(id){const d=reviewData[id];return `<div class="table-wrap"><table class="recap"><thead><tr>${d.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${d.rows.map(row=>`<tr>${row.map(cell=>`<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${d.note?`<p class="recap-note">${esc(d.note)}</p>`:''}`}
+function renderScore(){
+ const s=state.scale,c=state.deck[state.index];
+ const body=`<div class="case"><strong>${esc(c.text)}${c.text.endsWith('.')?'':':'}</strong>${s.id==='apgar'?` ${c.observations.map(esc).join('; ')}.`:''}</div><div class="rows">${s.labels.map((label,i)=>{const vals=Array.isArray(s.values[0])?s.values[i]:s.values;return `<div class="row" data-row="${i}"><div><b>${esc(label)}</b><small>${esc(c.observations[i])}</small></div><div class="points" role="group" aria-label="Valor para ${esc(label)}">${vals.map(v=>`<button type="button" data-index="${i}" data-value="${v}" aria-label="${v} para ${esc(label)}" aria-pressed="false">${v}</button>`).join('')}</div></div>`}).join('')}</div>`;
+ frame(body);
+ root.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{if(state.locked)return;state.answers[b.dataset.index]=b.dataset.value==='NT'?'NT':Number(b.dataset.value);root.querySelectorAll(`[data-index="${b.dataset.index}"]`).forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});
+ root.querySelector('#submit').onclick=()=>{
+  if(Object.keys(state.answers).length!==s.labels.length)return notice('Responde todos los componentes antes de comprobar.');
+  state.locked=true;let hits=0;const wrong=[],review=[];
+  s.labels.forEach((label,i)=>{const ok=state.answers[i]===c.answer[i];if(ok)hits++;else{wrong.push(`<li>${esc(label)}: ${esc(c.answer[i])} (${esc(c.observations[i])}). ${esc(s.rules?.[i]||'')}</li>`);review.push(`${label} = ${c.answer[i]}`)}root.querySelector(`[data-row="${i}"]`).classList.add(ok?'ok':'no')});
+  root.querySelectorAll('[data-value]').forEach(b=>b.disabled=true);
+  const earned=reward(hits,s.labels.length,`${s.name}: ${review.join('; ')}`);
+  feedback(`<strong>+${earned} puntos · ${hits}/${s.labels.length} componentes · ${scoreCategory(s,c.answer)}.</strong>${c.why?`<p>${esc(c.why)}</p>`:''}${wrong.length?`<ul>${wrong.join('')}</ul>`:'<p>Todos los valores coinciden con el caso.</p>'}`,hits===s.labels.length)
+ }
+}
+function renderChoice(){const s=state.scale,c=state.deck[state.index];frame(`<div class="case"><strong>Caso:</strong> ${esc(c.text)}</div><div class="choices" role="group" aria-label="Elige la clasificación">${s.options.map(v=>`<button class="pick" type="button" data-option="${esc(v)}" aria-pressed="false"><span class="symbol">${esc(v)}</span><span>${esc(s.name)} ${esc(v)}</span></button>`).join('')}</div>`);root.querySelectorAll('[data-option]').forEach(b=>b.onclick=()=>{if(state.locked)return;state.choice=b.dataset.option;root.querySelectorAll('[data-option]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});root.querySelector('#submit').onclick=()=>{if(!state.choice)return notice('Elige una opción antes de comprobar.');state.locked=true;const ok=state.choice===c.answer;root.querySelectorAll('[data-option]').forEach(b=>{b.disabled=true;if(b.dataset.option===c.answer)b.classList.add('ok');else if(b.dataset.option===state.choice)b.classList.add('no')});const earned=reward(Number(ok),1,`${s.name}: ${c.answer} — ${c.why}`);feedback(`<strong>+${earned} puntos · ${esc(s.name)} ${esc(c.answer)}.</strong><p>${esc(c.why)}</p>`,ok)}}
+function render(){state.scale.type==='score'?renderScore():renderChoice()}
+function summary(early=false){const s=state.scale,total=state.deck.length,answered=early?state.index+(state.locked?1:0):total;mount(`<section class="board"><div class="eyebrow">${early?'Partida terminada':'Práctica completada'} · ${esc(s.name)}</div><h1>${state.perfect===total&&!early?'¡Todos los casos perfectos!':'Ya sabes qué repasar'}</h1><p class="lead">Respondiste ${answered} de ${total} casos. Cada caso se comprueba una sola vez; puedes repetir con el orden mezclado.</p><div class="summary-num">${state.points} pts</div><div class="summary-grid"><div><b>${state.perfect}/${answered}</b><small>Casos perfectos</small></div><div><b>${state.hearts}/3</b><small>Escudos restantes</small></div><div><b>${state.errors.length}</b><small>Casos para repasar</small></div></div><h3>Repaso de errores</h3><div class="review">${state.errors.length?state.errors.map(e=>`<div>${esc(e)}</div>`).join(''):'<div>No hubo errores en esta ronda.</div>'}</div><h2>Repasa la clasificación completa</h2><p class="muted">Al terminar la partida, puedes revisar todos los criterios y valores.</p>${reviewContent(s.id)}<div class="footer"><button class="secondary" id="home" type="button">Elegir otra tabla</button><button class="primary" id="again" type="button">Practicar otra vez</button></div><p class="reference">Casos originales para estudio MIR. <a href="${esc(s.source)}" target="_blank" rel="noopener">Fuente de referencia de ${esc(s.name)}</a>. ${s.caution?esc(s.caution):''} El juego no sustituye la valoración clínica individual.</p></section>`);document.getElementById('reportGame').hidden=true;root.querySelector('#home').onclick=home;root.querySelector('#again').onclick=()=>start(s.id)}
+const bundledScales=scales.map(s=>structuredClone(s));
+const bundledReviews=structuredClone(reviewData);
+const string=(value,max=3000)=>typeof value==='string'&&value.trim().length>0&&value.length<=max;
+function validReview(r){
+ return r&&Array.isArray(r.headers)&&r.headers.length>=2&&r.headers.length<=8&&r.headers.every(v=>string(v,120))
+  &&Array.isArray(r.rows)&&r.rows.length>=1&&r.rows.length<=40
+  &&r.rows.every(row=>Array.isArray(row)&&row.length===r.headers.length&&row.every(v=>string(v,400)))
+  &&(!r.note||string(r.note,1000));
+}
+function validCase(c,s){
+ if(!c||!string(c.text,1200))return false;
+ if(s.type==='choice')return typeof c.answer==='string'&&s.options.includes(c.answer)&&string(c.why,1000);
+ return Array.isArray(c.observations)&&c.observations.length===s.labels.length
+  &&c.observations.every(v=>string(v,300))&&Array.isArray(c.answer)&&c.answer.length===s.labels.length
+  &&c.answer.every((v,i)=>(Array.isArray(s.values[0])?s.values[i]:s.values).includes(v));
+}
+function applyDefinitions(rows){
+ scales.splice(0,scales.length,...bundledScales.map(s=>structuredClone(s)));
+ for(const key of Object.keys(reviewData))delete reviewData[key];
+ Object.assign(reviewData,structuredClone(bundledReviews));
+ for(const entry of rows||[]){
+  const d=entry?.data,base=scales.find(s=>s.id===entry?.id);
+  if(!d||!Array.isArray(d.cases)||d.cases.length<1||d.cases.length>100)continue;
+  if(base){
+   if(!d.cases.every(c=>validCase(c,base))||d.review&&!validReview(d.review))continue;
+   base.cases.push(...d.cases);if(d.review)reviewData[base.id]=d.review;
+  }else{
+   if(!/^[a-z][a-z0-9_-]{2,39}$/.test(entry.id||'')||!string(d.name,120)||!string(d.topic,120)
+     ||!string(d.note,500)||!['score','choice'].includes(d.type)||!validReview(d.review)
+     ||!string(d.source,500)||!/^https:\/\//.test(d.source)
+     ||d.type==='choice'&&(!Array.isArray(d.options)||d.options.length<2||d.options.length>12||!d.options.every(v=>string(v,50)))
+     ||d.type==='score'&&(!Array.isArray(d.labels)||d.labels.length<2||d.labels.length>8||!d.labels.every(v=>string(v,120))
+       ||!Array.isArray(d.values)||!d.values.length||d.values.length>8
+       ||Array.isArray(d.values[0])&&(d.values.length!==d.labels.length||!d.values.every(Array.isArray))
+       ||!d.values.every(v=>Array.isArray(v)?v.length>0&&v.every(n=>Number.isInteger(n)||n==='NT'):Number.isInteger(v)||v==='NT'))
+     ||!d.cases.every(c=>validCase(c,d)))continue;
+   const newScale={...d,id:entry.id,icon:string(d.icon,3)?d.icon:'✦',origin:'admin'};
+   scales.push(newScale);reviewData[entry.id]=d.review;
+  }
+ }
+ if(!state.scale)home();
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==window.parent)return;
+ const data=event.data||{};
+ if(data.type==='nexmir:arcade-theme'){
+  document.documentElement.dataset.palette=['blue','green','orange','pink'].includes(data.palette)?data.palette:'blue';
+  document.documentElement.dataset.themeMode=data.mode==='light'?'light':'dark';
+ }
+ if(data.type==='nexmir:arcade-classifications-init')applyDefinitions(data.definitions);
+});
+document.getElementById('leaveGame').onclick=()=>window.parent.postMessage({type:'nexmir:arcade-exit'},location.origin);
+document.getElementById('suggestGame').onclick=()=>window.parent.postMessage({type:'nexmir:arcade-suggest'},location.origin);
+document.getElementById('reportGame').onclick=()=>{
+ const s=state.scale,c=state.deck[state.index];if(!s||!c)return;
+ const number=s.cases.indexOf(c);if(number<0)return;
+ window.parent.postMessage({type:'nexmir:arcade-classification-report',sourceId:'classification:'+s.id+':'+number,title:s.name,prompt:c.text},location.origin);
+};
+home();
+window.parent.postMessage({type:'nexmir:arcade-ready'},location.origin);
+})();
+</script></body></html>

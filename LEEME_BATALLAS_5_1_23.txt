@@ -1,0 +1,10 @@
+NEXMIR V5.1.23 — Revisión de batallas
+
+- Al terminar, el botón «Revisión de preguntas» abre todas las preguntas del duelo.
+- Free y Pro ven la respuesta marcada, la opción correcta y el estado correcta / incorrecta / en blanco.
+- Solo Pro (y roles con acceso ilimitado) ve el texto de la explicación dentro de Batallas.
+- Las batallas terminadas se pueden volver a revisar desde la pantalla principal de Batallas.
+- Se recuperan las respuestas registradas para las revisiones de batallas anteriores.
+- Se conserva el límite del plan Free de cinco batallas por día.
+
+Esta actualización usa las tablas existentes y no requiere ejecutar SQL nuevo. Si aún no aplicaste HOTFIX_FREE_BATTLES_5.sql de la versión anterior, ejecútalo para que el límite de cinco también rija en Supabase.
