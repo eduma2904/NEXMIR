@@ -103,11 +103,18 @@ create table if not exists public.battle_rooms(
   host_user_id uuid not null references auth.users(id) on delete cascade,
   status text not null default 'waiting' check(status in ('waiting','active','completed','cancelled')),
   question_ids uuid[] not null check(cardinality(question_ids) between 5 and 50),
+  question_sources text[] not null default '{}'::text[],
   duration_seconds integer not null default 600 check(duration_seconds between 180 and 3600),
   created_at timestamptz not null default now(),
   started_at timestamptz,
   finished_at timestamptz
 );
+-- Si una versión anterior ya instaló Batallas, se pausa el guardián mientras
+-- se completa el origen de sus preguntas existentes.
+drop trigger if exists nexmir_battle_room_guard on public.battle_rooms;
+alter table public.battle_rooms add column if not exists question_sources text[] not null default '{}'::text[];
+update public.battle_rooms set question_sources=array_fill('questions'::text,array[cardinality(question_ids)])
+where cardinality(question_sources)=0 and cardinality(question_ids)>0;
 create index if not exists battle_rooms_code_status_idx on public.battle_rooms(code,status);
 create index if not exists battle_rooms_host_created_idx on public.battle_rooms(host_user_id,created_at desc);
 
@@ -127,13 +134,16 @@ create index if not exists battle_participants_user_joined_idx on public.battle_
 create table if not exists public.battle_answers(
   room_id uuid not null references public.battle_rooms(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
-  question_id uuid not null references public.questions(id) on delete cascade,
+  question_id uuid not null,
+  source_type text not null default 'questions' check(source_type in ('questions','remnote')),
   selected_index integer not null check(selected_index>=0),
   is_correct boolean not null default false,
   answered_at timestamptz not null default now(),
   primary key(room_id,user_id,question_id),
   foreign key(room_id,user_id) references public.battle_participants(room_id,user_id) on delete cascade
 );
+alter table public.battle_answers add column if not exists source_type text not null default 'questions';
+alter table public.battle_answers drop constraint if exists battle_answers_question_id_fkey;
 create index if not exists battle_answers_room_user_idx on public.battle_answers(room_id,user_id,answered_at);
 
 create or replace function public.nexmir_battle_member(p_room uuid)
@@ -164,21 +174,46 @@ $$;
 
 create or replace function public.nexmir_battle_room_guard()
 returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
+declare i integer; option_count integer; correct_count integer;
 begin
   if tg_op='INSERT' then
     if auth.uid() is null or new.host_user_id<>auth.uid() then raise exception 'El anfitrión debe ser tu propia cuenta.' using errcode='42501'; end if;
+    if cardinality(new.question_sources)=0 then new.question_sources:=array_fill('questions'::text,array[cardinality(new.question_ids)]); end if;
+    if cardinality(new.question_sources)<>cardinality(new.question_ids) or cardinality(new.question_ids) not between 5 and 50 then
+      raise exception 'La selección de preguntas de batalla no es válida.' using errcode='P0001';
+    end if;
+    for i in 1..cardinality(new.question_ids) loop
+      option_count:=null;correct_count:=null;
+      if new.question_sources[i]='questions' then
+        select jsonb_array_length(options),case when correct_index>=0 and correct_index<jsonb_array_length(options) then 1 else 0 end
+          into option_count,correct_count from public.questions
+          where id=new.question_ids[i] and status='published';
+      elsif new.question_sources[i]='remnote' then
+        select jsonb_array_length(payload->'options'),
+          (select count(*) from jsonb_array_elements(payload->'options') o where coalesce(o->>'correct','false')='true')
+          into option_count,correct_count from public.content_items
+          where id=new.question_ids[i] and status='published' and kind='card'
+            and coalesce(card_type::text,payload->>'type')='multiple_choice';
+      else
+        raise exception 'Origen de pregunta no permitido.' using errcode='P0001';
+      end if;
+      if coalesce(option_count,0)<2 or coalesce(correct_count,0)<>1 then
+        raise exception 'La batalla contiene una pregunta no publicada o incompleta.' using errcode='P0001';
+      end if;
+    end loop;
     new.code:=upper(new.code);new.status:='waiting';new.started_at:=null;new.finished_at:=null;return new;
   end if;
   if old.status='active' and new.status='completed'
      and new.host_user_id is not distinct from old.host_user_id
      and new.code is not distinct from old.code
      and new.question_ids is not distinct from old.question_ids
+     and new.question_sources is not distinct from old.question_sources
      and new.duration_seconds is not distinct from old.duration_seconds
      and not exists(select 1 from public.battle_participants where room_id=old.id and finished_at is null) then
     new.finished_at:=coalesce(new.finished_at,now());return new;
   end if;
   if auth.uid() is null or old.host_user_id<>auth.uid() then raise exception 'Solo el anfitrión puede iniciar la batalla.' using errcode='42501'; end if;
-  if new.host_user_id is distinct from old.host_user_id or new.code is distinct from old.code or new.question_ids is distinct from old.question_ids or new.duration_seconds is distinct from old.duration_seconds then
+  if new.host_user_id is distinct from old.host_user_id or new.code is distinct from old.code or new.question_ids is distinct from old.question_ids or new.question_sources is distinct from old.question_sources or new.duration_seconds is distinct from old.duration_seconds then
     raise exception 'No se puede modificar la configuración de una sala creada.' using errcode='P0001';
   end if;
   if old.status='waiting' and new.status='active' then
@@ -198,8 +233,24 @@ begin
   select * into r from public.battle_rooms where id=new.room_id for update;
   if not found or r.status<>'active' or r.started_at is null then raise exception 'La batalla no está activa.' using errcode='P0001'; end if;
   if now()>=r.started_at+make_interval(secs=>r.duration_seconds) then raise exception 'El tiempo de la batalla terminó.' using errcode='P0001'; end if;
-  if not (new.question_id=any(r.question_ids)) then raise exception 'La pregunta no pertenece a esta batalla.' using errcode='P0001'; end if;
-  select correct_index,jsonb_array_length(options) into correct_option,option_count from public.questions where id=new.question_id and status='published';
+  new.source_type:=coalesce(nullif(new.source_type,''),'questions');
+  if not exists(
+    select 1 from generate_subscripts(r.question_ids,1) i
+    where r.question_ids[i]=new.question_id and r.question_sources[i]=new.source_type
+  ) then raise exception 'La pregunta no pertenece a esta batalla.' using errcode='P0001'; end if;
+  if new.source_type='questions' then
+    select correct_index,jsonb_array_length(options) into correct_option,option_count
+      from public.questions where id=new.question_id and status='published';
+  elsif new.source_type='remnote' then
+    select (select (o.ordinality-1)::integer from jsonb_array_elements(c.payload->'options') with ordinality o(value,ordinality)
+              where coalesce(o.value->>'correct','false')='true' order by o.ordinality limit 1),
+           jsonb_array_length(c.payload->'options')
+      into correct_option,option_count from public.content_items c
+      where c.id=new.question_id and c.status='published' and c.kind='card'
+        and coalesce(c.card_type::text,c.payload->>'type')='multiple_choice';
+  else
+    raise exception 'Origen de pregunta no permitido.' using errcode='P0001';
+  end if;
   if not found or new.selected_index<0 or new.selected_index>=option_count then raise exception 'Respuesta no válida.' using errcode='P0001'; end if;
   new.is_correct:=(new.selected_index=correct_option);new.answered_at:=now();return new;
 end;
