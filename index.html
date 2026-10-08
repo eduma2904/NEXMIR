@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="layout_refinements.css?v=5.1.5" />
   <script src="vendor/supabase.js?v=2.57.4"></script>
-  <link rel="stylesheet" href="product_polish.css?v=5.1.5.2" />
+  <link rel="stylesheet" href="product_polish.css?v=5.1.19" />
   <link rel="stylesheet" href="tutorial.css?v=5.1.9" />
   <link rel="stylesheet" href="responsive.css?v=5.1.12" />
   <link rel="stylesheet" href="study_layout_fix.css?v=5.1.13" />
@@ -33,6 +33,7 @@
     <div><h1>NEXMIR</h1><p>Estudia. Practica. Repite. Llega.</p></div>
   </div>
   <div class="auth-card">
+    <div id="battleInviteAuth" class="battle-invite-auth hidden" role="status"><span>⚔</span><div><strong>Te invitaron a una batalla NEXMIR</strong><p>Crea tu cuenta gratis o inicia sesión. Conservaremos el código para llevarte a la sala.</p></div></div>
     <div class="auth-tabs"><button class="auth-tab active" data-auth="login">Entrar</button><button class="auth-tab" data-auth="signup">Crear cuenta</button></div>
     <div id="loginPanel">
       <label>Correo<input id="loginEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
@@ -114,9 +115,10 @@
 <script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
 <script src="content_rules.js?v=5.1.5"></script>
 <script src="taxonomy.js?v=5.1.5"></script>
-<script src="app.js?v=5.1.15"></script>
+<script src="app.js?v=5.1.19"></script>
 <script src="content_admin.js?v=5.1.5.2"></script>
-<script src="product.js?v=5.1.5"></script>
+<script src="plan_rules.js?v=5.1.19"></script>
+<script src="product.js?v=5.1.19"></script>
 <script src="diagnostic_plan.js?v=5.1.7"></script>
 <script src="adaptive_features.js?v=5.1.5.2"></script>
 <script src="plan_help.js?v=5.1.5"></script>

@@ -1,4 +1,4 @@
-/* NEXMIR 5.1.5: restrained product surfaces, shared interactive states.
+/* NEXMIR 5.1.19: restrained product surfaces, shared interactive states.
    Loaded last because earlier versioned styles contain theme !important rules. */
 :root{
  --ui-ease:cubic-bezier(.23,1,.32,1);--ui-fast:140ms;--ui-enter:180ms;
@@ -18,6 +18,9 @@
 html{scroll-padding-block:88px;scrollbar-color:var(--ui-muted) transparent}
 html,body{background:var(--n-canvas,var(--bg))!important}
 body{line-height:1.5}
+.battle-invite-auth{display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--ui-accent) 45%,var(--ui-border));border-radius:14px;background:color-mix(in srgb,var(--ui-accent) 10%,var(--ui-surface))}
+.battle-invite-auth>span{font-size:24px;line-height:1}.battle-invite-auth strong{display:block}.battle-invite-auth p{margin:3px 0 0;color:var(--ui-muted);font-size:13px;line-height:1.45}
+.battle-share-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.battle-share-url{width:100%;font-size:13px}
 ::selection{background:color-mix(in srgb,var(--ui-accent) 24%,transparent);color:var(--ui-text)}
 button,a,input,select,textarea,summary,[tabindex]{-webkit-tap-highlight-color:transparent}
 :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--ui-accent)!important;outline-offset:3px}
