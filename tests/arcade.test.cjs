@@ -1,13 +1,13 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const base=path.join(__dirname,'..');
 class Element{
- constructor(){this.children=[];this.hidden=false;this.value='';this.dataset={};this.style={};this.events={};const classes=new Set();this.classList={add(x){classes.add(x)},remove(x){classes.delete(x)},toggle(x,v){if(v)classes.add(x);else classes.delete(x)},contains(x){return classes.has(x)}};this.tagName='DIV';this.textContent='';this.disabled=false}
+ constructor(){this.children=[];this.hidden=false;this.value='';this.dataset={};this.style={};this.events={};this.queryCache=new Map();const classes=new Set();this.classList={add(x){classes.add(x)},remove(x){classes.delete(x)},toggle(x,v){if(v)classes.add(x);else classes.delete(x)},contains(x){return classes.has(x)}};this.tagName='DIV';this.textContent='';this.disabled=false}
  set innerHTML(v){this.html=v;this.children=[]}get innerHTML(){return this.html||''}
  appendChild(x){this.children.push(x);return x}replaceChildren(...xs){this.children=xs;this.value=xs[0]?.value||''}
- setAttribute(k,v){this[k]=v}focus(){this.doc.activeElement=this}addEventListener(k,f){this.events[k]=f}
- querySelectorAll(){return this.children}querySelector(){return null}remove(){}scrollIntoView(){}
+ setAttribute(k,v){this[k]=v}removeAttribute(k){delete this[k]}focus(){this.doc.activeElement=this}addEventListener(k,f){this.events[k]=f}
+ querySelectorAll(){return this.children}querySelector(sel){if(!this.queryCache.has(sel))this.queryCache.set(sel,this.doc.createElement());return this.queryCache.get(sel)}remove(){}scrollIntoView(){}close(){this.open=false}showModal(){this.open=true}reset(){}
 }
-function dom(){const nodes=new Map(),events={};const document={events,activeElement:{tagName:'BODY'},documentElement:{dataset:{}},body:{style:{},insertAdjacentHTML(){}},getElementById(id){if(!nodes.has(id)){const e=new Element;e.doc=document;nodes.set(id,e)}return nodes.get(id)},createElement(){const e=new Element;e.doc=document;return e},querySelector(sel){return this.getElementById(sel)},addEventListener(k,f){events[k]=f}};return {document,nodes}}
+function dom(){const nodes=new Map(),events={};const document={events,activeElement:{tagName:'BODY'},documentElement:{dataset:{}},getElementById(id){if(!nodes.has(id)){const e=new Element;e.doc=document;nodes.set(id,e)}return nodes.get(id)},createElement(){const e=new Element;e.doc=document;return e},querySelector(sel){return this.getElementById(sel)},addEventListener(k,f){events[k]=f}};document.body=document.createElement();document.body.style={};document.body.insertAdjacentHTML=()=>{};return {document,nodes}}
 function game(){const {document}=dom(),messages=[],listeners={},parent={postMessage(x){messages.push(x)}};const context={document,parent,location:{origin:'https://nexmir.test'},console,setTimeout:f=>f(),matchMedia:()=>({matches:true,addEventListener(){}}),localStorage:{getItem(){return null}},Option:function(t,v=t){this.text=t;this.value=v},addEventListener(k,f){listeners[k]=f}};context.window=context;vm.createContext(context);const html=fs.readFileSync(path.join(base,'arcade/codigo-vital.html'),'utf8');vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],context);const run=s=>vm.runInContext(s,context);function init(questions){listeners.message({source:parent,origin:context.location.origin,data:{type:'nexmir:arcade-init',palette:'pink',mode:'dark',specialties:['Neumología','Cardiología'],questions}})}return{document,context,run,init,listeners,messages,parent}}
 const q={answer:'PEÑA-ÁRBOL',specialty:'Neumología',category:'Perlas',clue:'Paciente ficticio. ¿Cuál es el término?',explanation:'Texto <img src=x onerror=alert(1)> de prueba.'};
 test('Handshake, inherited theme, modal cancel preserves game and blocks guesses',()=>{const g=game();assert.equal(g.messages[0].type,'nexmir:arcade-ready');g.init([q]);assert.equal(g.document.documentElement.dataset.palette,'pink');assert.equal(g.document.getElementById('specialty-modal').hidden,false);g.run("guess('Z')");assert.equal(g.run('errors'),0);g.run("closeSpecialtyModal();guess('Z');openSpecialtyModal();closeSpecialtyModal()");assert.equal(g.run('errors'),1);assert.equal(g.run('specialty'),'Neumología');assert.equal(g.document.querySelector('main').inert,false)});
@@ -43,17 +43,17 @@ test('Admin accepts optional topic and image; seed migration keeps edits and com
 });
 
 async function parentPlayer(native){
- const {document}=dom(),listeners={};document.documentElement.classList=new Element().classList;
- const make=document.createElement.bind(document);document.createElement=tag=>{const el=make();if(tag==='iframe')el.contentWindow={postMessage(){}};return el};
+ const {document}=dom(),listeners={},messages=[],reports=[];document.documentElement.classList=new Element().classList;
+ const make=document.createElement.bind(document);document.createElement=tag=>{const el=make();if(tag==='iframe')el.contentWindow={postMessage(m){messages.push(m)}};return el};
  const panel=document.getElementById('arcadePlayer'),root=document.getElementById('view-arcade'),outside=make();
  root.children=[panel,outside];panel.parentElement=root;root.parentElement=document.body;document.body.children=[root];
  document.exitFullscreen=async()=>{document.fullscreenElement=null;document.events.fullscreenchange()};
  if(native)panel.requestFullscreen=async()=>{document.fullscreenElement=panel;document.events.fullscreenchange()};
  else panel.requestFullscreen=async()=>{throw Error('Not available')};
- const db={select(){return this},eq(){return this},order(){return this},async range(){return{data:[q]}}};
- const context={document,location:{origin:'https://nexmir.test'},state:{user:{id:'1'},view:'arcade',sb:{from:()=>db}},MutationObserver:class{observe(){}},viewNames:{},render(){},addEventListener(k,f){listeners[k]=f},console};context.window=context;
+ const db={select(){return this},eq(){return this},order(){return this},async range(){return{data:[{...q,id:'case-1',game:'codigo_vital'}]}},async insert(record){reports.push(record);return{error:null}}};
+ const context={document,location:{origin:'https://nexmir.test'},state:{user:{id:'1'},view:'arcade',sb:{from:()=>db}},MutationObserver:class{observe(){}},viewNames:{},render(){},addEventListener(k,f){listeners[k]=f},matchMedia:()=>({matches:false}),FormData:class{get(k){return{detail:'Dato clínico incorrecto',part:'question',category:'incorrect'}[k]}},console};context.window=context;
  vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(base,'arcade.js'),'utf8'),context);context.render('arcade');await document.getElementById('arcadePlay').onclick();root.children=[panel,outside];
- return{document,panel,root,outside,listeners,context,button:document.getElementById('arcadeExpand'),frame:document.getElementById('arcadeHost').children[0]};
+ return{document,panel,root,outside,listeners,context,messages,reports,button:document.getElementById('arcadeExpand'),frame:document.getElementById('arcadeHost').children[0]};
 }
 test('Fullscreen X and native Escape preserve iframe and restore outside controls',async()=>{
  const p=await parentPlayer(true),frame=p.frame;await p.button.onclick();assert.equal(p.document.fullscreenElement,p.panel);assert.equal(p.outside.inert,true);assert.equal(p.button['aria-pressed'],'true');
@@ -72,12 +72,47 @@ test('Admin upload stores an optional answer image alongside text and topic',asy
  const {document}=dom(),form=document.getElementById('arcadeForm'),saved=[];form.elements={};
  for(const key of ['specialty','topic','category','answer','clue','explanation','published'])form.elements[key]=document.createElement();
  Object.assign(form.elements.specialty,{value:'Neumología'});form.elements.topic.value='EPOC';form.elements.category.value='Perlas MIR';form.elements.answer.value='Proteinosis alveolar';form.elements.clue.value='Paciente con lavado lechoso. ¿Cuál es el diagnóstico?';form.elements.explanation.value='La explicación.';form.elements.published.checked=true;
- const file={type:'image/png',size:12345},image=document.getElementById('arcadeImageFile');image.files=[file];document.getElementById('arcadeRemoveImage').parentElement=document.createElement();
- const storage={upload(path,blob){assert.equal(blob,file);return Promise.resolve({data:{path}})},remove(){throw Error('Should not remove saved image')}};
+ const file={type:'image/png',size:12345},clueFile={type:'image/jpeg',size:54321},image=document.getElementById('arcadeImageFile');image.files=[file];document.getElementById('arcadeClueImageFile').files=[clueFile];document.getElementById('arcadeRemoveImage').parentElement=document.createElement();document.getElementById('arcadeRemoveClueImage').parentElement=document.createElement();
+ const storage={upload(path,blob){assert.ok(blob===file||blob===clueFile);return Promise.resolve({data:{path}})},remove(){throw Error('Should not remove saved image')}};
  const db={insert(payload){saved.push(payload);return this},select(){return this},async single(){return{data:{id:'new',...saved.at(-1)}}}};
  const context={document,go(){},logoutCloud:async()=>{},cloudMode:true,sb:{from:()=>db,storage:{from:()=>storage}},cloudUser:{id:'1'},cloudRole:'admin',state:{db:{cards:{},theory:{}}},RemnoteTaxonomy:{canonical:x=>x,unclassified:x=>!x},esc:x=>String(x),crypto:{randomUUID:()=> 'test-uuid'},URL:{revokeObjectURL(){}},console};context.window=context;
  form.reportValidity=()=>true;form.reset=()=>{};document.getElementById('arcadeStatus').value='all';
  let code=fs.readFileSync(path.join(base,'admin/arcade_manager.js'),'utf8').replace(/\}\)\(\);\s*$/,'globalThis.check={save};})();');vm.createContext(context);vm.runInContext(code,context);
  await context.check.save({preventDefault(){}});
- assert.equal(saved.length,1);assert.equal(saved[0].answer,'Proteinosis alveolar');assert.equal(saved[0].topic,'EPOC');assert.equal(saved[0].answer_image_path,'arcade/test-uuid.png');
+ assert.equal(saved.length,1);assert.equal(saved[0].answer,'Proteinosis alveolar');assert.equal(saved[0].topic,'EPOC');assert.equal(saved[0].answer_image_path,'arcade/test-uuid.png');assert.equal(saved[0].clue_image_path,'arcade/test-uuid.jpg');
+});
+
+test('Desktop physical keys work, mobile physical keys do not; case image appears with clue',()=>{
+ const g=game();g.init([{...q,id:'case-1',clue_image_url:'https://nexmir.test/signed/clue.jpg'}]);g.run('closeSpecialtyModal()');
+ assert.equal(g.document.getElementById('clue-image').hidden,false);
+ assert.equal(g.document.getElementById('clue-image').src,'https://nexmir.test/signed/clue.jpg');
+ g.document.events.keydown({key:'Z'});assert.equal(g.run('used.length'),0);
+ g.context.matchMedia=()=>({matches:false});g.document.events.keydown({key:'Z'});assert.equal(g.run('used.length'),1);
+ g.listeners.message({source:g.parent,origin:g.context.location.origin,data:{type:'nexmir:arcade-key',key:'A'}});
+ assert.equal(g.run("used.includes('A')"),true);
+});
+test('Arcade reports submit through the shared editorial channel',async()=>{
+ const p=await parentPlayer(false);
+ p.listeners.message({origin:p.context.location.origin,source:p.frame.contentWindow,data:{type:'nexmir:arcade-report',game:'codigo_vital',questionId:'case-1'}});
+ const dialog=p.document.body.children.at(-1);assert.equal(dialog.open,true);
+ await dialog.querySelector('form').onsubmit({preventDefault(){}});
+ assert.equal(p.reports.length,1);assert.equal(p.reports[0].source_type,'arcade');assert.equal(p.reports[0].source_id,'case-1');
+ assert.equal(dialog.open,false);
+});
+test('Four or more words are accepted up to 160 characters; migration authorizes them',()=>{
+ const {document}=dom(),context={document,go(){},logoutCloud(){},RemnoteTaxonomy:{unclassified:x=>!x},console};context.window=context;vm.createContext(context);
+ let code=fs.readFileSync(path.join(base,'admin/arcade_manager.js'),'utf8').replace(/\}\)\(\);\s*$/,'globalThis.check={valid};})();');vm.runInContext(code,context);
+ const v={specialty:'Neumología',topic:null,answer:'ENFERMEDAD PULMONAR INTERSTICIAL DIFUSA CRONICA',clue:'¿Cuál es el diagnóstico?'};
+ assert.equal(context.check.valid(v),'');v.answer='ABCDE '.repeat(26).trim();assert.equal(context.check.valid(v),'');
+ v.answer='ABCDEF '.repeat(27).trim();assert.match(context.check.valid(v),/160 caracteres/);
+ const upgrade=fs.readFileSync(path.join(base,'supabase/ARCADE_5_1_18.sql'),'utf8');assert.match(upgrade,/between 2 and 160/);assert.match(upgrade,/clue_image_path/);assert.match(upgrade,/source_type='arcade'/);
+});
+test('Unsaved Arcade text is recovered for the same admin and project',()=>{
+ const {document}=dom(),f=document.getElementById('arcadeForm'),storage=new Map();f.elements={};
+ for(const key of ['specialty','topic','category','answer','clue','explanation','published'])f.elements[key]=document.createElement();
+ f.elements.specialty.value='Neumología';f.elements.answer.value='PROTEINOSIS ALVEOLAR';f.elements.clue.value='Caso clínico. ¿Cuál es el diagnóstico?';
+ const context={document,go(){},logoutCloud(){},cloudMode:true,sb:{},cloudUser:{id:'admin-1'},cloudRole:'admin',getSbCfg:()=>({url:'https://nexmir.test'}),localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},state:{db:{cards:{},theory:{}}},RemnoteTaxonomy:{canonical:x=>x},esc:x=>x,console};context.window=context;
+ const code=fs.readFileSync(path.join(base,'admin/arcade_manager.js'),'utf8').replace(/\}\)\(\);\s*$/,'globalThis.check={saveDraft,restoreDraft,clearDraft};})();');vm.createContext(context);vm.runInContext(code,context);
+ context.check.saveDraft();f.elements.answer.value='';context.check.restoreDraft();assert.equal(f.elements.answer.value,'PROTEINOSIS ALVEOLAR');
+ assert.equal(storage.size,1);context.check.clearDraft();assert.equal(storage.size,0);
 });

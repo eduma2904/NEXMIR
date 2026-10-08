@@ -6,7 +6,7 @@ create table if not exists public.arcade_questions (
  game text not null default 'codigo_vital' check (game='codigo_vital'),
  specialty text not null check (char_length(btrim(specialty)) between 2 and 160),
  category text not null check (char_length(btrim(category)) between 2 and 80),
- answer text not null check (char_length(btrim(answer)) between 2 and 80 and answer ~ '^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ -]+$' and answer ~ '[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]'),
+ answer text not null check (char_length(btrim(answer)) between 2 and 160 and answer ~ '^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ -]+$' and answer ~ '[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]'),
  clue text not null check (char_length(btrim(clue)) between 15 and 1200 and right(btrim(clue),1)='?'),
  explanation text not null check (char_length(btrim(explanation)) between 10 and 3000),
  published boolean not null default false,
@@ -19,6 +19,8 @@ alter table public.arcade_questions add column if not exists topic text
  check (topic is null or char_length(btrim(topic)) between 1 and 160);
 alter table public.arcade_questions add column if not exists answer_image_path text
  check (answer_image_path is null or char_length(btrim(answer_image_path)) between 1 and 300);
+alter table public.arcade_questions add column if not exists clue_image_path text
+ check (clue_image_path is null or char_length(btrim(clue_image_path)) between 1 and 300);
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
  values ('arcade-images','arcade-images',false,5242880,array['image/jpeg','image/png','image/webp'])
  on conflict(id) do nothing;

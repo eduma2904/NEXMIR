@@ -1,7 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const DB_KEY='mir_admin_v4_db';
 const SB_CFG_KEY='mir_admin_v4_supabase';
-let sb=null, cloudUser=null, cloudRole=null, cloudMode=false;
+let sb=null, cloudUser=null, cloudRole=null, cloudMode=false, cloudAuthSubscription=null, cloudAuthRefresh=null;
 const typeNames={basic:'Básica',multiline:'Multilínea',ordered:'Ordenada',multiple_choice:'Opción múltiple',cloze:'Cloze',bidirectional:'Bidireccional',reverse:'Reversa'};
 const state={db:loadDb(),import:null,statusFilter:'all',selected:new Set(),contentKind:'cards'};
 function emptyDb(){return{cards:{},theory:{},history:[],imports:[],meta:{schema:'4.1',created_at:new Date().toISOString()}}}
@@ -289,8 +289,9 @@ renderDashboard();
 function cloudMsg(t,bad=false){const el=$('#cloudMessage');if(el){el.textContent=t||'';el.style.color=bad?'#ff8e8e':''}}
 function getSbCfg(){try{return JSON.parse(localStorage.getItem(SB_CFG_KEY))||{}}catch{return{}}}
 function setSbCfg(url,key){localStorage.setItem(SB_CFG_KEY,JSON.stringify({url,key}))}
-function initSb(){const c=getSbCfg();if(!c.url||!c.key||!window.supabase?.createClient)return false;try{sb=window.supabase.createClient(c.url,c.key);$('#sbUrl').value=c.url;$('#sbKey').value=c.key;return true}catch{return false}}
-async function refreshCloudAuth(){if(!sb){cloudMode=false;paintCloudState();return}const {data:{session},error}=await sb.auth.getSession();if(error||!session){cloudUser=null;cloudRole=null;cloudMode=false;paintCloudState();return}cloudUser=session.user;const {data,error:pe}=await sb.from('profiles').select('role').eq('id',cloudUser.id).single();if(pe){cloudRole=null;cloudMode=false;paintCloudState();cloudMsg('Conectado, pero no pude leer tu rol. ¿Ejecutaste el SQL y convertiste tu usuario en admin?',true);return}cloudRole=data.role;if(!['admin','moderator'].includes(cloudRole)){cloudMode=false;paintCloudState();cloudMsg(`Tu cuenta tiene rol “${cloudRole}”. El Panel Admin requiere admin o moderator.`,true);return}cloudMode=true;paintCloudState();await loadCloudDb();cloudMsg(`Conectado como ${cloudRole}.`)}
+function initSb(){const c=getSbCfg();if(!c.url||!c.key||!window.supabase?.createClient)return false;try{cloudAuthSubscription?.unsubscribe();sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});cloudAuthSubscription=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){cloudUser=null;cloudRole=null;cloudMode=false;state.db=loadDb();paintCloudState();renderDashboard();renderContent();renderHistory()}else if(event==='SIGNED_IN'&&session?.user&&(!cloudMode||cloudUser?.id!==session.user.id)){setTimeout(()=>refreshCloudAuth().catch(()=>{}),0)}}).data.subscription;$('#sbUrl').value=c.url;$('#sbKey').value=c.key;return true}catch{return false}}
+async function refreshCloudAuth(){if(cloudAuthRefresh)return cloudAuthRefresh;cloudAuthRefresh=refreshCloudAuthWork().finally(()=>{cloudAuthRefresh=null});return cloudAuthRefresh}
+async function refreshCloudAuthWork(){if(!sb){cloudMode=false;paintCloudState();return}const {data:{session},error}=await sb.auth.getSession();if(error||!session){cloudUser=null;cloudRole=null;cloudMode=false;paintCloudState();return}cloudUser=session.user;const {data,error:pe}=await sb.from('profiles').select('role').eq('id',cloudUser.id).single();if(pe){cloudRole=null;cloudMode=false;paintCloudState();cloudMsg('Conectado, pero no pude leer tu rol. ¿Ejecutaste el SQL y convertiste tu usuario en admin?',true);return}cloudRole=data.role;if(!['admin','moderator'].includes(cloudRole)){cloudMode=false;paintCloudState();cloudMsg(`Tu cuenta tiene rol “${cloudRole}”. El Panel Admin requiere admin o moderator.`,true);return}cloudMode=true;paintCloudState();await loadCloudDb();cloudMsg(`Conectado como ${cloudRole}.`)}
 function paintCloudState(){if(cloudMode){$('#dbState').textContent='Supabase';$('#userState').classList.remove('hidden');$('#userState').textContent=`${cloudRole}: ${cloudUser?.email||''}`;$('#logoutBtn').classList.remove('hidden')}else{$('#dbState').textContent='Base local';$('#userState').classList.add('hidden');$('#logoutBtn').classList.add('hidden')} }
 async function fetchAllPages(makeQuery,pageSize=1000){const out=[];for(let from=0;;from+=pageSize){const {data,error}=await makeQuery().range(from,from+pageSize-1);if(error)throw error;const rows=data||[];out.push(...rows);if(rows.length<pageSize)break}return out}
 async function exactCount(makeQuery){const {count,error}=await makeQuery();if(error)throw error;return count||0}
@@ -496,3 +497,4 @@ $('#loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginCloud
 $('#loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginPassword').focus()});
 
 if(initSb())refreshCloudAuth();else paintCloudState();
+window.addEventListener('online',()=>{if(sb&&!cloudMode)refreshCloudAuth().catch(()=>{})});

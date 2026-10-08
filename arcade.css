@@ -12,3 +12,6 @@ html.arcade-expanded,html.arcade-expanded body{overflow:hidden!important}
 #arcadePlayer.is-expanded .arcade-frame{height:100%;min-height:0;border-radius:14px}
 #arcadePlayer.is-expanded .arcade-expand{background:#c62828!important;color:#fff!important;border:1px solid #ef9a9a!important;border-radius:12px;font-size:30px;line-height:1;padding:0!important;width:44px;height:44px}
 #arcadePlayer::backdrop{background:var(--bg)}
+.arcade-report-dialog{max-width:min(520px,94vw)}
+.arcade-report-dialog h3{margin:0 0 10px}
+.arcade-report-dialog textarea{min-height:100px;resize:vertical}

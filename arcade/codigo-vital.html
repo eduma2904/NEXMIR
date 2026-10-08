@@ -102,6 +102,8 @@ header{padding:4px 2px 22px;margin:0;align-items:center}
 .result{margin-top:17px;padding:16px 18px}.result strong{font-size:17px}.result p{font-size:13px;line-height:1.5;margin:9px 0}.result p:nth-of-type(1) b{color:var(--accent-strong)}.result .action{margin-top:2px}
 .result.won{border-color:color-mix(in srgb,var(--good) 55%,var(--line));background:color-mix(in srgb,var(--good) 9%,var(--surface-2))}.result.lost{border-color:color-mix(in srgb,var(--danger) 55%,var(--line));background:color-mix(in srgb,var(--danger) 8%,var(--surface-2))}
 .answer-image{display:block;max-width:min(100%,560px);max-height:360px;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin:12px 0;background:var(--surface-2)}
+.clue-image{display:block;max-width:100%;max-height:340px;object-fit:contain;border-radius:10px;margin-top:12px;background:var(--surface-2)}
+.report-game{margin:12px 0 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-strong)}
 .footer{margin:22px 0 0;font-size:11px;opacity:.8}.footer code{font:inherit}
 @media(max-width:950px){.grid{grid-template-columns:1fr}.scene-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.55fr);align-items:center}.scene-panel .hearts-wrap,.scene-footer{grid-column:2}.scene-panel .stage-shell{grid-column:1;grid-row:1 / 3}.stage{height:340px}}
 @media(max-width:650px){.wrap{padding:16px 12px 24px}header{align-items:flex-start;padding-bottom:18px}.brand{font-size:21px}.top-actions{width:100%;justify-content:space-between}.theme-test{flex:1;min-width:0;justify-content:space-between}.theme-test label{display:none}.theme-test select{min-width:0;flex:1}.pill{font-size:10px}.intro{margin:4px 2px 17px}.intro h1{font-size:39px}.intro p:last-child{font-size:13px}.intro-tag{display:none}.grid{gap:12px}.panel{padding:15px;border-radius:18px}.scene-panel{display:flex;gap:12px}.scene-panel .hearts-wrap{width:100%}.hearts-wrap h2{font-size:15px}.hearts{font-size:20px;padding:9px;letter-spacing:1px}.stage{height:clamp(275px,78vw,380px)}.scene-footer{padding:0}.game-panel{padding:19px 15px}.game-heading{margin-bottom:15px}.game-heading h2{font-size:22px}.stats{gap:5px;margin-bottom:14px}.stats span{padding:9px;font-size:10px}.stats b{font-size:13px}.setup{margin-bottom:14px}.setup .action{padding:10px;font-size:12px}.clue-card{padding:15px}.clue-card p:last-child{font-size:14px}.word{margin:12px 0 18px}.slot{width:clamp(20px,5.7vw,32px);height:39px;line-height:36px;font-size:18px}.keyboard{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.keyboard button{height:43px;font-size:14px}.game-bottom small{display:none}.footer{line-height:1.5}}
@@ -211,11 +213,11 @@ header{padding:4px 2px 22px;margin:0;align-items:center}
     <div class="scene-footer"><span class="scene-footer-icon">✚</span><p id="patient-status" aria-live="polite">El paciente está en observación. Elige una letra para comenzar.</p></div>
   </div>
   <div class="panel game-panel">
-    <div class="game-heading"><div><h2>🩺 Código Vital</h2><p>Usa el teclado o selecciona las letras en pantalla.</p></div><span class="round-badge">Caso clínico</span></div>
+    <div class="game-heading"><div><h2>🩺 Código Vital</h2><p>En PC, usa el teclado físico; en móvil, toca las letras.</p></div><span class="round-badge">Caso clínico</span></div>
     <div class="stats"><span>Categoría: <b id="category"></b></span><span>Racha: <b id="streak">0</b></span><span>Errores: <b id="errors">0/6</b></span></div>
     <div class="setup"><select id="topic" aria-label="Categoría"><option value="all">Todas las categorías</option><option value="Diagnósticos">Diagnósticos</option><option value="Fármacos">Fármacos</option><option value="Microorganismos">Microorganismos</option><option value="Tratamiento clave">Tratamiento clave</option><option value="Criterios y pruebas">Criterios y pruebas</option><option value="Perlas MIR">Perlas MIR</option></select><button class="action" id="new">↻ Nueva partida</button></div>
     <div class="specialty-launch"><span>Especialidad: <b id="selected-specialty">Neumología</b></span><button class="action specialty-change" id="change-specialty" type="button">Cambiar especialidad</button></div>
-    <div class="clue-card"><p class="clue-label">▤ Pista clínica</p><p id="clue" style="margin:0"></p></div>
+    <div class="clue-card"><p class="clue-label">▤ Pista clínica</p><p id="clue" style="margin:0"></p><img id="clue-image" class="clue-image" alt="Imagen asociada al caso clínico" hidden><button type="button" id="report-game" class="action report-game">⚑ Reportar pregunta</button></div>
     <p class="word-label">Término por descubrir</p>
     <div id="word" class="word" aria-label="Letras de la palabra"></div>
     <div id="keyboard" class="keyboard" aria-label="Teclado de letras"></div>
@@ -298,6 +300,7 @@ function init(){
 function hit(){shell.classList.remove('hit');void shell.offsetWidth;shell.classList.add('hit')}
 function render(){
  $('category').textContent=current.c;$('streak').textContent=streak;$('errors').textContent=`${errors}/${MAX}`;$('clue').textContent=current.q;
+ $('clue-image').hidden=!current.clueImage;if(current.clueImage)$('clue-image').src=current.clueImage;else $('clue-image').removeAttribute('src');
  $('hearts').innerHTML='<span>♥</span>'.repeat(MAX-errors)+'<span class="off">♥</span>'.repeat(errors);
  $('patient-status').textContent=finished?(won?'¡Paciente estabilizado! Has resuelto el caso.':'El caso terminó. Revisa la respuesta e inténtalo de nuevo.'):errors===0?'El paciente está en observación. Elige una letra para comenzar.':errors<4?'Mantén la calma: aún puedes resolver el caso.':'Estado crítico. Piensa bien la siguiente letra.';
  // muñeco: una pieza por error; si se gana, el paciente aparece completo y feliz
@@ -339,6 +342,7 @@ function hint(){
 }
 $('new').onclick=init;$('topic').onchange=init;$('hint').onclick=hint;
 $('change-specialty').onclick=openSpecialtyModal;
+$('report-game').onclick=()=>{if(current?.id&&parent!==window)parent.postMessage({type:'nexmir:arcade-report',game:'codigo_vital',questionId:current.id},location.origin)};
 $('close-specialty').onclick=closeSpecialtyModal;
 $('specialty-modal').addEventListener('click',e=>{if(e.target===$('specialty-modal'))closeSpecialtyModal()});
 $('specialty-search').addEventListener('input',e=>renderSpecialties(e.target.value));
@@ -349,7 +353,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Tab'){const nodes=[...$('specialty-modal').querySelectorAll('button:not(:disabled),input')],first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}
   return;
  }
- if(e.ctrlKey||e.metaKey||e.altKey)return;
+ if(e.ctrlKey||e.metaKey||e.altKey||matchMedia('(pointer:coarse) and (max-width:800px)').matches)return;
  const tag=document.activeElement.tagName;
  if(['INPUT','SELECT','TEXTAREA'].includes(tag))return;
  if(e.key==='Enter'&&finished&&tag!=='BUTTON'){init();return}
@@ -363,14 +367,15 @@ window.addEventListener('message',event=>{
  const d=event.data||{};
  if(d.type==='nexmir:arcade-theme'){applyTheme(d.palette,d.mode);return}
  if(d.type==='nexmir:arcade-fullscreen'){expanded=d.expanded===true;return}
+ if(d.type==='nexmir:arcade-key'){if(!matchMedia('(pointer:coarse) and (max-width:800px)').matches&&d.key?.length===1){let k=d.key.toUpperCase();if(k!=='Ñ')k=k.normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(/^[A-ZÑ]$/.test(k))guess(k)}return}
  if(d.type!=='nexmir:arcade-init'||!Array.isArray(d.questions)||!d.questions.length)return;
- questions=d.questions.map(q=>({a:normalizeAnswer(q.answer),display:q.answer,s:q.specialty,t:q.topic,c:q.category,q:q.clue,e:q.explanation,image:q.answer_image_url})).filter(q=>/^[A-ZÑ -]+$/.test(q.a)&&/[A-ZÑ]/.test(q.a));
+ questions=d.questions.map(q=>({id:q.id,a:normalizeAnswer(q.answer),display:q.answer,s:q.specialty,t:q.topic,c:q.category,q:q.clue,e:q.explanation,image:q.answer_image_url,clueImage:q.clue_image_url})).filter(q=>/^[A-ZÑ -]+$/.test(q.a)&&/[A-ZÑ]/.test(q.a));
  if(!questions.length)return;
  SPECIALTIES=Array.isArray(d.specialties)?d.specialties:[];
  specialty=questions.some(q=>q.s==='Neumología')?'Neumología':questions[0].s;
  document.querySelector('main').hidden=false;document.getElementById('standalone-notice')?.remove();applyTheme(d.palette,d.mode);chooseSpecialty(specialty);openSpecialtyModal();
 });
 if(parent!==window)parent.postMessage({type:'nexmir:arcade-ready'},location.origin);
-else document.body.insertAdjacentHTML('afterbegin','<p id="standalone-notice" class="wrap">Abre Código Vital desde NEXMIR → Arcade para cargar las preguntas de tu cuenta.</p>');
+else {document.getElementById('report-game').hidden=true;document.body.insertAdjacentHTML('afterbegin','<p id="standalone-notice" class="wrap">Abre Código Vital desde NEXMIR → Arcade para cargar las preguntas de tu cuenta.</p>')}
 </script>
 </body></html>
