@@ -5,7 +5,7 @@
   if(root)root.NexmirPlanRules=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   const LIMITS=Object.freeze({
-    free:Object.freeze({bank:15,reviews:20,simulations:0,miniSimulations:1,battles:2}),
+    free:Object.freeze({bank:15,reviews:20,simulations:0,miniSimulations:1,battles:5}),
     pro:Object.freeze({bank:Infinity,reviews:Infinity,simulations:Infinity,miniSimulations:Infinity,battles:Infinity})
   });
 

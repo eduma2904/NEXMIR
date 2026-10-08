@@ -164,7 +164,7 @@ begin
   if (select count(*) from public.battle_participants where room_id=new.room_id)>=2 then raise exception 'La sala ya tiene dos jugadores.' using errcode='P0001'; end if;
   if not public.nexmir_plan_is_unlimited(new.user_id) then
     select count(*) into used from public.battle_participants where user_id=new.user_id and (joined_at at time zone 'America/Lima')::date=(now() at time zone 'America/Lima')::date;
-    if used>=2 then raise exception 'Plan Free: alcanzaste el límite de 2 batallas de hoy.' using errcode='P0001'; end if;
+    if used>=5 then raise exception 'Plan Free: alcanzaste el límite de 5 batallas de hoy.' using errcode='P0001'; end if;
   end if;
   new.display_name:=left(coalesce(nullif(btrim(new.display_name),''),'Jugador'),80);
   new.score:=0;new.correct:=0;new.answered:=0;new.finished_at:=null;new.joined_at:=now();
