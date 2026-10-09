@@ -1,0 +1,13 @@
+NEXMIR V5.1.28 — PLAN DE ESTUDIOS UNIFICADO
+
+La página Plan de estudios muestra una única semana de 28 bloques de 25 minutos (4 por día). Cada bloque incluye una especialidad y un tema concreto. Las especialidades con más presencia en los simulacros y las que necesitan más refuerzo reciben más bloques; las menos frecuentes rotan entre semanas. Dentro de cada especialidad se priorizan sus temas según dominio, frecuencia de preguntas, tarjetas vencidas, errores y tiempo sin repasar.
+
+Al pulsar un bloque se abre debajo el detalle de esa especialidad, con sus sesiones de la misma semana y la razón del orden de temas. Puedes abrir cualquier tema desde el detalle, también si aparece «En espera» y no tiene bloque asignado esta semana. Se retiraron las listas y la semana paralelas que podían dar instrucciones contradictorias. Los objetivos semanales de preguntas y repasos siguen disponibles en un panel plegable.
+
+PUBLICACIÓN
+Descomprime este ZIP y actualiza los archivos del sitio en GitHub manteniendo la estructura de carpetas. No requiere SQL nuevo en Supabase ni volver a importar las preguntas ya cargadas. No se ha desplegado el sitio.
+
+PREGUNTAS DE SIMULACROS
+El archivo SIMULACROS_MIR_CLASIFICADOS_NEXMIR.zip entregado con V5.1.27 sigue siendo el paquete de importación. En Panel Admin > Simulacros, usa la importación RemNote ZIP. Revisa AUDITORIA_CLASIFICACION.csv y REVISION_CLAVES.csv antes de publicar; la clasificación automática contiene preguntas de confianza baja y claves inferidas que requieren revisión. Evita cargar también el ZIP original porque repite preguntas.
+
+Las frecuencias describen los 18 simulacros aportados y no equivalen a una distribución oficial del MIR. La interfaz y la coherencia entre calendario y detalle se verificaron con pruebas de código; la página no se comprobó visualmente en un navegador en este entorno.
