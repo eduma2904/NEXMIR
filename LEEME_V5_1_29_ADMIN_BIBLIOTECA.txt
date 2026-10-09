@@ -1,0 +1,18 @@
+NEXMIR V5.1.29 — ADMINISTRACIÓN DE BIBLIOTECA
+
+Admin > Administrar biblioteca y borrar reúne preguntas y bancos, simulacros, flashcards y teoría, clasificación e importación. La página Resumen también enlaza a este centro.
+
+En «Elegir qué borrar» puedes seleccionar todo el contenido de estudio, solo flashcards, solo teoría, preguntas de simulacros o preguntas de bancos. Los filtros de especialidad y tema son combinables. El borrado abarca contenido publicado, en borrador y archivado. Antes de ejecutarse, muestra cantidades de contenido y datos asociados, exige escribir BORRAR CONTENIDO y comprueba que el contenido no haya cambiado desde la vista previa. Solo funciona con una sesión administradora.
+
+INSTALACIÓN EN DOS PASOS
+1. En Supabase > SQL Editor ejecuta supabase/CONTENT_CLEANUP_5_1_29.sql. Este paso instala la función y NO borra ningún dato.
+2. Descomprime el ZIP y actualiza los archivos del sitio en GitHub conservando la estructura de carpetas. Entra a Admin > Administrar biblioteca y borrar. Para borrar, consulta la vista previa y revisa las cantidades antes de escribir la confirmación.
+
+El borrado conserva cuentas y roles, imágenes físicas almacenadas, contenido Arcade y resultados históricos de simulacros/batallas. Los registros de intentos, repasos, notas y marcadas asociados al contenido seleccionado se borran. No se ha conectado al proyecto Supabase ni ejecutado una eliminación real en esta entrega: se verificó el código localmente, pero la RPC debe instalarse y probarse en el proyecto.
+
+PLAN ADAPTATIVO
+Cada simulacro publicado se toma en cuenta desde la primera carga. Al abrir Plan de estudio o regresar a su pestaña, NEXMIR consulta las preguntas publicadas y vuelve a calcular la frecuencia por especialidad y por tema. También hay un botón «Actualizar frecuencias». La muestra inicial de 18 simulacros sirve como referencia moderada mientras se acumulan nuevos bancos. Las preguntas desagrupadas no aumentan cuotas de una especialidad.
+
+El estudiante selecciona el día, mes y año de su examen en la cabecera del plan; se guarda por usuario. A más de seis meses, el calendario rota más especialidades y temas para dar cobertura; entre dos y seis meses consolida; en los últimos dos meses aumenta el peso de frecuencia y bajo dominio. Los 28 bloques semanales se recalculan con respuestas a simulacros y banqueos, errores, repasos acertados o fallados de flashcards, tarjetas vencidas y autoevaluación voluntaria tras estudiar teoría. Abrir una página de teoría sin autoevaluarse no cuenta como dominio. La autoevaluación se guarda por usuario en user_topic_feedback, creada por el SQL de instalación.
+
+El ZIP de preguntas clasificadas de V5.1.27 se mantiene por separado y no requiere volver a importarse.

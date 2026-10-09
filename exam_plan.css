@@ -1,4 +1,11 @@
 #view-calendar .plan-progress{margin-bottom:16px}
+#view-calendar .plan-exam-date{display:grid;gap:5px;min-width:230px;padding:12px 14px;border:1px solid var(--n-border,#31516a);border-radius:12px;font-size:12px;font-weight:700}
+#view-calendar .plan-exam-date input{width:100%}
+#view-calendar .plan-exam-date small{font-weight:400;color:var(--muted);line-height:1.4}
+#view-calendar .plan-week-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.theory-feedback{margin-top:18px;padding:16px}
+.theory-feedback p{margin:7px 0 12px}
+.theory-feedback .actions{display:flex;gap:9px;flex-wrap:wrap}
 #view-calendar .plan-settings{margin-bottom:20px;padding:14px 18px}
 #view-calendar .plan-settings summary{cursor:pointer;font-weight:700}
 #view-calendar .plan-settings .grid{margin:16px 0;gap:12px}
@@ -37,3 +44,4 @@
 @media(max-width:980px){#view-calendar .specialty-day{grid-template-columns:42px repeat(2,minmax(0,1fr))}#view-calendar .specialty-day>strong{grid-row:1/3}#view-calendar .specialty-day button+button{grid-column:auto}}
 @media(max-width:620px){#view-calendar .plan-detail-intro{align-items:flex-start;flex-direction:column}#view-calendar .plan-topic-row{grid-template-columns:28px minmax(0,1fr) auto}#view-calendar .plan-allocation{grid-column:2/-1}#view-calendar .plan-specialty-detail>.section-head{align-items:stretch;flex-direction:column}#view-calendar .plan-specialty-select{width:100%}}
 @media(max-width:560px){#view-calendar .specialty-day{grid-template-columns:42px minmax(0,1fr)}#view-calendar .specialty-day>strong{grid-row:1/5}#view-calendar .specialty-day button+button{grid-column:auto}}
+@media(max-width:620px){#view-calendar>.section-head{align-items:stretch;flex-direction:column}#view-calendar .plan-exam-date{width:100%}}

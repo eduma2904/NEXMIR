@@ -1,0 +1,19 @@
+.libraryHubGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.libraryHubGrid .cardBox{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.libraryHubGrid .cardBox h2,.libraryHubGrid .cardBox p{margin:0}
+.libraryHubGrid .cardBox p{flex:1;line-height:1.5}
+.libraryDanger{display:flex;align-items:center;justify-content:space-between;gap:20px;border-color:#b94c4c}
+.libraryDanger h2{margin:0 0 8px}
+.libraryDanger p{margin:0}
+.libraryDanger button{white-space:nowrap}
+.resetDialog{width:min(720px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+.resetHead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.resetHead h2{margin:0}
+.resetFilters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.resetFilters label{display:grid;gap:6px}
+.resetFilters select{width:100%;min-width:0}
+#resetResult table{width:100%;margin:12px 0}
+#resetResult td:last-child{text-align:right}
+#resetConfirmArea{margin-top:16px}
+#resetConfirmArea input{width:100%;margin-bottom:10px}
+@media(max-width:680px){.libraryHubGrid,.resetFilters{grid-template-columns:1fr}.libraryDanger{align-items:flex-start;flex-direction:column}.libraryDanger button{white-space:normal}}

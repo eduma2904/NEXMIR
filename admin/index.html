@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXMIR Admin V5.1.26</title>
+  <title>NEXMIR Admin V5.1.29</title>
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="../product_polish.css?v=5.1.5.2" />
   <link rel="stylesheet" href="responsive_admin.css?v=5.1.12" />
+  <link rel="stylesheet" href="content_hub.css?v=5.1.29" />
 </head>
 <body>
 <header class="topbar">
@@ -19,12 +20,9 @@
   <aside class="sidebar">
     <div class="nav-group"><div class="nav-group-title">Contenido</div>
       <button class="nav active" data-view="dashboard">▦ <span>Resumen</span></button>
+      <button class="nav" data-view="libraryhub">▤ <span>Administrar biblioteca y borrar</span></button>
       <button class="nav" data-view="import">⇧ <span>Importar contenido</span></button>
-      <button class="nav" data-view="questions">❓ <span>Gestionar preguntas</span></button>
       <button class="nav" data-view="arcadehub">✦ <span>Arcade</span></button>
-      <button class="nav" data-view="content">▤ <span>Contenido</span></button>
-      <button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button>
-      <button class="nav" data-view="simmanager">🗂 <span>Gestionar simulacros</span></button>
     </div>
     <div class="nav-group"><div class="nav-group-title">Revisión</div>
       <button class="nav" data-view="reports">⚑ <span>Reportes de estudiantes</span></button>
@@ -34,11 +32,22 @@
     <div class="nav-group"><div class="nav-group-title">Acceso</div>
       <button class="nav" data-view="users">👥 <span>Usuarios y planes</span></button>
     </div>
-    <details class="advanced-imports"><summary>Importación avanzada</summary><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
-    <div class="sideFoot">V5.1.5 · Administración</div>
+    <details class="advanced-imports"><summary>Herramientas de biblioteca</summary><button class="nav" data-view="questions">❓ <span>Todas las preguntas</span></button><button class="nav" data-view="content">▤ <span>Flashcards y teoría</span></button><button class="nav" data-view="simmanager">🗂 <span>Simulacros</span></button><button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
+    <div class="sideFoot">V5.1.29 · Administración</div>
   </aside>
 
   <main class="main">
+    <section id="libraryhubView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">ADMINISTRACIÓN DE CONTENIDO</div><h1>Biblioteca y borrado</h1><p>Todo lo que publicas para estudiar, practicar y hacer simulacros, desde un mismo lugar.</p></div></div>
+      <div class="libraryHubGrid">
+        <article class="cardBox"><h2>Preguntas y bancos</h2><p class="muted">Busca por enunciado, especialidad, tema o fuente. Edita, archiva o elimina preguntas.</p><button class="primary" onclick="go('questions')">Gestionar preguntas →</button></article>
+        <article class="cardBox"><h2>Simulacros</h2><p class="muted">Revisa sus preguntas, edita, archiva o elimina un simulacro concreto.</p><button class="primary" onclick="go('simmanager')">Gestionar simulacros →</button></article>
+        <article class="cardBox"><h2>Flashcards y teoría</h2><p class="muted">Busca, corrige y elimina el material de estudio publicado.</p><button class="primary" onclick="go('content')">Gestionar contenido →</button></article>
+        <article class="cardBox"><h2>Clasificación</h2><p class="muted">Encuentra contenido desagrupado y asígnale especialidad y tema.</p><button class="secondary" onclick="go('grouping')">Revisar clasificación →</button></article>
+      </div>
+      <section class="cardBox libraryDanger"><div><h2>Borrar contenido en lote</h2><p class="muted">Elige todo, un tipo de material o combínalo con especialidad y tema. Antes de confirmar verás el número exacto de registros afectados.</p></div><button type="button" class="secondary danger" onclick="openContentReset()">Elegir qué borrar →</button></section>
+      <div class="cardBox"><h2>Importar material</h2><div class="actions"><button class="secondary" onclick="go('import')">Importar RemNote</button><button class="secondary" onclick="go('bankimport')">Importar banco</button><button class="secondary" onclick="go('simimport')">Importar simulacro</button></div></div>
+    </section>
     <section id="arcadehubView" class="view hidden">
       <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Gestionar juegos</h1><p>Elige el juego cuyo contenido deseas crear, revisar o publicar.</p></div></div>
       <div class="grid2 arcadeGamePicker" aria-label="Juegos de Arcade disponibles">
@@ -83,7 +92,7 @@
         <div class="cardBox"><h2>Últimas importaciones</h2><div id="recentImports"></div></div>
       </div>
       <div class="cardBox"><h2>Flujo de actualización</h2><div class="flow"><span>RemNote</span><b>→</b><span>ZIP</span><b>→</b><span>Comparar</span><b>→</b><span>Revisar</span><b>→</b><span>Publicar</span></div><p class="muted">Las tarjetas publicadas siguen visibles hasta que apruebes una actualización. Cada carga procesa únicamente sus archivos. Los duplicados ya existentes se omiten y el resto de tu colección se conserva.</p></div><div class="cardBox"><div class="compareHead"><div><h2>Clasificación automática</h2><p class="muted">Todo lo no clasificado se muestra como <strong>Desagrupadas</strong>. Primero revisa la jerarquía guardada o vuelve a importar RemNote. La IA se ejecuta al pulsar su botón para el contenido que no tenga una ruta recuperable.</p><p id="aiClassifyStatus" class="muted"></p></div><div class="actions"><button class="secondary" onclick="openGrouping()">Ver y agrupar publicadas</button><button id="repairHierarchyBtn" class="secondary" onclick="previewHierarchyRepair()">Revisar clasificación guardada</button><button id="checkAiBtn" class="secondary" onclick="checkAiService()">Comprobar IA sin modificar tarjetas</button><button id="aiClassifyBtn" class="primary" onclick="classifyUnclassifiedWithAI()">Clasificar desagrupadas con IA</button></div></div></div>
-<details class="cardBox maintenance"><summary>Mantenimiento y respaldos</summary><div class="cardBox"><h2>Gestión de la base de contenido</h2><p class="muted">Elimina solo las flashcards, una especialidad o reinicia todo el contenido. Primero verás las cantidades afectadas. Las cuentas y la configuración de acceso se conservan.</p><button class="secondary danger" onclick="openContentReset()">Borrar contenido / reiniciar base</button></div><button id="resetAllBtn" class="secondary danger">Reiniciar base local</button></details>
+<div class="cardBox"><h2>Administrar biblioteca</h2><p class="muted">Preguntas, bancos, simulacros, flashcards, teoría y borrado por especialidad o tema en un solo lugar.</p><button class="secondary" onclick="go('libraryhub')">Abrir administración →</button></div><details class="cardBox maintenance"><summary>Base local de demostración</summary><button id="resetAllBtn" class="secondary danger">Reiniciar base local</button></details>
     </section>
 
     <section id="importView" class="view hidden">
@@ -260,7 +269,7 @@
 <script src="classification_manager.js?v=5.1.5"></script>
 <script src="question_manager.js?v=5.1.18"></script>
 <script src="users_manager.js?v=5.1.20"></script>
-<script src="content_reset.js?v=5.1.5"></script>
+<script src="content_reset.js?v=5.1.29"></script>
 <script src="question_reports.js?v=5.1.18"></script>
 <script src="suggestions_manager.js?v=5.1.5"></script>
 <script src="import_review.js?v=5.1.5"></script>
