@@ -42,12 +42,12 @@
 
   function examEvidence(q){return !!(q.source_exam||q.year||q.is_reserve||/\bMIR\b/i.test(String(q.source||'')))}
   function topicMetrics(sp){
-    const all=[...specialtyData(sp).topics.values()].map(v=>({...v,specialty:sp})),now=Date.now(),maxExam=Math.max(0,...all.map(v=>v.exam)),maxQuestions=Math.max(1,...all.map(v=>v.questions));
+    const all=[...specialtyData(sp).topics.values()].map(v=>({...v,specialty:sp})),now=Date.now(),specific=all.filter(v=>v.topic!=='General'),basis=specific.length?specific:all,maxExam=Math.max(0,...basis.map(v=>v.exam)),maxQuestions=Math.max(1,...basis.map(v=>v.questions));
     for(const v of all){
       const daysSince=v.last?Math.max(0,(now-v.last)/DAY):30;
-      v.mastery=(2+v.weightedOk)/(4+v.weightedN);v.accuracy=Math.round(v.mastery*100);v.confidence=v.weightedN>=8?'Alta':v.weightedN>=3?'Media':'Baja';v.yield=maxExam?v.exam/maxExam:v.questions/maxQuestions;v.yieldSource=maxExam?'Exámenes importados':'Cobertura del banco';v.duePressure=v.cards?v.due/v.cards:0;
+      v.mastery=(2+v.weightedOk)/(4+v.weightedN);v.accuracy=Math.round(v.mastery*100);v.confidence=v.weightedN>=8?'Alta':v.weightedN>=3?'Media':'Baja';v.yield=(v.topic==='General'&&specific.length)?0.25:Math.min(1,maxExam?v.exam/maxExam:v.questions/maxQuestions);v.yieldSource=maxExam?'Exámenes importados':'Cobertura del banco';v.duePressure=v.cards?v.due/v.cards:0;
       v.errorPressure=Math.min(1,v.errorSum/8);v.forgetting=Math.min(1,daysSince/21);
-      v.priority=.42*(1-v.mastery)+.25*v.yield+.13*v.duePressure+.12*v.errorPressure+.08*v.forgetting;
+      v.priority=.40*(1-v.mastery)+.30*v.yield+.12*v.duePressure+.11*v.errorPressure+.07*v.forgetting;
       v.difficulty=v.mastery<.45?'Fundamentos':v.mastery<.7?'Aplicación':'Casos exigentes';v.priorityPct=Math.round(v.priority*100);
     }
     return all.filter(v=>v.cards||v.questions).sort((a,b)=>b.priority-a.priority||b.questions-a.questions);
@@ -60,6 +60,44 @@
     quotas.sort((a,b)=>(b.raw%1)-(a.raw%1));for(let i=0;i<left&&quotas.length;i++)counts.set(quotas[i%quotas.length].x.topic,counts.get(quotas[i%quotas.length].x.topic)+1);
     const queue=[];let guard=0;while(queue.length<blocks&&guard++<100){for(const x of focus){if((counts.get(x.topic)||0)>0){queue.push(x);counts.set(x.topic,counts.get(x.topic)-1);if(queue.length===blocks)break}}}
     const days=Array.from({length:7},(_,i)=>({label:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][i],items:[]}));queue.forEach((x,i)=>days[i%7].items.push(x));return{metrics,days};
+  }
+
+  // A sample blueprint guides distribution until the live bank is large enough.
+  // Questions of unknown classification never inflate a specialty's quota.
+  function specialtyWeek(){
+    const blueprint=window.NexmirExamBlueprint?.reliableCounts||{};
+    const live=new Map();for(const q of questionPool())if(validDiagnosticQuestion(q)&&examEvidence(q)){
+      const name=displaySpecialty(q.specialty);if(name!=='Desagrupadas')live.set(name,(live.get(name)||0)+1);
+    }
+    const specs=new Set([...specialtySummary().map(x=>x.name),...live.keys()]);
+    const liveTotal=[...live.values()].reduce((a,b)=>a+b,0),useLive=liveTotal>=500;
+    const rows=[...specs].filter(x=>x!=='Desagrupadas').map(name=>{
+      const n=useLive?(live.get(name)||0):(blueprint[canonicalSpecialty(name)]||blueprint[name]||live.get(name)||0);
+      const data=specialtyData(name),topics=[...data.topics.values()],attemptN=topics.reduce((a,t)=>a+t.weightedN,0);
+      const mastery=attemptN>=3?topics.reduce((a,t)=>a+t.weightedOk,0)/attemptN:.5;
+      const due=topics.reduce((a,t)=>a+t.due,0),errors=topics.reduce((a,t)=>a+t.errorSum,0);
+      const score=Math.pow(Math.max(1,n),.8)*(.75+Math.min(.9,1-mastery))*(1+Math.min(.3,due/40)+Math.min(.3,errors/20));
+      return{name,n,mastery,score,topic:topicMetrics(name)[0]?.topic||'General'};
+    }).filter(x=>x.n||specialtyData(x.name).topics.size).sort((a,b)=>b.score-a.score);
+    if(!rows.length)return{days:[],rows:[],source:useLive?'Banco publicado':'18 simulacros aportados'};
+    const total=28,week=Math.floor(Date.now()/604800000);
+    const head=rows.slice(0,Math.min(10,rows.length));
+    const tail=rows.slice(10),offset=tail.length?(week*4)%tail.length:0;
+    const chosen=[...head,...Array.from({length:Math.min(4,tail.length)},(_,i)=>tail[(offset+i)%tail.length])];
+    const count=new Map(chosen.map(x=>[x.name,1]));let left=total-chosen.length;
+    const sum=chosen.reduce((a,x)=>a+x.score,0)||1;
+    const remainder=chosen.map(x=>({x,value:left*x.score/sum}));
+    for(const item of remainder){const n=Math.floor(item.value);count.set(item.x.name,count.get(item.x.name)+n);left-=n}
+    remainder.sort((a,b)=>(b.value%1)-(a.value%1));for(let i=0;i<left;i++)count.set(remainder[i].x.name,count.get(remainder[i].x.name)+1);
+    const queue=[];
+    for(let i=0;i<total;i++){
+      const best=chosen.filter(x=>count.get(x.name)>0).sort((a,b)=>{
+        const recent=sp=>queue.slice(-4).filter(q=>q.name===sp).length;
+        return (b.score/(1+recent(b.name)*3))-(a.score/(1+recent(a.name)*3));
+      })[0];if(!best)break;queue.push(best);count.set(best.name,count.get(best.name)-1);
+    }
+    const days=Array.from({length:7},(_,i)=>({label:['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][i],items:[]}));
+    queue.forEach((x,i)=>days[i%7].items.push(x));return{days,rows,source:useLive?'Banco publicado':'18 simulacros aportados'};
   }
 
   function diagnosticBanner(sp,context='study'){
@@ -120,15 +158,25 @@
   function planPanelHtml(sp){
     const p=planFor(sp),measured=diagnosticStatus(sp),source=p.metrics.find(x=>x.exam)?.yieldSource||p.metrics[0]?.yieldSource||'Sin datos';
     if(!p.metrics.length)return'<div class="empty">No hay temas clasificados para crear un plan.</div>';
-    return `<div class="plan-method"><span><b>42%</b> brecha</span><span><b>25%</b> frecuencia MIR</span><span><b>13%</b> tarjetas vencidas</span><span><b>12%</b> errores</span><span><b>8%</b> tiempo sin repasar</span><small>Fuente de frecuencia: ${esc(source)}</small></div>${!measured.attempts?`<div class="mir-note"><strong>Plan provisional:</strong> haz el pretest para sustituir la estimación inicial por tu rendimiento real.</div>`:''}<div class="grid cols-2 diagnostic-plan-grid"><div class="card"><div class="section-head"><h3>Orden de prioridad</h3><span class="chip">${p.metrics.length} temas</span></div>${metricRowsHtml(p.metrics)}</div><div class="card"><div class="section-head"><h3>Semana intercalada</h3><span class="chip">14 bloques</span></div><div class="adaptive-week">${p.days.map(day=>`<div class="adaptive-day"><strong>${day.label}</strong>${day.items.map(x=>`<button onclick="studyPlanTopic('${encodeURIComponent(sp)}','${encodeURIComponent(x.topic)}')"><span>${esc(x.topic)}</span><small>25 min · ${x.difficulty} · ${x.due?Math.min(15,x.due)+' vencidas':'recuerdo + preguntas'}</small></button>`).join('')||'<span class="muted small">Descanso / simulacro</span>'}</div>`).join('')}</div></div></div><p class="muted small plan-note">Cada bloque: recuperación sin mirar → flashcards vencidas → 3–5 preguntas. NEXMIR recalcula la prioridad con tus nuevas respuestas; un tema fuerte de alta frecuencia conserva bloques de mantenimiento.</p>`;
+    return `<div class="plan-method"><span><b>40%</b> brecha</span><span><b>30%</b> frecuencia en preguntas</span><span><b>12%</b> tarjetas vencidas</span><span><b>11%</b> errores</span><span><b>7%</b> tiempo sin repasar</span><small>Fuente de frecuencia: ${esc(source)}</small></div>${!measured.attempts?`<div class="mir-note"><strong>Plan provisional:</strong> haz el pretest para sustituir la estimación inicial por tu rendimiento real.</div>`:''}<div class="grid cols-2 diagnostic-plan-grid"><div class="card"><div class="section-head"><h3>Orden de prioridad</h3><span class="chip">${p.metrics.length} temas</span></div>${metricRowsHtml(p.metrics)}</div><div class="card"><div class="section-head"><h3>Semana intercalada</h3><span class="chip">14 bloques</span></div><div class="adaptive-week">${p.days.map(day=>`<div class="adaptive-day"><strong>${day.label}</strong>${day.items.map(x=>`<button onclick="studyPlanTopic('${encodeURIComponent(sp)}','${encodeURIComponent(x.topic)}')"><span>${esc(x.topic)}</span><small>25 min · ${x.difficulty} · ${x.due?Math.min(15,x.due)+' vencidas':'recuerdo + preguntas'}</small></button>`).join('')||'<span class="muted small">Descanso / simulacro</span>'}</div>`).join('')}</div></div></div><p class="muted small plan-note">Cada bloque: recuperación sin mirar → flashcards vencidas → 3–5 preguntas. NEXMIR recalcula la prioridad con tus nuevas respuestas; un tema fuerte de alta frecuencia conserva bloques de mantenimiento.</p>`;
   }
   function openDiagnosticPlan(encoded){state.planSpecialty=decodeURIComponent(encoded);return route('calendar')}
   function refreshAdaptivePlan(){const sp=$('#adaptivePlanSpecialty')?.value||state.planSpecialty||'';state.planSpecialty=sp;return runPlanLoading(()=>{if(state.view!=='calendar'||sp!==state.planSpecialty)return;const box=$('#adaptivePlanBody');if(box)box.innerHTML=planPanelHtml(sp)})}
-  function studyPlanTopic(es,et){const sp=decodeURIComponent(es),topic=decodeURIComponent(et);const items=studyContent().filter(x=>sameSpecialty(x.specialty,sp)&&(x.topic||'General')===topic);if(!items.length)return toast('Este tema aún no tiene contenido de estudio publicado');openTopic(encodeURIComponent(sp),encodeURIComponent(topic))}
+  function startPlanQuestions(es,et){
+    const sp=decodeURIComponent(es),topic=decodeURIComponent(et);
+    const pool=questionPool().filter(q=>sameSpecialty(q.specialty,sp)&&(q.topic||'General')===topic&&validDiagnosticQuestion(q)).sort(()=>Math.random()-.5).slice(0,10);
+    if(!pool.length)return toast('Este tema aún no tiene preguntas publicadas');
+    state.bank={pool,index:0,answered:false,selected:null,mode:'immediate',results:[],context:'bank',highlights:{},answers:{},eliminations:{},submitted:false};showQuestion();
+  }
+  function studyPlanTopic(es,et){const sp=decodeURIComponent(es),topic=decodeURIComponent(et);const items=studyContent().filter(x=>sameSpecialty(x.specialty,sp)&&(x.topic||'General')===topic);if(!items.length)return startPlanQuestions(es,et);openTopic(encodeURIComponent(sp),encodeURIComponent(topic))}
+  function specialtyWeekHtml(){const plan=specialtyWeek();if(!plan.days.length)return'';
+    return `<div class="card" style="margin:18px 0"><div class="section-head"><div><h3>Distribución semanal entre especialidades</h3><p class="muted small">28 bloques de 25 min · frecuencia observada, fallos y repasos pendientes · fuente: ${esc(plan.source)}. Las especialidades menos frecuentes rotan cada semana.</p></div><span class="chip">4 bloques/día</span></div><div class="adaptive-week">${plan.days.map(day=>`<div class="adaptive-day specialty-day"><strong>${day.label}</strong>${day.items.map(x=>`<button onclick="openDiagnosticPlan('${encodeURIComponent(x.name)}')"><span>${esc(x.name)}</span><small>${esc(x.topic)} · ${x.n} preguntas de referencia</small></button>`).join('')}</div>`).join('')}</div></div>`;
+  }
 
   const oldRenderCalendar=renderCalendar;
-  renderCalendar=function(){oldRenderCalendar();const specs=specialtySummary().map(x=>x.name).filter(x=>x!=='Desagrupadas'),preferred=(specs.includes(state.planSpecialty)?state.planSpecialty:null)||specs.sort((a,b)=>diagnosticAttempts(b).length-diagnosticAttempts(a).length)[0]||'';state.planSpecialty=preferred;const root=$('#view-calendar');if(root)root.insertAdjacentHTML('beforeend',`<div class="section-head"><div><h2>Plan adaptativo por temas</h2><p class="muted">Se recalcula con diagnóstico, actividad reciente, frecuencia disponible y tarjetas vencidas.</p></div><select id="adaptivePlanSpecialty" onchange="refreshAdaptivePlan()">${specs.map(x=>`<option value="${esc(x)}" ${x===preferred?'selected':''}>${esc(x.toLocaleUpperCase('es'))}</option>`).join('')}</select></div><div id="adaptivePlanBody">${preferred?planPanelHtml(preferred):'<div class="empty">Publica contenido clasificado para crear el plan.</div>'}</div>`) };
+  renderCalendar=function(){oldRenderCalendar();const specs=[...new Set([...specialtySummary().map(x=>x.name),...questionPool().map(x=>displaySpecialty(x.specialty))])].filter(x=>x!=='Desagrupadas'),preferred=(specs.includes(state.planSpecialty)?state.planSpecialty:null)||specs.sort((a,b)=>diagnosticAttempts(b).length-diagnosticAttempts(a).length)[0]||'';state.planSpecialty=preferred;const root=$('#view-calendar');if(root)root.insertAdjacentHTML('beforeend',`${specialtyWeekHtml()}<div class="section-head"><div><h2>Plan adaptativo por temas</h2><p class="muted">Se recalcula con diagnóstico, actividad reciente, frecuencia observada y tarjetas vencidas.</p></div><select id="adaptivePlanSpecialty" onchange="refreshAdaptivePlan()">${specs.map(x=>`<option value="${esc(x)}" ${x===preferred?'selected':''}>${esc(x.toLocaleUpperCase('es'))}</option>`).join('')}</select></div><div id="adaptivePlanBody">${preferred?planPanelHtml(preferred):'<div class="empty">Publica contenido clasificado para crear el plan.</div>'}</div>`) };
 
   window.startSpecialtyDiagnostic=startSpecialtyDiagnostic;window.startSelectedStudyDiagnostic=startSelectedStudyDiagnostic;window.startSelectedReviewDiagnostic=startSelectedReviewDiagnostic;window.refreshStudyDiagnosticStatus=refreshStudyDiagnosticStatus;window.chooseDiagnosticOption=chooseDiagnosticOption;window.nextDiagnosticQuestion=nextDiagnosticQuestion;window.closeDiagnostic=closeDiagnostic;window.openDiagnosticPlan=openDiagnosticPlan;window.refreshAdaptivePlan=refreshAdaptivePlan;window.studyPlanTopic=studyPlanTopic;window.highlightDiagnostic=highlightDiagnostic;window.captureDiagnosticHighlight=captureDiagnosticHighlight;window.toggleDiagnosticDiscard=toggleDiagnosticDiscard;
-  window.__nexmirDiagnosticTest={buildDiagnosticPool,diagnosticStatus,topicMetrics,planFor};
+  window.startPlanQuestions=startPlanQuestions;
+  window.__nexmirDiagnosticTest={buildDiagnosticPool,diagnosticStatus,topicMetrics,planFor,specialtyWeek};
 })();

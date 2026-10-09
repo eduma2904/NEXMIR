@@ -1,0 +1,14 @@
+NEXMIR V5.1.27 — PLAN DE ESTUDIO SEGÚN SIMULACROS
+
+Esta versión parte de NEXMIR_V5_1_26_ADMIN_ARCADE_UNIFICADO y añade:
+- Distribución semanal de 28 bloques de 25 minutos (4 al día) entre especialidades, visible en Plan. Más frecuencia observada y más errores implican más vueltas; las áreas menos frecuentes rotan entre semanas.
+- Plan de 14 bloques semanales dentro de la especialidad, por tema, ponderando 40% brecha de dominio, 30% frecuencia de preguntas, 12% tarjetas vencidas, 11% errores y 7% tiempo sin repasar. Cuando el tema solo tiene preguntas, su botón inicia una tanda de hasta 10 preguntas.
+- Frecuencias de muestra: 18 simulacros entregados y 3701 preguntas detectadas. Para el perfil inicial se usan las 2650 asignaciones de confianza alta o media; al disponer de 500 preguntas publicadas de simulacros se usa la distribución real del banco visible.
+- Correcciones del importador: alternativas numéricas solas como «3.»; eliminación de guiones vacíos; conservación de imágenes enlazadas; lista visible limitada a 120 filas mientras la búsqueda permite localizar el resto; lectura paginada de importaciones previas; publicación de preguntas nuevas en lotes de 40, con reintento individual ante incompatibilidad del esquema.
+
+ARCHIVO DE PREGUNTAS
+El ZIP SIMULACROS_MIR_CLASIFICADOS_NEXMIR.zip se entrega por separado. En Panel Admin > Simulacros selecciona importación RemNote ZIP y el ZIP clasificado. Revisa primero AUDITORIA_CLASIFICACION.csv y REVISION_CLAVES.csv dentro del archivo. No importes también el ZIP original: incluye las mismas preguntas y un archivo global duplicado.
+
+La clasificación automática contiene asignaciones de confianza baja que conviene revisar antes de publicar. Las 218 preguntas sin indicios suficientes permanecen fuera del ZIP de carga, pero figuran en la auditoría y siguen disponibles en los archivos originales. Otras 35 respuestas sin explicación hija se dedujeron de la primera alternativa; verifica la clave. Los enlaces de imágenes dependen del servidor RemNote original; las imágenes no se copiaron localmente.
+
+Las frecuencias son una descripción de estos bancos y no equivalen a la distribución oficial del examen MIR. No se ha ejecutado una importación ni un despliegue: solo se han verificado el análisis de los 3483 ítems mediante el parser real y la sintaxis del código y la distribución semanal.
