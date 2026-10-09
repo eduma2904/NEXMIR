@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXMIR Admin V5.1.18</title>
+  <title>NEXMIR Admin V5.1.26</title>
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
@@ -21,8 +21,7 @@
       <button class="nav active" data-view="dashboard">▦ <span>Resumen</span></button>
       <button class="nav" data-view="import">⇧ <span>Importar contenido</span></button>
       <button class="nav" data-view="questions">❓ <span>Gestionar preguntas</span></button>
-      <button class="nav" data-view="arcade">✦ <span>Arcade · Preguntas</span></button>
-      <button class="nav" data-view="arcadeclasses">▦ <span>Arcade · Clasificaciones</span></button>
+      <button class="nav" data-view="arcadehub">✦ <span>Arcade</span></button>
       <button class="nav" data-view="content">▤ <span>Contenido</span></button>
       <button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button>
       <button class="nav" data-view="simmanager">🗂 <span>Gestionar simulacros</span></button>
@@ -40,9 +39,24 @@
   </aside>
 
   <main class="main">
+    <section id="arcadehubView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Gestionar juegos</h1><p>Elige el juego cuyo contenido deseas crear, revisar o publicar.</p></div></div>
+      <div class="grid2 arcadeGamePicker" aria-label="Juegos de Arcade disponibles">
+        <article class="cardBox arcadeGameOption">
+          <div class="arcadeGameIcon" aria-hidden="true">✦</div>
+          <div><span class="badge">Ahorcado médico</span><h2>Código Vital</h2><p class="muted">Gestiona pistas, respuestas, explicaciones, especialidades e imágenes del juego.</p></div>
+          <button type="button" class="primary" onclick="go('arcade')">Modificar Código Vital</button>
+        </article>
+        <article class="cardBox arcadeGameOption">
+          <div class="arcadeGameIcon" aria-hidden="true">▦</div>
+          <div><span class="badge">Memoria clínica</span><h2>Clasificaciones MIR</h2><p class="muted">Añade clasificaciones, casos y tablas finales de repaso mediante JSON.</p></div>
+          <button type="button" class="primary" onclick="go('arcadeclasses')">Modificar clasificaciones</button>
+        </article>
+      </div>
+    </section>
     <section id="arcadeView" class="view hidden"></section>
     <section id="arcadeclassesView" class="view hidden">
-      <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Clasificaciones MIR</h1><p>Importa nuevas tablas o añade casos a las 13 incluidas. Publica solo después de revisar las respuestas y la tabla final.</p></div><button id="classesRefresh" class="secondary">Actualizar</button></div>
+      <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Clasificaciones MIR</h1><p>Importa nuevas tablas o añade casos a las 13 incluidas. Publica solo después de revisar las respuestas y la tabla final.</p></div><div class="actions arcadeAdminHeadActions"><button type="button" class="ghost" onclick="go('arcadehub')">← Elegir juego</button><button id="classesRefresh" class="secondary">Actualizar</button></div></div>
       <p id="classesMessage" role="status" aria-live="polite" class="muted"></p>
       <div id="classesBody" hidden>
         <div class="cardBox">
@@ -235,7 +249,7 @@
 <script src="../content_rules.js?v=5.1.5"></script>
 <script src="../taxonomy.js?v=5.1.5"></script>
 <script src="../session_manager.js?v=5.1.20"></script>
-<script src="app.js?v=5.1.20"></script>
+<script src="app.js?v=5.1.26"></script>
 <script src="spanish_spelling.js?v=5.1.18"></script>
 <script src="../content_admin.js?v=5.1.5.2"></script>
 <script src="content_editor.js?v=5.1.5"></script>
@@ -253,9 +267,9 @@
 <script src="bulk_content.js?v=5.1.5"></script>
 <script src="unified_import.js?v=5.1.5"></script>
 <script src="../interaction_polish.js?v=5.1.5"></script>
-<link rel="stylesheet" href="arcade_manager.css?v=5.1.18">
-<script src="arcade_manager.js?v=5.1.18"></script>
-<script src="classification_arcade_manager.js?v=5.1.24"></script>
+<link rel="stylesheet" href="arcade_manager.css?v=5.1.26">
+<script src="arcade_manager.js?v=5.1.26"></script>
+<script src="classification_arcade_manager.js?v=5.1.26"></script>
 <style>
 #classesJson{width:100%;min-height:360px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
 #classesPreviewBox{overflow-x:auto;margin-top:18px}
