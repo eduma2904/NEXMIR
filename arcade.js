@@ -94,11 +94,13 @@
    if(detail.length<10||detail.length>2000){document.getElementById('arcadeReportMessage').textContent='Escribe entre 10 y 2000 caracteres.';return}
    const button=reportForm.querySelector('[type="submit"]');button.disabled=true;
    try{
-     const body=reportQuestion.classification?'['+reportQuestion.clue.slice(0,450)+'] '+detail:detail;
-     if(body.length>2000)throw new Error('Reduce la descripción para enviar el reporte.');
-     const {error}=await state.sb.from('question_reports').insert({user_id:state.user.id,source_type:'arcade',source_id:String(reportQuestion.id),part:form.get('part'),category:form.get('category'),detail:body});
-     if(error)throw error;
-     reportDialog.close();document.body.appendChild(reportDialog);reportQuestion=null;
+     await runPlanLoading(async()=>{
+       const body=reportQuestion.classification?'['+reportQuestion.clue.slice(0,450)+'] '+detail:detail;
+       if(body.length>2000)throw new Error('Reduce la descripción para enviar el reporte.');
+       const {error}=await state.sb.from('question_reports').insert({user_id:state.user.id,source_type:'arcade',source_id:String(reportQuestion.id),part:form.get('part'),category:form.get('category'),detail:body});
+       if(error)throw error;
+       reportDialog.close();document.body.appendChild(reportDialog);reportQuestion=null;
+     },'Enviando reporte…');
    }catch(error){document.getElementById('arcadeReportMessage').textContent=error.message?.startsWith('Reduce')?error.message:'No se pudo enviar el reporte. Revisa la migración de Arcade y vuelve a intentarlo.'}
    finally{button.disabled=false}
  };
@@ -113,10 +115,32 @@
    if(name.length<3||detail.length<10)return;
    button.disabled=true;
    try{
-     const {error}=await state.sb.from('feature_suggestions').insert({user_id:state.user.id,category:'feature',title:'Arcade · '+name,detail:'Nueva clasificación para Arcade: '+name+'. '+detail});
-     if(error)throw error;suggestDialog.close();suggestForm.reset();document.body.appendChild(suggestDialog);
+     await runPlanLoading(async()=>{
+       const {error}=await state.sb.from('feature_suggestions').insert({user_id:state.user.id,category:'feature',title:'Arcade · '+name,detail:'Nueva clasificación para Arcade: '+name+'. '+detail});
+       if(error)throw error;suggestDialog.close();suggestForm.reset();document.body.appendChild(suggestDialog);
+     },'Enviando sugerencia…');
    }catch(error){document.getElementById('arcadeSuggestMessage').textContent='No se pudo enviar. Comprueba que se haya ejecutado supabase/SUGERENCIAS.sql.'}
    finally{button.disabled=false}
+ };
+ function openClassificationSuggestion(){
+   if(state.view!=='arcade'||!state.user||activeGame!=='clasificaciones')return false;
+   suggestForm.reset();document.getElementById('arcadeSuggestMessage').textContent='';
+   (expanded?document.getElementById('arcadePlayer'):document.body).appendChild(suggestDialog);
+   if(!suggestDialog.open)suggestDialog.showModal();
+   return true;
+ }
+ function openClassificationReport(data={}){
+   if(state.view!=='arcade'||!state.user||activeGame!=='clasificaciones')return false;
+   const sourceId=String(data.sourceId||''),title=String(data.title||'').slice(0,120),prompt=String(data.prompt||'').slice(0,1200);
+   const parts=sourceId.split(':'),scale=parts[1],index=Number(parts[2]);
+   const base=['apgar','hinchey','asma','curb','forrest','glasgow','garden','nyha','child','ann','birads','breslow','killip'].includes(scale);
+   if(!Number.isInteger(index)||index<0||index>999||(!base&&!definitions.some(d=>d.id===scale)))return false;
+   window.NexmirArcadeReports.openClassification(sourceId,title,prompt);return true;
+ }
+ window.NexmirArcadeActions={
+   exit(){if(state.view!=='arcade'||activeGame!=='clasificaciones')return false;home();return true},
+   suggest:openClassificationSuggestion,
+   'classification-report':openClassificationReport
  };
  const observer=new MutationObserver(()=>send('nexmir:arcade-theme',theme()));
  observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-palette','data-theme-mode']});
@@ -129,7 +153,8 @@
    document.getElementById('arcadePlay').onclick=()=>play('codigo_vital');
    document.getElementById('arcadePlayClassifications').onclick=()=>play('clasificaciones');
  }
- async function play(kind='codigo_vital'){
+ function play(kind='codigo_vital'){return runPlanLoading(()=>loadGame(kind),kind==='clasificaciones'?'Cargando Clasificaciones MIR…':'Cargando Código Vital…')}
+ async function loadGame(kind='codigo_vital'){
    const ticket=++request;activeGame=kind;frame=null;rows=[];definitions=[];
    root().innerHTML='<div id="arcadePlayer"><div class="section-head arcade-toolbar"><h2 id="arcadeGameTitle"></h2><div class="arcade-actions"><button class="btn" id="arcadeBack">← Juegos</button><button class="btn primary arcade-expand" id="arcadeExpand" aria-label="Ampliar a pantalla completa" aria-pressed="false" title="Ampliar a pantalla completa" disabled><span aria-hidden="true">⛶</span> <span>Ampliar</span></button></div></div><p id="arcadeLoading" role="status" class="muted">Cargando juego…</p><div id="arcadeHost"></div></div>';
    document.getElementById('arcadeGameTitle').textContent=kind==='clasificaciones'?'Clasificaciones MIR':'Código Vital';
@@ -151,7 +176,7 @@
        if(ticket!==request||state.view!=='arcade')return;
        const host=document.getElementById('arcadeHost');
        frame=document.createElement('iframe');frame.title='Clasificaciones MIR · Memoria clínica';frame.className='arcade-frame';
-       frame.src='arcade/clasificaciones.html?v=5.1.24';host.appendChild(frame);
+       frame.src='arcade/clasificaciones.html?v=5.1.25';host.appendChild(frame);
        document.getElementById('arcadeExpand').disabled=false;
        document.getElementById('arcadeLoading').textContent=definitions.length?'Selecciona una clasificación para practicar.':'Selecciona una clasificación. Los casos incluidos están disponibles aunque aún no se instale la ampliación del panel admin.';
        return;
@@ -181,17 +206,10 @@
  window.addEventListener('message',event=>{
    if(event.origin!==location.origin||event.source!==frame?.contentWindow||!state.user)return;
    if(event.data?.type==='nexmir:arcade-exit-fullscreen'){exitExpanded();return}
-   if(event.data?.type==='nexmir:arcade-exit'){home();return}
-   if(event.data?.type==='nexmir:arcade-suggest'&&activeGame==='clasificaciones'){
-     suggestForm.reset();document.getElementById('arcadeSuggestMessage').textContent='';
-     (expanded?document.getElementById('arcadePlayer'):document.body).appendChild(suggestDialog);suggestDialog.showModal();return;
-   }
+   if(event.data?.type==='nexmir:arcade-exit'){window.NexmirArcadeActions.exit();return}
+   if(event.data?.type==='nexmir:arcade-suggest'){openClassificationSuggestion();return}
    if(event.data?.type==='nexmir:arcade-classification-report'&&activeGame==='clasificaciones'){
-     const sourceId=String(event.data.sourceId||''),title=String(event.data.title||'').slice(0,120),prompt=String(event.data.prompt||'').slice(0,1200);
-     const parts=sourceId.split(':'),scale=parts[1],index=Number(parts[2]);
-     const base=['apgar','hinchey','asma','curb','forrest','glasgow','garden','nyha','child','ann','birads','breslow','killip'].includes(scale);
-     if(base||definitions.some(d=>d.id===scale))window.NexmirArcadeReports.openClassification(sourceId,title,prompt);
-     return;
+     openClassificationReport(event.data);return;
    }
    if(event.data?.type==='nexmir:arcade-report'){window.NexmirArcadeReports.open(event.data.game,event.data.questionId);return}
    if(event.data?.type==='nexmir:arcade-ready'){

@@ -6,6 +6,13 @@ la pregunta solo muestra los parámetros observados y las opciones de puntos:
 los umbrales de la tabla se enseñan al terminar la partida, también si se
 pulsa **Terminar partida** antes del último ejercicio.
 
+## Centro de gestión Arcade (5.1.26)
+
+El menú lateral del panel admin presenta un único acceso **Arcade**. Al abrirlo,
+el administrador elige entre **Código Vital** y **Clasificaciones MIR**. Cada
+editor conserva sus funciones anteriores y ofrece **Elegir juego** para volver
+al centro de gestión sin salir del panel.
+
 ## Instalar la ampliación de la base de datos
 
 En el proyecto Supabase utilizado por NEXMIR, tras las migraciones de Arcade
@@ -20,7 +27,7 @@ reportes de casos de Clasificaciones.
 
 ## Subir contenido
 
-Abrir **Panel Admin → Arcade · Clasificaciones** con una cuenta admin. Elegir
+Abrir **Panel Admin → Arcade → Clasificaciones MIR** con una cuenta admin. Elegir
 un ejemplo, pegar JSON o seleccionar un archivo .json de hasta 500 KB.
 Validar y previsualizar, revisar cada caso, respuesta, fuente y tabla de repaso,
 y marcar **Publicada** al guardar. El contenido publicado aparece cuando el
@@ -57,3 +64,12 @@ debe seleccionar otra especialidad o reducir el número de preguntas; no se
 crea una sala incompleta. Ambos jugadores reciben las mismas preguntas.
 La revancha mantiene la selección mientras se conserve la sala en la sesión.
 Esta función no requiere una migración adicional para Batallas.
+
+## Corrección móvil y pantallas de carga
+
+La versión 5.1.25 añade manejo táctil para **Salir del juego**, **Sugerir nueva
+clasificación** y **Reportar pregunta** dentro de Clasificaciones MIR. También
+muestra una pantalla de carga al terminar una partida, preparar el repaso,
+abrir un juego y durante las operaciones principales que guardan o consultan
+datos. Los identificadores de versión de los scripts se actualizaron para
+evitar que el móvil conserve archivos antiguos en caché.

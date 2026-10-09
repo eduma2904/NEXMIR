@@ -16,9 +16,13 @@ body{background:radial-gradient(circle at 8% 0%,rgba(var(--accent-rgb),.16),tran
 .chip[aria-pressed=true],.pick[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 20%,var(--card));color:var(--text)}
 .recap th{background:color-mix(in srgb,var(--accent) 13%,var(--card))}.primary{background:var(--accent-strong);color:#fff}:root[data-theme-mode="dark"] .primary{color:#10233c}
 .primary:hover{background:var(--accent)}.feedback{background:color-mix(in srgb,var(--green) 14%,var(--panel));color:var(--text)}.feedback.bad{background:color-mix(in srgb,var(--red) 13%,var(--panel))}
-.game-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:18px}.game-actions button{min-height:38px;padding:7px 11px;font-size:12px}.game-actions .danger-action{color:var(--red)}
+.game-actions{position:relative;z-index:5;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:18px}.game-actions button{position:relative;z-index:6;min-height:42px;padding:9px 13px;font-size:12px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.game-actions .danger-action{color:var(--red)}
 .footer .secondary{min-height:42px}.case strong{color:var(--text)}.round{background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--accent)}
-</style></head><body><main class="wrap"><header class="top"><div class="brand"><div class="mark">N</div><div><strong>NEXMIR · CLASIFICA</strong><small>Arcade · memoria clínica</small></div></div><span class="badge">Casos listos para jugar</span></header><nav class="game-actions" aria-label="Acciones del juego"><button class="secondary" id="leaveGame" type="button">← Salir del juego</button><button class="secondary" id="reportGame" type="button" hidden>⚑ Reportar pregunta</button><button class="secondary" id="suggestGame" type="button">＋ Sugerir nueva clasificación</button></nav><div id="app"></div></main>
+.game-loading{position:fixed;z-index:9999;inset:0;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.game-loading[hidden]{display:none}.game-loading-card{width:min(310px,90vw);padding:27px 22px;text-align:center;border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:0 22px 60px #0004}.game-loading-spinner{width:42px;height:42px;margin:0 auto 15px;border:4px solid color-mix(in srgb,var(--accent) 20%,var(--card));border-top-color:var(--accent);border-radius:50%;animation:game-spin .75s linear infinite}.game-loading strong{display:block;font-size:18px}.game-loading small{display:block;margin-top:6px;color:var(--muted)}@keyframes game-spin{to{transform:rotate(360deg)}}
+@media(max-width:620px){.game-actions{display:grid;grid-template-columns:1fr}.game-actions button{width:100%;min-height:48px;font-size:13px}.game-actions #reportGame:not([hidden]){display:block}.game-loading-card{padding:24px 18px}}
+@media(prefers-reduced-motion:reduce){.game-loading-spinner{animation:none}}
+</style></head><body><main class="wrap"><header class="top"><div class="brand"><div class="mark">N</div><div><strong>NEXMIR · CLASIFICA</strong><small>Arcade · memoria clínica</small></div></div><span class="badge">Casos listos para jugar</span></header><nav class="game-actions" aria-label="Acciones del juego"><button class="secondary" id="leaveGame" type="button">← Salir del juego</button><button class="secondary" id="reportGame" type="button" hidden>⚑ Reportar pregunta</button><button class="secondary" id="suggestGame" type="button">＋ Sugerir nueva clasificación</button></nav><div id="app"></div></main><div id="gameLoading" class="game-loading" role="status" aria-live="polite" aria-busy="true" hidden><div class="game-loading-card"><div class="game-loading-spinner" aria-hidden="true"></div><strong id="gameLoadingTitle">Cargando…</strong><small>Un momento, estamos preparando la siguiente pantalla.</small></div></div>
 <script>
 (()=>{'use strict';
 const root=document.getElementById('app');
@@ -164,15 +168,39 @@ for(const scale of scales)scale.cases.push(...extraCases[scale.id]);
 const state={scale:null,deck:[],index:0,answers:{},choice:null,locked:false,points:0,hearts:3,perfect:0,errors:[],filter:'all',query:''};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle=items=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let loadingTransition=false;
+function showGameLoading(label='Cargando…'){
+ const overlay=document.getElementById('gameLoading'),title=document.getElementById('gameLoadingTitle');
+ if(title)title.textContent=label;if(overlay)overlay.hidden=false;document.body.setAttribute('aria-busy','true');
+}
+function hideGameLoading(){const overlay=document.getElementById('gameLoading');if(overlay)overlay.hidden=true;document.body.removeAttribute('aria-busy')}
+function transition(label,work){
+ if(loadingTransition)return;loadingTransition=true;showGameLoading(label);
+ requestAnimationFrame(()=>setTimeout(()=>{try{work()}finally{hideGameLoading();loadingTransition=false}},30));
+}
+function parentAction(name,payload={}){
+ try{
+  const api=window.parent.NexmirArcadeActions;
+  if(api&&typeof api[name]==='function'){api[name](payload);return true}
+ }catch{/* El mensaje seguro funciona también si el navegador aísla el iframe. */}
+ window.parent.postMessage({type:'nexmir:arcade-'+name,...payload},location.origin);return false;
+}
+function bindTap(button,handler){
+ let moved=false,lastTouch=0;
+ button.addEventListener('touchstart',()=>{moved=false},{passive:true});
+ button.addEventListener('touchmove',()=>{moved=true},{passive:true});
+ button.addEventListener('touchend',event=>{if(moved)return;lastTouch=Date.now();event.preventDefault();handler()},{passive:false});
+ button.addEventListener('click',()=>{if(Date.now()-lastTouch<700)return;handler()});
+}
 function mount(html){root.innerHTML=html;document.getElementById('reportGame').hidden=!state.scale||state.index>=state.deck.length;root.scrollIntoView({block:'start',behavior:'smooth'})}
 function home(){state.scale=null;mount(`<section class="hero"><div class="eyebrow">Elige una clasificación · ${scales.length} disponibles</div><h1>Un caso, una decisión, otra oportunidad.</h1><p class="lead">Practica con casos originales de las tablas que pediste y de clasificaciones identificadas en tus simulacros MIR. Puntúa criterios o elige un grado; comprueba la respuesta antes de avanzar.</p><svg class="pulse" viewBox="0 0 450 95" role="img" aria-label="Trazo de monitor de práctica"><path d="M0 62 H56 L70 47 L82 83 L97 15 L113 62 H215 L230 43 L242 75 L256 62 H450" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="170" cy="62" r="12" fill="#42d5a0"/><circle cx="339" cy="62" r="12" fill="#4896ed"/></svg><p class="hint">Sin límite de tiempo ni penalización por pensar. Tres escudos indican cuántos casos fallaste; puedes seguir aunque se agoten.</p></section><div class="toolbar"><input class="search" id="search" aria-label="Buscar clasificación" placeholder="Buscar clasificación o especialidad…" value="${esc(state.query)}"><button class="chip" type="button" data-filter="all" aria-pressed="${state.filter==='all'}">Todas</button><button class="chip" type="button" data-filter="score" aria-pressed="${state.filter==='score'}">Puntuar</button><button class="chip" type="button" data-filter="choice" aria-pressed="${state.filter==='choice'}">Elegir grado</button><button class="chip" type="button" data-filter="zip" aria-pressed="${state.filter==='zip'}">En simulacros</button></div><section id="catalog" class="deck" aria-label="Clasificaciones disponibles"></section><p class="hint">Casos originales para practicar. El progreso de Arcade no consume cupos ni altera tu racha.</p>`);root.querySelector('#search').oninput=e=>{state.query=e.target.value;catalog()};root.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;root.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));catalog()});catalog()}
 function catalog(){const q=state.query.toLocaleLowerCase('es');const selected=scales.filter(s=>(state.filter==='all'||s.type===state.filter||(state.filter==='zip'&&['zip','ambos'].includes(s.origin)))&&`${s.name} ${s.topic}`.toLocaleLowerCase('es').includes(q));const el=root.querySelector('#catalog');el.innerHTML=selected.map(s=>`<button class="module" type="button" data-scale="${s.id}"><span class="icon">${s.icon}</span><b>${esc(s.name)}</b><span class="meta">${esc(s.topic)} · ${s.cases.length} casos${['zip','ambos'].includes(s.origin)?' · aparece en simulacros':''}</span><p>${esc(s.note)}</p><em>Practicar →</em></button>`).join('')||'<p class="muted">No hay clasificaciones con ese filtro.</p>';el.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>start(b.dataset.scale))}
 function start(id){state.scale=scales.find(s=>s.id===id);state.deck=shuffle(state.scale.cases);state.index=0;state.answers={};state.choice=null;state.locked=false;state.points=0;state.hearts=3;state.perfect=0;state.errors=[];render()}
 function hud(){return `<div class="hud"><div class="stat"><small>Puntos</small><strong id="points">${state.points}</strong></div><div class="stat hearts"><small>Escudos</small><strong id="hearts">${'♥'.repeat(state.hearts)}<span class="empty">${'♥'.repeat(3-state.hearts)}</span></strong></div><div class="stat"><small>Casos perfectos</small><strong id="perfect">${state.perfect}</strong></div></div>`}
-function frame(body){const s=state.scale,n=state.deck.length;mount(`<section class="board">${hud()}<div class="board-head"><div><div class="eyebrow">${esc(s.topic)} · ${esc(s.name)}</div><h2>${s.type==='score'?'Asigna los puntos':'Elige la clasificación'}</h2></div><span class="round">Caso ${state.index+1} de ${n}</span></div><div class="track" role="progressbar" aria-label="Progreso" aria-valuenow="${state.index}" aria-valuemin="0" aria-valuemax="${n}"><span style="width:${Math.round(state.index/n*100)}%"></span></div><p class="muted">${esc(s.note)}</p>${s.caution?`<p class="source-note">${esc(s.caution)}</p>`:''}${body}<div id="feedback" class="feedback" role="status" hidden></div><div class="footer"><button class="secondary" id="finish" type="button">Terminar partida</button><button class="primary" id="submit" type="button">Comprobar respuesta</button></div></section>`);root.querySelector('#finish').onclick=()=>summary(true)}
+function frame(body){const s=state.scale,n=state.deck.length;mount(`<section class="board">${hud()}<div class="board-head"><div><div class="eyebrow">${esc(s.topic)} · ${esc(s.name)}</div><h2>${s.type==='score'?'Asigna los puntos':'Elige la clasificación'}</h2></div><span class="round">Caso ${state.index+1} de ${n}</span></div><div class="track" role="progressbar" aria-label="Progreso" aria-valuenow="${state.index}" aria-valuemin="0" aria-valuemax="${n}"><span style="width:${Math.round(state.index/n*100)}%"></span></div><p class="muted">${esc(s.note)}</p>${s.caution?`<p class="source-note">${esc(s.caution)}</p>`:''}${body}<div id="feedback" class="feedback" role="status" hidden></div><div class="footer"><button class="secondary" id="finish" type="button">Terminar partida</button><button class="primary" id="submit" type="button">Comprobar respuesta</button></div></section>`);root.querySelector('#finish').onclick=()=>transition('Preparando tu repaso…',()=>summary(true))}
 function reward(hits,total,description){const earned=Math.round(hits/total*100);state.points+=earned;if(hits===total)state.perfect++;else{state.hearts=Math.max(0,state.hearts-1);state.errors.push(description)}root.querySelector('#points').textContent=state.points;root.querySelector('#perfect').textContent=state.perfect;root.querySelector('#hearts').innerHTML='♥'.repeat(state.hearts)+`<span class="empty">${'♥'.repeat(3-state.hearts)}</span>`;return earned}
 function notice(msg){const el=root.querySelector('#feedback');el.hidden=false;el.className='feedback bad';el.textContent=msg}
-function feedback(html,good){const el=root.querySelector('#feedback');el.hidden=false;el.className='feedback'+(good?'':' bad');el.innerHTML=html;el.scrollIntoView({block:'nearest',behavior:'smooth'});const b=root.querySelector('#submit');b.textContent=state.index+1===state.deck.length?'Ver resultado →':'Siguiente caso →';b.onclick=()=>{state.index++;state.answers={};state.choice=null;state.locked=false;state.index===state.deck.length?summary():render()}}
+function feedback(html,good){const el=root.querySelector('#feedback');el.hidden=false;el.className='feedback'+(good?'':' bad');el.innerHTML=html;el.scrollIntoView({block:'nearest',behavior:'smooth'});const b=root.querySelector('#submit');b.textContent=state.index+1===state.deck.length?'Ver resultado →':'Siguiente caso →';b.onclick=()=>{state.index++;state.answers={};state.choice=null;state.locked=false;state.index===state.deck.length?transition('Preparando tu resultado…',summary):render()}}
 function scoreCategory(s,answer){const total=answer.reduce((a,b)=>a+(typeof b==='number'?b:0),0);if(s.id==='glasgow')return answer.includes('NT')?`E${answer[0]} V-NT M${answer[2]} · sin total numérico completo`:`E${answer[0]} V${answer[1]} M${answer[2]} = ${total}/15`;if(s.id==='child')return `${total} puntos · Child–Pugh ${total<=6?'A':total<=9?'B':'C'}`;return s.id==='apgar'?`${total}/10`:`${total} punto${total===1?'':'s'}`}
 const reviewData={
  apgar:{headers:['Parámetro','0 puntos','1 punto','2 puntos'],rows:[['Frecuencia cardíaca','Ausente','<100 lpm','≥100 lpm'],['Respiración','Ausente','Lenta o irregular','Llanto vigoroso'],['Tono muscular','Flácido','Alguna flexión','Movimientos activos'],['Respuesta al estímulo','Sin respuesta','Mueca','Tos, estornudo o retirada vigorosa'],['Coloración','Pálido o azul','Tronco rosado; extremidades azules','Completamente rosado']]},
@@ -258,13 +286,13 @@ window.addEventListener('message',event=>{
  }
  if(data.type==='nexmir:arcade-classifications-init')applyDefinitions(data.definitions);
 });
-document.getElementById('leaveGame').onclick=()=>window.parent.postMessage({type:'nexmir:arcade-exit'},location.origin);
-document.getElementById('suggestGame').onclick=()=>window.parent.postMessage({type:'nexmir:arcade-suggest'},location.origin);
-document.getElementById('reportGame').onclick=()=>{
+bindTap(document.getElementById('leaveGame'),()=>transition('Saliendo del juego…',()=>parentAction('exit')));
+bindTap(document.getElementById('suggestGame'),()=>transition('Abriendo sugerencias…',()=>parentAction('suggest')));
+bindTap(document.getElementById('reportGame'),()=>{
  const s=state.scale,c=state.deck[state.index];if(!s||!c)return;
  const number=s.cases.indexOf(c);if(number<0)return;
- window.parent.postMessage({type:'nexmir:arcade-classification-report',sourceId:'classification:'+s.id+':'+number,title:s.name,prompt:c.text},location.origin);
-};
+ parentAction('classification-report',{sourceId:'classification:'+s.id+':'+number,title:s.name,prompt:c.text});
+});
 home();
 window.parent.postMessage({type:'nexmir:arcade-ready'},location.origin);
 })();

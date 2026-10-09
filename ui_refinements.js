@@ -1,13 +1,37 @@
 /* NEXMIR 5.1.1: shared loading and searchable Focus selectors. */
 (() => {
-  for(const name of ['createBattle','joinBattle','startBattleRoom','confirmNexmirFocus','resumeNexmirFocus','finishBank']){
+  const loadingTasks={
+    createBattle:'Creando la sala…',
+    joinBattle:'Entrando a la batalla…',
+    startBattleRoom:'Iniciando la batalla…',
+    answerBattle:'Enviando tu respuesta…',
+    openBattleReview:'Cargando la revisión…',
+    confirmNexmirFocus:'Preparando sesión Focus…',
+    resumeNexmirFocus:'Recuperando sesión Focus…',
+    finishFocusEarly:'Guardando tu sesión…',
+    finishBank:'Enviando respuestas…',
+    finishMirSimulation:'Guardando el simulacro…',
+    saveStudyPlan:'Guardando tu plan…',
+    submitFeatureSuggestion:'Enviando sugerencia…',
+    resendVerification:'Enviando correo…',
+    saveErrorEntry:'Guardando el repaso…',
+    markQuestionDoubt:'Guardando la pregunta…',
+    saveProfile:'Guardando tu perfil…',
+    deleteReviewCardAsAdmin:'Eliminando la flashcard…',
+    deleteQuestionAsAdmin:'Eliminando la pregunta…'
+  };
+  window.NexmirLoading={
+    run(work,label='Cargando…'){return runPlanLoading(work,label)},
+    get active(){return runPlanLoading.pending>0}
+  };
+  for(const [name,label] of Object.entries(loadingTasks)){
     const original=window[name];
     if(typeof original!=='function')continue;
     let pending=false;
     window[name]=async function(...args){
       if(pending)return;
       pending=true;
-      try{return await runPlanLoading(()=>original.apply(this,args),name==='finishBank'?'Enviando respuestas…':'Preparando sesión…')}
+      try{return await runPlanLoading(()=>original.apply(this,args),label)}
       catch(error){console.error(error);toast('No se pudo completar la operación. Inténtalo de nuevo.')}
       finally{pending=false}
     };

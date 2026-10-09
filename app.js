@@ -193,9 +193,19 @@ let routeGeneration=0;
 async function runPlanLoading(work,label='Cargando…'){
  const dialog=$('#planLoadingDialog');
  runPlanLoading.pending++;
- if(dialog){dialog.querySelector('h3').textContent=label;dialog.querySelector('p').textContent='Un momento, estamos preparando la vista.';if(!dialog.open)dialog.showModal()}
+ if(dialog){
+  const host=document.querySelector('#arcadePlayer.is-expanded')||document.body;
+  if(!dialog.open&&dialog.parentElement!==host)host.appendChild(dialog);
+  dialog.querySelector('h3').textContent=label;dialog.querySelector('p').textContent='Un momento, estamos preparando la vista.';
+  if(!dialog.open)dialog.showModal();
+ }
  try{await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));return await work()}
- finally{if(--runPlanLoading.pending===0)dialog?.close()}
+ finally{
+  if(--runPlanLoading.pending===0&&dialog){
+   if(dialog.open)dialog.close();
+   if(dialog.parentElement!==document.body)document.body.appendChild(dialog);
+  }
+ }
 }
 runPlanLoading.pending=0;
 function route(v){
