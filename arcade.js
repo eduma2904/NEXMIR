@@ -176,7 +176,7 @@
        if(ticket!==request||state.view!=='arcade')return;
        const host=document.getElementById('arcadeHost');
        frame=document.createElement('iframe');frame.title='Clasificaciones MIR · Memoria clínica';frame.className='arcade-frame';
-       frame.src='arcade/clasificaciones.html?v=5.1.25';host.appendChild(frame);
+       frame.src='arcade/clasificaciones.html?v=5.1.31';host.appendChild(frame);
        document.getElementById('arcadeExpand').disabled=false;
        document.getElementById('arcadeLoading').textContent=definitions.length?'Selecciona una clasificación para practicar.':'Selecciona una clasificación. Los casos incluidos están disponibles aunque aún no se instale la ampliación del panel admin.';
        return;

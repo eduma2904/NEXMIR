@@ -1,10 +1,20 @@
 # Clasificaciones MIR en NEXMIR Arcade
 
 Esta versión añade un segundo juego en Arcade (Free y Pro). Incluye 13
-clasificaciones y 98 casos originales, sin imágenes de Garden. En puntuación,
+clasificaciones y 104 casos originales, sin imágenes de Garden. En puntuación,
 la pregunta solo muestra los parámetros observados y las opciones de puntos:
 los umbrales de la tabla se enseñan al terminar la partida, también si se
 pulsa **Terminar partida** antes del último ejercicio.
+
+## Killip y Kimball (5.1.31)
+
+En **Arcade → Clasificaciones MIR → Cardiología** aparece **Clasificación de
+Killip y Kimball**. Incluye 12 casos, tres para cada clase I–IV, y una tabla de
+repaso al finalizar. Los casos distinguen ausencia de insuficiencia cardíaca,
+crepitantes basales o S3, edema pulmonar franco y shock cardiogénico. La
+referencia enlazada es el estándar de datos de síndrome coronario agudo de la
+Sociedad Europea de Cardiología. Actualiza los archivos de la web; no se
+requiere una nueva migración SQL para estos casos incluidos.
 
 ## Centro de gestión Arcade (5.1.26)
 

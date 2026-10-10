@@ -1,0 +1,7 @@
+NEXMIR V5.1.30 — MEJORAS DE DISEÑO Y ANIMACIÓN
+
+Archivos nuevos: ux_motion.css y ux_motion.js. index.html los carga al final. No se tocó app.js, Supabase ni ningún SQL, así que no hay pasos en Supabase.
+
+Incluye: barra de progreso al cambiar de pestaña; transición direccional entre pestañas según el orden del menú; aparición escalonada de tarjetas; contadores y barras de progreso animados; indicador deslizante en el menú lateral; efecto de onda en botones; elevación y brillo en tarjetas; respuestas con animación al acertar o fallar (y vibración suave en móvil); diálogos con desenfoque de fondo; pantalla de acceso con luces animadas; menú móvil con velo; botón de volver arriba; barra superior con sombra al desplazarse; foco visible y barras de desplazamiento temáticas.
+
+Respeta «reducir movimiento» del sistema y los temas claro/oscuro existentes. Para revertir: quita las dos líneas de ux_motion en index.html.

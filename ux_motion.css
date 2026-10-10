@@ -1,0 +1,141 @@
+/* NEXMIR V5.1.30: capa de diseño, movimiento y transiciones.
+   Se carga al final; solo añade estilos, no cambia rutas ni lógica. */
+:root{
+  --mx-ease:cubic-bezier(.22,1,.36,1);
+  --mx-spring:cubic-bezier(.34,1.56,.64,1);
+  --mx-glow:color-mix(in srgb,var(--n-primary,var(--primary)) 38%,transparent);
+  --mx-lift:0 14px 34px rgba(0,0,0,.22);
+}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+::selection{background:color-mix(in srgb,var(--n-primary,var(--primary)) 35%,transparent)}
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--n-primary,var(--primary)) 40%,transparent) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--n-primary,var(--primary)) 38%,transparent);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+:focus-visible{outline:2px solid var(--n-primary,var(--primary));outline-offset:2px;border-radius:8px}
+
+/* Barra de progreso superior al cambiar de pestaña */
+#mxRoute{position:fixed;top:0;left:0;height:3px;width:0;z-index:9999;pointer-events:none;
+  background:linear-gradient(90deg,var(--n-primary,var(--primary)),var(--n-secondary,var(--violet)));
+  box-shadow:0 0 12px var(--mx-glow);opacity:0;transition:width .35s var(--mx-ease),opacity .25s}
+#mxRoute.on{opacity:1}
+
+/* Entrada de vistas, con dirección según el orden del menú */
+.view.active{animation:mx-view-in .42s var(--mx-ease) both}
+.view.active.mx-from-down{animation-name:mx-view-in-up}
+@keyframes mx-view-in{from{opacity:0;transform:translateX(18px) scale(.995)}to{opacity:1;transform:none}}
+@keyframes mx-view-in-up{from{opacity:0;transform:translateX(-18px) scale(.995)}to{opacity:1;transform:none}}
+
+/* Aparición escalonada de tarjetas y bloques */
+.view.active .mx-stagger{animation:mx-rise .55s var(--mx-ease) both;animation-delay:calc(var(--mx-i,0) * 45ms)}
+@keyframes mx-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.mx-reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--mx-ease),transform .55s var(--mx-ease)}
+.mx-reveal.mx-in{opacity:1;transform:none}
+
+/* Tarjetas y botones */
+.card,.specialty-card,.hero-main{transition:transform .28s var(--mx-ease),box-shadow .28s var(--mx-ease),border-color .28s,background-color .28s}
+@media (hover:hover){
+  .card:hover{transform:translateY(-3px);box-shadow:var(--mx-lift);border-color:color-mix(in srgb,var(--n-primary,var(--primary)) 45%,var(--line))}
+  .specialty-card:hover{transform:translateY(-4px) scale(1.01)}
+  .btn:not(:disabled):hover{transform:translateY(-1px)}
+  .btn.primary:hover{box-shadow:0 8px 24px var(--mx-glow)}
+}
+.btn,.nav-item,.icon-btn,.avatar,.pill,.auth-tab{transition:transform .18s var(--mx-ease),box-shadow .25s,background-color .2s,color .2s,border-color .2s,filter .2s}
+.btn:not(:disabled):active,.nav-item:active,.icon-btn:active,.avatar:active{transform:scale(.96)}
+.btn{position:relative;overflow:hidden}
+.btn:disabled,.btn[aria-busy="true"]{opacity:.6;cursor:progress}
+.mx-ripple{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.35);transform:scale(0);animation:mx-ripple .6s ease-out forwards}
+@keyframes mx-ripple{to{transform:scale(1);opacity:0}}
+
+/* Hero con brillo suave */
+.hero-main{position:relative;overflow:hidden;isolation:isolate}
+.hero-main::after{content:"";position:absolute;inset:-40%;z-index:-1;background:conic-gradient(from 0deg,transparent,var(--mx-glow),transparent 30%);opacity:.35;animation:mx-spin 14s linear infinite}
+@keyframes mx-spin{to{transform:rotate(360deg)}}
+.chip{animation:mx-pop .5s var(--mx-spring) both}
+@keyframes mx-pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+
+/* Menú lateral con indicador deslizante */
+.sidebar nav{position:relative}
+.nav-item{position:relative}
+.nav-item:hover{transform:translateX(3px)}
+.nav-item.active{transform:none}
+#mxNavInd{position:absolute;left:0;width:3px;border-radius:0 4px 4px 0;background:linear-gradient(var(--n-primary,var(--primary)),var(--n-secondary,var(--violet)));box-shadow:0 0 12px var(--mx-glow);transition:transform .4s var(--mx-spring),height .3s var(--mx-ease),opacity .3s;opacity:0;pointer-events:none;z-index:2}
+.badge{animation:mx-badge 2.2s ease-in-out infinite}
+@keyframes mx-badge{0%,100%{box-shadow:0 0 0 0 rgba(255,102,122,.5)}50%{box-shadow:0 0 0 6px rgba(255,102,122,0)}}
+.logo-mark{position:relative;animation:mx-float 5s ease-in-out infinite}
+.logo-mark.small{animation:none}
+@keyframes mx-float{50%{transform:translateY(-4px)}}
+
+/* Barra superior */
+.topbar{transition:box-shadow .3s,background-color .3s}
+.topbar.mx-scrolled{box-shadow:0 8px 28px rgba(0,0,0,.2)}
+#viewTitle{animation:mx-title .45s var(--mx-ease) both}
+@keyframes mx-title{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* Barras de progreso animadas */
+.progress-fill{transition:width 1s var(--mx-ease);position:relative;overflow:hidden}
+.progress-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:mx-shine 2.8s 1s ease-in-out infinite}
+@keyframes mx-shine{to{transform:translateX(100%)}}
+
+/* Preguntas: respuestas con retroalimentación visible */
+.mcq-option,.sim-option,.answer-choice{transition:transform .2s var(--mx-ease),border-color .2s,background-color .2s,box-shadow .2s}
+@media (hover:hover){.mcq-option:not(:disabled):hover,.sim-option:not(:disabled):hover{transform:translateX(4px)}}
+.mcq-option.selected,.sim-option.selected{box-shadow:0 0 0 2px var(--n-primary,var(--primary)),0 8px 22px var(--mx-glow)}
+.mcq-option.correct,.sim-option.correct{animation:mx-correct .6s var(--mx-ease)}
+.mcq-option.wrong,.sim-option.wrong{animation:mx-shake .45s}
+@keyframes mx-correct{0%{transform:scale(1)}40%{transform:scale(1.025);box-shadow:0 0 0 6px rgba(46,204,138,.28)}100%{transform:scale(1)}}
+@keyframes mx-shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* Diálogos */
+dialog[open]{animation:mx-dialog .38s var(--mx-spring) both}
+dialog[open]::backdrop{animation:mx-fade .3s ease both}
+dialog::backdrop{backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1);background:rgba(5,12,22,.6)}
+@keyframes mx-dialog{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes mx-fade{from{opacity:0}to{opacity:1}}
+
+/* Aviso (toast) */
+.toast{transition:transform .45s var(--mx-spring),opacity .3s;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.toast:not(.hidden){animation:mx-toast .5s var(--mx-spring) both}
+@keyframes mx-toast{from{opacity:0;transform:translateY(24px) scale(.9)}to{opacity:1;transform:none}}
+
+/* Pantalla de acceso */
+.auth-screen{position:relative;overflow:hidden}
+.auth-screen::before,.auth-screen::after{content:"";position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0}
+.auth-screen::before{background:var(--n-primary,var(--primary));top:-20vmax;left:-14vmax;animation:mx-orb 16s ease-in-out infinite alternate}
+.auth-screen::after{background:var(--n-secondary,var(--violet));bottom:-22vmax;right:-14vmax;animation:mx-orb 20s ease-in-out infinite alternate-reverse}
+@keyframes mx-orb{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+.auth-brand,.auth-card,.boot-card{position:relative;z-index:1}
+.auth-brand{animation:mx-rise .7s var(--mx-ease) both}
+.auth-card,.boot-card{animation:mx-rise .8s .1s var(--mx-ease) both;backdrop-filter:blur(14px)}
+.auth-tab.active{box-shadow:0 4px 14px rgba(0,0,0,.2)}
+input,select,textarea{transition:border-color .2s,box-shadow .25s,background-color .2s}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--n-primary,var(--primary)) 20%,transparent)}
+.loading-spinner{box-shadow:0 0 22px var(--mx-glow)}
+.plan-loading[open]{animation:mx-dialog .3s var(--mx-spring) both}
+.plan-loading .loading-spinner+h3::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:mx-dots 1.2s steps(4) infinite}
+@keyframes mx-dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+
+/* Volver arriba */
+#mxTop{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface,#10243a);color:var(--n-primary,var(--primary));font-size:20px;cursor:pointer;z-index:30;box-shadow:var(--mx-lift);opacity:0;transform:translateY(20px) scale(.8);pointer-events:none;transition:opacity .3s,transform .4s var(--mx-spring)}
+#mxTop.on{opacity:1;transform:none;pointer-events:auto}
+
+/* Navegación móvil: panel deslizante con velo */
+#mxScrim{position:fixed;inset:0;background:rgba(4,10,18,.55);backdrop-filter:blur(3px);z-index:19;opacity:0;pointer-events:none;transition:opacity .3s}
+#mxScrim.on{opacity:1;pointer-events:auto}
+@media (max-width:900px){
+  .sidebar{transition:transform .42s var(--mx-ease),box-shadow .3s}
+  .sidebar.open{box-shadow:24px 0 60px rgba(0,0,0,.45)}
+  .sidebar.open .nav-item{animation:mx-rise .45s var(--mx-ease) both}
+  .sidebar.open .nav-item:nth-child(n){animation-delay:calc(var(--mx-n,0) * 25ms)}
+  .card:hover{transform:none}
+}
+
+/* Esqueleto de carga */
+.mx-skel{position:relative;overflow:hidden;background:color-mix(in srgb,var(--n-muted,var(--muted)) 14%,transparent);border-radius:12px;min-height:90px}
+.mx-skel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.12) 50%,transparent 80%);transform:translateX(-100%);animation:mx-shine 1.3s infinite}
+
+/* Movimiento reducido: respeta la preferencia del sistema */
+@media (prefers-reduced-motion:reduce){
+  .view.active,.view.active .mx-stagger,.chip,.logo-mark,.badge,.hero-main::after,.auth-screen::before,.auth-screen::after,.progress-fill::after,.auth-brand,.auth-card,.boot-card,dialog[open],.toast:not(.hidden){animation:none!important}
+  .mx-reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}

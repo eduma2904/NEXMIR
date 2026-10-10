@@ -115,7 +115,7 @@ const scales=[
   {text:'Melanoma cutáneo de 4,5 mm de Breslow, sin ulceración.',answer:'T4a',why:'Más de 4,0 mm, sin ulceración.'},
   {text:'Melanoma cutáneo de 4,5 mm de Breslow, con ulceración.',answer:'T4b',why:'Más de 4,0 mm, con ulceración.'}
  ]},
- {id:'killip',name:'Killip–Kimball',icon:'✚',topic:'Cardiología',type:'choice',origin:'zip',note:'Datos de insuficiencia cardíaca en el contexto de infarto.',source:'https://www.escardio.org/static-file/Escardio/Guidelines/publications/AHFguidelines-AHF-slides.pdf',options:['I','II','III','IV'],cases:[
+ {id:'killip',name:'Clasificación de Killip y Kimball',icon:'✚',topic:'Cardiología',type:'choice',origin:'zip',note:'Clasifica los signos de insuficiencia cardíaca y shock tras un infarto agudo de miocardio.',source:'https://www.escardio.org/static-file/Escardio/EU-affairs/CARDS-dataset-ACS-071004.pdf',options:['I','II','III','IV'],cases:[
   {text:'Infarto agudo sin signos de insuficiencia cardíaca en la exploración.',answer:'I',why:'Sin signos clínicos de insuficiencia cardíaca.'},
   {text:'Infarto con crepitantes en bases y tercer ruido, sin edema pulmonar franco.',answer:'II',why:'Insuficiencia cardíaca leve-moderada: crepitantes basales y/o S3.'},
   {text:'Infarto con edema agudo de pulmón y crepitantes extensos.',answer:'III',why:'Edema pulmonar franco.'},
@@ -162,7 +162,13 @@ const extraCases={
   {text:'Melanoma cutáneo de 4,2 mm de Breslow, con ulceración.',answer:'T4b',why:'Más de 4 mm con ulceración.'}],
  killip:[
   {text:'En el contexto de infarto, exploración con tercer ruido y crepitantes bibasales, sin edema pulmonar difuso.',answer:'II',why:'Signos leves de insuficiencia cardíaca tras infarto.'},
-  {text:'Infarto con hipotensión persistente, extremidades frías y signos de hipoperfusión compatibles con shock cardiogénico.',answer:'IV',why:'Shock cardiogénico.'}]
+  {text:'Infarto con hipotensión persistente, extremidades frías y signos de hipoperfusión compatibles con shock cardiogénico.',answer:'IV',why:'Shock cardiogénico.'},
+  {text:'Paciente con IAM, normotenso, sin tercer ruido, sin crepitantes y sin datos de hipoperfusión.',answer:'I',why:'No hay signos clínicos de insuficiencia cardíaca ni shock.'},
+  {text:'Tras un IAM, presenta ingurgitación yugular y crepitantes limitados a menos de la mitad inferior de ambos campos pulmonares; mantiene la perfusión.',answer:'II',why:'La congestión leve o moderada, sin edema pulmonar franco, corresponde a la clase II.'},
+  {text:'IAM con disnea intensa, hipoxemia y crepitantes difusos por edema agudo de pulmón; presión sistólica 125 mmHg y buena perfusión periférica.',answer:'III',why:'El edema pulmonar franco, sin shock cardiogénico, corresponde a la clase III.'},
+  {text:'Después de un IAM, aparece edema pulmonar franco con crepitantes en más de la mitad de ambos campos, sin hipotensión ni hipoperfusión.',answer:'III',why:'Los crepitantes extensos con edema pulmonar franco indican clase III.'},
+  {text:'Tras un IAM, presión sistólica de 78 mmHg persistente, piel fría, confusión y oliguria por shock cardiogénico, aunque no se auscultan crepitantes.',answer:'IV',why:'El shock cardiogénico determina la clase IV incluso sin congestión pulmonar audible.'},
+  {text:'Paciente con IAM, auscultación pulmonar limpia, sin tercer ruido ni ingurgitación yugular y extremidades calientes.',answer:'I',why:'Ausencia de signos de insuficiencia cardíaca: clase I.'}]
 };
 for(const scale of scales)scale.cases.push(...extraCases[scale.id]);
 const state={scale:null,deck:[],index:0,answers:{},choice:null,locked:false,points:0,hearts:3,perfect:0,errors:[],filter:'all',query:''};
@@ -215,7 +221,7 @@ const reviewData={
  ann:{headers:['Estadio','Extensión'],rows:[['I','Una región ganglionar'],['II','Dos o más regiones, mismo lado del diafragma'],['III','Regiones ganglionares a ambos lados del diafragma'],['IV','Afectación extranodal difusa o diseminada']],note:'Resumen histórico de Ann Arbor. La estadificación moderna de linfomas utiliza la adaptación de Lugano.'},
  birads:{headers:['BI-RADS','Significado','Conducta habitual'],rows:[['0','Incompleto','Evaluación adicional'],['1','Negativo','Cribado habitual'],['2','Benigno','Cribado habitual'],['3','Probablemente benigno','Seguimiento a corto intervalo'],['4','Sospechoso','Diagnóstico tisular'],['5','Altamente sugestivo de malignidad','Diagnóstico tisular y manejo adecuado'],['6','Malignidad conocida por biopsia','Tratamiento según corresponda']]},
  breslow:{headers:['Categoría T','Espesor','Ulceración'],rows:[['T1a','<0,8 mm','No'],['T1b','<0,8 mm con ulceración, o 0,8–1,0 mm','Con o sin ulceración en 0,8–1,0 mm'],['T2a','>1–2 mm','No'],['T2b','>1–2 mm','Sí'],['T3a','>2–4 mm','No'],['T3b','>2–4 mm','Sí'],['T4a','>4 mm','No'],['T4b','>4 mm','Sí']],note:'Clasificación T del melanoma cutáneo según AJCC, 8.ª edición.'},
- killip:{headers:['Clase','Hallazgo tras infarto'],rows:[['I','Sin signos de insuficiencia cardíaca'],['II','Insuficiencia cardíaca leve-moderada: crepitantes basales y/o S3'],['III','Edema agudo de pulmón'],['IV','Shock cardiogénico']]}
+ killip:{headers:['Clase','Hallazgo tras infarto'],rows:[['I','Sin signos clínicos de insuficiencia cardíaca'],['II','Crepitantes hasta la mitad de los campos pulmonares, tercer ruido (S3) y/o ingurgitación yugular'],['III','Edema agudo de pulmón franco; crepitantes extensos'],['IV','Shock cardiogénico: hipotensión sostenida con hipoperfusión']],note:'Se asigna la clase más grave presente. En un IAM con shock cardiogénico corresponde Killip IV, incluso si los pulmones están limpios.'}
 };
 function reviewContent(id){const d=reviewData[id];return `<div class="table-wrap"><table class="recap"><thead><tr>${d.headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${d.rows.map(row=>`<tr>${row.map(cell=>`<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${d.note?`<p class="recap-note">${esc(d.note)}</p>`:''}`}
 function renderScore(){
