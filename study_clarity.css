@@ -1,0 +1,16 @@
+/* NEXMIR V5.1.34: Repasos, Mis errores y Estudiar con más claridad. */
+.review-prefs{margin-top:12px}
+.review-prefs label,.review-filters label{font-size:13px}
+.error-entry[hidden]{display:none!important}
+.errors-summary{margin-bottom:14px}
+.errors-summary .seg{margin-top:12px}
+.errors-more{width:100%;margin-top:10px}
+.topic-meter{display:grid;gap:6px;margin-top:10px}
+.topic-meter-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px}
+.topic-meter-row strong{font-size:12.5px}
+.topic-meter small{font-size:11.5px}
+.topic-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 14px}
+.sub-clickable{cursor:pointer;transition:border-color .2s,background-color .2s,transform .2s}
+.sub-clickable:hover{border-color:var(--n-primary,var(--primary))}
+.sub-clickable.sub-active{border-color:var(--n-primary,var(--primary));background:color-mix(in srgb,var(--n-primary,var(--primary)) 14%,transparent)}
+@media (max-width:760px){.topic-actions .btn{flex:1 1 100%}.errors-summary .row{flex-wrap:wrap;gap:10px}.errors-summary .btn.primary{width:100%}}

@@ -1,0 +1,22 @@
+/* NEXMIR V5.1.33: gestos en flashcards y consejos contextuales. */
+.flash-study-layout{will-change:transform}
+.mx-swipe-tag{position:absolute;top:84px;right:18px;z-index:5;padding:8px 14px;border-radius:99px;font-weight:800;font-size:13px;pointer-events:none;opacity:0;color:#04211c;background:var(--n-primary,#65e1c5);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.mx-swipe-tag.left{right:auto;left:18px}
+.mx-swipe-tag[data-dir="bad"]{background:var(--red,#ff667a);color:#fff}
+.mx-swipe-tag[data-dir="good"]{background:var(--green,#2ecc8a)}
+.mx-swipe-hint{text-align:center;margin:8px 0 0}
+#cardDialogBody{position:relative}
+
+.mx-tip{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;gap:12px;align-items:flex-start;width:min(360px,calc(100vw - 24px));padding:14px 16px;border-radius:18px;
+  background:var(--n-card,var(--surface,#10243a));color:var(--n-text,var(--text,#f3f6fa));border:1px solid color-mix(in srgb,var(--n-primary,#27d3c2) 55%,var(--n-border,#23445f));
+  box-shadow:0 18px 50px rgba(0,0,0,.35);animation:mx-tip-in .5s cubic-bezier(.34,1.56,.64,1) both}
+.mx-tip.out{animation:mx-tip-out .26s ease both}
+.mx-tip img{flex:none;object-fit:contain}
+.mx-tip-copy strong{display:block;font-size:14px;margin-bottom:3px}
+.mx-tip-copy p{margin:0 0 10px;font-size:13px;line-height:1.5;opacity:.9}
+.mx-tip-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mx-tip-actions .link-btn{font-size:12px;padding:4px 0;opacity:.8}
+@keyframes mx-tip-in{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes mx-tip-out{to{opacity:0;transform:translateY(14px)}}
+@media (max-width:1080px){body.mx-has-bottom-nav .mx-tip{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:12px;left:12px;width:auto}}
+@media (prefers-reduced-motion:reduce){.mx-tip,.mx-tip.out{animation:none!important}}

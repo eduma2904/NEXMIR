@@ -1,0 +1,9 @@
+NEXMIR V5.1.32 — TUTORIAL: RESALTADO Y DEMOSTRACIÓN DE REVISIÓN
+
+Cambios: tutorial.js (modificado) y tutorial_v5_1_32.css (nuevo, cargado desde index.html). No se tocó app.js, Supabase ni SQL: no hay pasos en Supabase.
+
+Resaltado: el recuadro y el velo oscuro se deslizan de un paso al siguiente en lugar de saltar; esquinas redondeadas, pulso suave, anillo expansivo y número de paso en la esquina. La tarjeta del lince se reubica sola si taparía el elemento resaltado (PC) y en móvil el elemento queda bajo la barra superior para que la tarjeta no lo cubra. El medidor de avance se anima.
+
+Demostración de revisión: ahora reutiliza las clases reales de la revisión de simulacros, así que hereda el tema claro/oscuro y se ve igual que la pantalla verdadera: resumen con correctas/incorrectas/blancas/netas, lista de preguntas con colores y punto de estado, detalle con opciones verde/rojo, etiquetas «Correcta» y «Tu respuesta», línea de respuesta y explicación. En el paso del detalle se abre la pregunta 2 (incorrecta) para mostrar los colores. En PC va en columnas junto a la tarjeta; en móvil queda arriba (resumen compacto, preguntas como fichas numeradas, botones Cerrar/Mis errores) y la tarjeta abajo. Los botones de la demo no hacen nada.
+
+Respeta «reducir movimiento». Para revertir: restaura tutorial.js anterior y quita la línea de tutorial_v5_1_32.css en index.html.

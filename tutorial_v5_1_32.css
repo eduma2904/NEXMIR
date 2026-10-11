@@ -1,0 +1,105 @@
+/* NEXMIR V5.1.32: resaltado del tutorial y demostración de revisión (PC y móvil). */
+:root{--tut-accent:var(--n-primary,#65e1c5);--tut-ease:cubic-bezier(.22,1,.36,1)}
+
+/* Velo y resaltado */
+.tutorial-shade{animation:tut-fade .35s ease both}
+.tutorial-shade.passive{pointer-events:none}
+.tutorial-shade path{fill:rgba(3,10,20,.7)}
+@keyframes tut-fade{from{opacity:0}to{opacity:1}}
+.tutorial-spotlight{border:2px solid var(--tut-accent);border-radius:16px;transition:none;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--tut-accent) 22%,transparent),0 0 30px color-mix(in srgb,var(--tut-accent) 55%,transparent);
+  animation:tut-pulse 2.2s ease-in-out infinite}
+.tutorial-spotlight::before{content:"";position:absolute;inset:-3px;border-radius:inherit;border:2px solid var(--tut-accent);opacity:0;animation:tut-ring 2.2s ease-out infinite}
+.tutorial-spotlight::after{content:attr(data-step);position:absolute;top:-13px;left:-13px;min-width:26px;height:26px;padding:0 6px;box-sizing:border-box;border-radius:99px;
+  background:var(--tut-accent);color:#04211c;font:800 12px/26px system-ui,sans-serif;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.45);animation:tut-pop .5s var(--tut-ease) both}
+.tutorial-nav-spotlight::after{content:none}
+@keyframes tut-pulse{50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--tut-accent) 8%,transparent),0 0 42px color-mix(in srgb,var(--tut-accent) 65%,transparent)}}
+@keyframes tut-ring{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.07)}}
+@keyframes tut-pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* Tarjeta del lince */
+.tutorial-card{background:linear-gradient(165deg,#13314a,#0e2236);border-color:color-mix(in srgb,var(--tut-accent) 70%,#fff 0%);
+  box-shadow:0 26px 70px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset;animation:tut-card .5s var(--tut-ease) both}
+.tutorial-card::before{content:"";position:absolute;left:20px;right:20px;top:0;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,var(--tut-accent),var(--n-secondary,#7c6cf2))}
+@keyframes tut-card{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.tutorial-head img{animation:tut-bob 3.6s ease-in-out infinite}
+@keyframes tut-bob{50%{transform:translateY(-3px) rotate(-2deg)}}
+.tutorial-meter{height:6px}
+.tutorial-meter span{background:linear-gradient(90deg,var(--tut-accent),var(--n-secondary,#7c6cf2));transition:width .6s var(--tut-ease)}
+.tutorial-copy{font-size:14.5px;line-height:1.55}
+.tutorial-actions .btn{min-height:38px}
+
+/* Demostración de revisión: usa las clases reales, hereda el tema */
+.tutorial-review-demo{z-index:9995;left:262px;top:5vh;width:calc(100vw - 262px - 430px);height:88vh;min-width:560px;
+  border:1px solid color-mix(in srgb,var(--tut-accent) 70%,transparent);border-radius:18px;background:var(--n-card,var(--surface,#0d2235));color:var(--n-text,var(--text,#f3f6fa));
+  box-shadow:0 26px 80px rgba(0,0,0,.45);animation:tut-demo-in .5s var(--tut-ease) both}
+.tutorial-review-demo::before{content:"Vista de ejemplo";position:absolute;top:12px;right:14px;z-index:3;font:700 10px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  color:#04211c;background:var(--tut-accent);padding:5px 9px;border-radius:99px;pointer-events:none}
+@keyframes tut-demo-in{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+.tutorial-review-demo .sim-results-shell{height:100%;border-radius:inherit;overflow:hidden}
+.tutorial-review-demo .sim-results-top .dialog-head{padding-right:110px}
+.tutorial-review-demo .sim-review-nav{grid-template-columns:1fr;align-content:start}
+.tutorial-review-demo .sim-review-nav-btn{display:flex;align-items:center;gap:10px;height:auto;min-height:60px!important;padding:8px 10px;text-align:left;transition:transform .2s var(--tut-ease),outline-color .2s,background-color .2s}
+.tutorial-review-demo .sim-review-nav-btn:hover{transform:translateX(3px)}
+.tutorial-review-demo .review-card-number{display:grid;place-items:center;flex:none;min-width:34px;height:34px;border-radius:9px;background:rgba(127,150,170,.2);font-weight:800}
+.tutorial-review-demo .review-card-copy{display:grid;min-width:0;flex:1;gap:2px}
+.tutorial-review-demo .review-card-copy strong{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tutorial-review-demo .review-card-copy small{font-size:11px;opacity:.75}
+.tutorial-review-demo .review-card-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#8095a5}
+.tutorial-review-demo .sim-review-nav-btn.correct .review-card-dot{background:var(--green,#2ecc8a);box-shadow:0 0 0 4px rgba(46,204,138,.14)}
+.tutorial-review-demo .sim-review-nav-btn.wrong .review-card-dot{background:var(--red,#ff667a);box-shadow:0 0 0 4px rgba(255,102,122,.14)}
+.tutorial-review-demo .sim-review-side-actions{display:grid}
+.tutorial-review-demo .sim-review-detail.tut-swap>*{animation:tut-rise .4s var(--tut-ease) both}
+.tutorial-review-demo .sim-review-detail.tut-swap>*:nth-child(2){animation-delay:.04s}
+.tutorial-review-demo .sim-review-detail.tut-swap>*:nth-child(3){animation-delay:.08s}
+.tutorial-review-demo .sim-review-detail.tut-swap>*:nth-child(n+4){animation-delay:.12s}
+@keyframes tut-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tutorial-review-demo .review-status-pill{white-space:nowrap}
+.tutorial-review-demo .sim-review-detail-head{padding-right:0;margin-top:8px}
+
+/* Tableta y móvil: demo arriba, tarjeta abajo */
+@media(max-width:1300px){
+  .tutorial-review-demo{left:10px;right:10px;width:auto;min-width:0;top:max(8px,env(safe-area-inset-top));height:57dvh}
+  .tutorial-card-demo{top:auto!important;left:10px!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;width:auto;max-height:36dvh}
+  .tutorial-card-demo .tutorial-copy{font-size:13px;margin:8px 0 10px}
+  .tutorial-card-demo .tutorial-head img{width:44px;height:44px}
+  .tutorial-card-demo .tutorial-meter{margin-bottom:10px}
+}
+@media(max-width:850px){
+  .tutorial-review-demo .sim-results-shell .sim-results-top{padding:9px 12px;max-height:none}
+  .tutorial-review-demo .sim-results-top .dialog-head h2{font-size:15px;margin:4px 0 0!important}
+  .tutorial-review-demo .sim-result-grid{grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 0}
+  .tutorial-review-demo .sim-results-top .sim-result-card{flex-direction:column;gap:0;min-height:0;padding:5px 4px;text-align:center}
+  .tutorial-review-demo .sim-results-top .sim-result-card strong{font-size:17px}
+  .tutorial-review-demo .sim-results-top .sim-result-card span{font-size:9.5px}
+  .tutorial-review-demo .sim-result-summary{display:none}
+  .tutorial-review-demo .sim-review-workspace{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .tutorial-review-demo .sim-review-sidebar{max-height:none;padding:8px 10px;border-right:0;border-bottom:1px solid var(--n-border,#24435a);display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .tutorial-review-demo .sim-review-sidebar-head,.tutorial-review-demo .sim-review-legend{display:none}
+  .tutorial-review-demo .sim-review-nav{grid-column:1/-1;grid-template-columns:repeat(3,1fr);gap:6px}
+  .tutorial-review-demo .sim-review-nav-btn{min-height:44px!important;padding:5px 8px;justify-content:space-between}
+  .tutorial-review-demo .review-card-copy{display:none}
+  .tutorial-review-demo .sim-review-side-actions{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:6px;padding-top:0;margin-top:0}
+  .tutorial-review-demo .sim-review-side-actions .btn{padding:7px 8px;font-size:12px;min-height:36px}
+  .tutorial-review-demo .sim-review-detail{padding:12px 14px}
+  .tutorial-review-demo .sim-review-stem{font-size:13px;margin:10px 0!important}
+  .tutorial-review-demo .sim-review-option{padding:8px 10px;font-size:12.5px}
+  .tutorial-review-demo .sim-review-explanation{padding:10px;margin-top:10px;font-size:12.5px}
+  .tutorial-review-demo::before{top:9px;right:10px;font-size:9px;padding:4px 7px}
+  .tutorial-review-demo .sim-results-top .dialog-head{padding-right:84px}
+}
+@media(max-width:760px){
+  .tutorial-card{padding:14px 14px 12px;border-radius:18px}
+  .tutorial-card:not(.tutorial-card-demo){max-height:44dvh}
+  .tutorial-copy{font-size:13.5px}
+  .tutorial-actions .btn{min-height:42px;padding-inline:12px}
+  .tutorial-spotlight::after{top:-11px;left:-9px;min-width:22px;height:22px;font-size:11px;line-height:22px}
+}
+@media(max-height:560px) and (orientation:landscape){
+  .tutorial-review-demo{height:calc(100dvh - 16px)}
+  .tutorial-card-demo{max-height:46dvh;width:min(340px,50vw);left:auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .tutorial-spotlight,.tutorial-spotlight::before,.tutorial-spotlight::after,.tutorial-card,.tutorial-head img,.tutorial-review-demo,.tutorial-shade,.tutorial-review-demo .sim-review-detail.tut-swap>*{animation:none!important}
+  .tutorial-meter span{transition:none}
+}

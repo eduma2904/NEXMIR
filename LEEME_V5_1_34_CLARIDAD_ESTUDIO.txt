@@ -1,0 +1,10 @@
+NEXMIR V5.1.34 — CLARIDAD EN REPASOS, MIS ERRORES, ESTUDIAR Y TEXTOS
+
+No hay pasos en Supabase ni SQL. Sube todo, incluida la carpeta dist/.
+
+1) Repasos (review_queue.js, nuevo): separa «para repasar» (tarjetas ya vistas y vencidas, las más atrasadas primero) de «nuevas» (nunca vistas). Límite diario de nuevas configurable (10, 20, 30, 50 o sin límite; por defecto 20) y tamaño de sesión (15, 25, 40 o todas; por defecto 25). El contador del menú, el Inicio y la mascota ahora muestran la cola real de hoy, no todas las tarjetas nunca vistas. El límite diario se cuenta en este navegador: en otro dispositivo se reinicia.
+2) Mis errores (study_clarity.js, nuevo): pestañas Hoy / Próximos / Todos, lista paginada de 15 en 15 y botón «Practicar errores de hoy» (hasta 20 preguntas en una sesión con corrección inmediata). Se conserva todo lo que ya existía: motivo, nota personal, «Resolver de nuevo», «Ver tema» y reportar.
+3) Lenguaje: se quitaron textos técnicos (RemNote, Supabase, «archivos importados», «el nombre del archivo identifica su origen») de Banqueo, Simulacros, Estudiar y el registro de cuenta. «RemNote / MCQ» pasa a «Tarjetas tipo test».
+4) Estudiar: cada tema muestra «Tarjetas estudiadas X de Y» y «Aciertos en preguntas» solo con al menos 5 respuestas (si no, «aún sin suficientes respuestas»), en vez de un 0% engañoso. Dentro de un tema hay «Estudiar tarjetas» (hasta 30 pendientes) y «Banquear este tema» (hasta 20 preguntas), y los subtemas se pueden pulsar para filtrar.
+
+También: el tutorial describe el nuevo Repasos. Para revertir, usa V5.1.33.

@@ -1,0 +1,11 @@
+NEXMIR V5.1.33 — BARRA INFERIOR, ATAJOS, TUTORIAL CORTO Y CÓDIGO CONSOLIDADO
+
+No se tocó app.js (fuente), Supabase ni SQL: no hay pasos en Supabase.
+
+1) Menú móvil (pantallas de hasta 1080 px): barra inferior con Inicio, Estudiar, Practicar, Progreso y Más.
+   Practicar abre Repasos (con contador), Banqueo, Simulacros, Batallas y Modo Focus. Progreso abre «Mi avance»: Progreso, Mis errores y Marcadas. Más abre Plan de estudio, Mi plaza MIR, Arcade, Perfil, Guía, Panel Admin (solo admin) y Cerrar sesión. Iconos SVG uniformes también en el menú lateral de PC. Archivos: mobile_nav.js / mobile_nav.css.
+2) Atajos (PC): A–E eligen alternativa en banqueo, simulacro, Focus y batallas; N o → siguiente; P o ← anterior; Enter responde en banqueo inmediato; Espacio o Enter muestran la respuesta de una flashcard; «?» muestra la ayuda. Se mantienen 1–9 y 0–3. Móvil: en flashcards desliza a la derecha = Bien, a la izquierda = Otra vez, y cualquier deslizamiento muestra la respuesta antes de valorar. Archivo: study_shortcuts.js.
+3) Tutorial: ahora son 8 pasos (antes 26). El recorrido completo sigue en Perfil («Recorrido completo»). Al entrar por primera vez a Focus, Batallas, Arcade, Mis errores, Marcadas, Mi plaza MIR, Plan de estudio, Perfil y Simulacros aparece un consejo breve, descartable y desactivable («Ver consejos otra vez» en Perfil). Archivo: onboarding_tips.js.
+4) Código: index.html ahora carga dist/nexmir.min.css (16 hojas en 1) y los scripts minificados de dist/. Los archivos fuente siguen en la carpeta raíz y NO se borran: edítalos y regenera con «npm i esbuild» + «node build.js». Verificado en un entorno simulado: mismas 776 variables globales y mismos nombres de nivel superior antes y después de minificar, sin errores de carga. Reglas CSS y !important no se reescribieron.
+
+Importante: sube también la carpeta dist/. Para revertir, usa el index.html de V5.1.32.
