@@ -48,7 +48,7 @@
     const {data,error}=await state.sb.from('user_study_preferences').select('*').eq('user_id',state.user.id).maybeSingle();
     if(error)throw error;
     if(!data){
-      const res=await state.sb.from('user_study_preferences').insert({user_id:state.user.id,timezone:z}).select().single();
+      const res=await state.sb.from('user_study_preferences').insert({user_id:state.user.id,timezone:z,reward_sounds:true}).select().single();
       if(res.error)throw res.error;state.focusPreferences=res.data;
     }else{
       state.focusPreferences=data;
@@ -152,7 +152,8 @@
     if(topic)pool=pool.filter(q=>(q.topic||'General')===topic);
     const errors=new Map((state.errorLog||[]).map(e=>[`${e.source_type}:${e.source_id}`,e]));
     const marks=new Set((state.bookmarks||[]).filter(b=>b.item_type==='question').map(b=>String(b.item_id)));
-    const scored=pool.map(q=>{const l=learningFor(q),err=errors.get(qKey(q));let score=R.reviewPriority(l)+Math.random()*2;if(err)score+=25+Math.min(25,Math.max(0,Number(err.failures||0)-1)*5);if(marks.has(String(q.id)))score+=12;if(l?.last_valid_answered_at){const days=(now()-Date.parse(l.last_valid_answered_at))/86400000;if(days>30)score+=Math.min(20,Math.floor(days/15))}if(!l)score+=5;return {q,score}});
+    const history=NexmirBankInsights.history(state.attempts);
+    const scored=pool.map(q=>{const l=learningFor(q),err=errors.get(qKey(q)),usage=NexmirBankInsights.usage(q,history);let score=R.reviewPriority(l)+Math.random()*2;if(err)score+=25+Math.min(25,Math.max(0,Number(err.failures||0)-1)*5);if(marks.has(String(q.id)))score+=12;if(l?.last_valid_answered_at){const days=(now()-Date.parse(l.last_valid_answered_at))/86400000;if(days>30)score+=Math.min(20,Math.floor(days/15))}score+=usage.count===0?100:-Math.min(80,usage.count*18);return {q,score}});
     return scored.sort((a,b)=>b.score-a.score).slice(0,Math.min(pool.length,count+10)).map(x=>x.q);
   }
   function reviewContext(q){const l=learningFor(q);if(!l)return'new';if(l.last_result===false)return'error_retry';if(l.next_review_at&&new Date(l.next_review_at).getTime()<=now())return'due';return'manual'}
@@ -166,8 +167,9 @@
     const subjects=[...new Set(questionPool().map(q=>displaySpecialty(q.specialty)))].sort((a,b)=>a.localeCompare(b,'es'));
     const dur=[5,10,15,25,0];
     return `<div class="focus-home">
-      <div class="hero-main focus-hero"><div><span class="chip">NexMIR Focus</span><h1>Estudia lo que más necesitas recordar</h1><p>Revisiones vencidas, errores, dominio bajo y preguntas nuevas se ordenan automáticamente para convertir práctica en memoria estable.</p></div>
+      <div class="hero-main focus-hero"><div><span class="chip">NexMIR Focus</span><h1>Estudia lo que más necesitas recordar</h1><p>Las preguntas no vistas tienen prioridad; los errores y repasos pendientes siguen apareciendo para consolidar lo aprendido.</p></div>
       <div class="focus-hero-stats"><div><strong>🔥 ${st.current_streak||0}</strong><span>días de racha</span></div><div><strong>❄️ ${st.freezes_available??3}/3</strong><span>congeladores</span></div><div><strong>${xp} XP</strong><span>Nivel ${lvl.level}</span></div></div></div>
+      ${state.focusPreferences?.reward_sounds?'':`<div class="card focus-sound-callout"><div><strong>Sonidos de recompensa desactivados</strong><p class="muted">Actívalos para escuchar una señal al acertar y al completar Focus.</p></div><button class="btn" type="button" onclick="enableFocusRewardSounds()">Activar sonidos</button></div>`}
       ${active?`<div class="card focus-resume"><div><span class="chip">Continúa donde lo dejaste</span><h3>${safeText(active.subject_filter||'Sesión adaptativa')}</h3><p class="muted">${active.valid_questions||0}/${active.question_target} preguntas válidas · ${fmtSec(active.active_seconds||0)} activos</p></div><button class="btn primary" onclick="resumeNexmirFocus()">Continuar</button></div>`:''}
       <div class="grid cols-2 focus-setup-grid"><div class="card"><div class="section-head"><div><span class="chip">Microobjetivo</span><h3>¿Cuánto quieres estudiar?</h3></div></div><div class="focus-duration-grid">${dur.map(x=>`<button class="btn focus-duration ${F.draftDuration===x?'active':''}" data-duration="${x}" aria-pressed="${F.draftDuration===x}" onclick="setFocusDuration(${x})">${x?`${x} min`:'Sin temporizador'}</button>`).join('')}</div>
       <label>Asignatura<select id="focusSubject" onchange="refreshFocusTopicOptions()"><option value="">Automático · lo más prioritario</option>${subjects.map(s=>`<option value="${safeText(s)}">${safeText(s)}</option>`).join('')}</select></label>
@@ -195,13 +197,13 @@
     if(!pool.length)return toast('No hay preguntas disponibles para este Focus');
     const finalTarget=Math.min(target,Math.max(1,pool.length)),missionSubject=subject||displaySpecialty(pool[0]?.specialty)||'Prioridad adaptativa';
     F.pendingPlan={duration,subject,topic,target:finalTarget};ensureDom();
-    $f('#focusMissionBody').innerHTML=`<div class="dialog-head"><div><span class="chip">Tu misión</span><h2 id="focusMissionTitle">${safeText(missionSubject)}</h2></div><button class="icon-btn" onclick="document.getElementById('focusMissionDialog').close()">×</button></div><div class="focus-mission-preview"><div><span>Preguntas objetivo</span><strong>${finalTarget}</strong></div><div><span>Objetivo</span><strong>superar 70%</strong></div><div><span>Duración estimada</span><strong>${duration?`${duration} min`:'Sin temporizador'}</strong></div></div><p class="muted">NexMIR priorizará revisiones vencidas, errores, dominio bajo y después preguntas nuevas. Las preguntas inválidas o saltadas no cuentan para racha, XP ni dominio.</p><div class="dialog-actions"><button class="btn" onclick="document.getElementById('focusMissionDialog').close()">Cambiar</button><button class="btn primary" onclick="confirmNexmirFocus()">Comenzar Focus</button></div>`;
+    $f('#focusMissionBody').innerHTML=`<div class="dialog-head"><div><span class="chip">Tu misión</span><h2 id="focusMissionTitle">${safeText(missionSubject)}</h2></div><button class="icon-btn" onclick="document.getElementById('focusMissionDialog').close()">×</button></div><div class="focus-mission-preview"><div><span>Preguntas objetivo</span><strong>${finalTarget}</strong></div><div><span>Objetivo</span><strong>superar 70%</strong></div><div><span>Duración estimada</span><strong>${duration?`${duration} min`:'Sin temporizador'}</strong></div></div><p class="muted">NexMIR priorizará preguntas no vistas y alternará repasos pendientes y errores. Las preguntas inválidas o saltadas no cuentan para racha, XP ni dominio.</p><div class="dialog-actions"><button class="btn" onclick="document.getElementById('focusMissionDialog').close()">Cambiar</button><button class="btn primary" onclick="confirmNexmirFocus()">Comenzar Focus</button></div>`;
     $f('#focusMissionDialog').showModal();
   }
   window.previewNexmirFocus=previewNexmirFocus;
   window.confirmNexmirFocus=()=>{const p=F.pendingPlan||{};$f('#focusMissionDialog')?.close();return startNexmirFocus(p)};
 
-  async function startNexmirFocus(opts={}){
+  async function startNexmirFocus(opts={}){unlockRewardAudio();
     if(!F.ready)return toast('Primero ejecuta NEXMIR_FOCUS_V1.sql en Supabase');
     const duration=opts.duration!==undefined?opts.duration:F.draftDuration;
     const subject=opts.subject!==undefined?opts.subject:($f('#focusSubject')?.value||'');
@@ -316,7 +318,7 @@
     const submit=$f('.focus-session-actions .btn.primary');if(submit)submit.disabled=false;
   };
   async function submitFocusAnswer(){
-    const q=currentQ();if(!q||F.result||!Number.isInteger(F.selected)||F.processing)return;F.processing=true;F.lastInteraction=now();renderFocusQuestion();
+    const q=currentQ();if(!q||F.result||!Number.isInteger(F.selected)||F.processing)return;unlockRewardAudio();F.processing=true;F.lastInteraction=now();renderFocusQuestion();
     const eventId=F.answerEventId||uuid();F.answerEventId=eventId;saveCheckpoint();const ctx=reviewContext(q);
     const slow=setTimeout(()=>{const button=$f('.focus-session-actions .btn.primary');if(F.processing&&button)button.textContent='Esperando conexión…'},3000);
     if(heartbeatPending)await heartbeatPending;
@@ -327,7 +329,7 @@
     if(data?.streak)state.studyStreak={...(state.studyStreak||{}),...data.streak};
     if(a&&!alreadyRecorded){F.session.total_answered=(F.session.total_answered||0)+1;if(a.is_valid){F.session.valid_questions=(F.session.valid_questions||0)+1;if(a.is_correct)F.session.correct_count=(F.session.correct_count||0)+1;else F.session.incorrect_count=(F.session.incorrect_count||0)+1;F.session.xp_earned=(F.session.xp_earned||0)+(a.xp_awarded||0);if(a.error_recovered)F.session.recovered_errors=(F.session.recovered_errors||0)+1}}
     F.result=data;F.questionActiveSeconds=0;
-    if(a?.is_valid&&!a.is_correct)scheduleErrorRetry(q);if(a?.is_valid)playRewardSound(!!a.is_correct,!!a.error_recovered);
+    if(a?.is_valid&&!a.is_correct)scheduleErrorRetry(q);if(a?.is_valid&&a.is_correct&&!alreadyRecorded)playRewardSound(a.error_recovered?'recovered':'correct');
     renderFocusQuestion();
     if(a?.pace_warning_triggered)showPaceWarning(false);else if(a?.is_valid===false&&a.invalid_reason==='pace')showPaceWarning(true);
     saveCheckpoint();heartbeat(false);syncMissionsSoon();
@@ -349,7 +351,7 @@
     F.processing=false;if(error){toast('No se pudo cerrar Focus: '+error.message);return}
     const s=data?.session||{...F.session,status:'completed'};F.session=s;state.focusActiveSession=null;try{localStorage.removeItem(checkpointKey())}catch{}if(data?.streak)state.studyStreak={...(state.studyStreak||{}),...data.streak};
     $f('#focusSessionDialog')?.close();document.body.classList.remove('nexmir-focus-active');const after=masteryForFilter(F.subject,F.topic);
-    showFocusSummary(s,before,after,data?.valid_for_xp!==false);await loadFocusData();if(state.view==='focus')renderFocusHome();
+    if(Number(s.xp_earned)>0)playRewardSound('complete');showFocusSummary(s,before,after,data?.valid_for_xp!==false);await loadFocusData();if(state.view==='focus')renderFocusHome();
   }
   window.completeFocus=completeFocus;
   async function finishFocusEarly(){if(!F.session)return;if(!confirm('¿Terminar esta sesión Focus ahora? Se guardará tu progreso real.'))return;return completeFocus()}
@@ -360,10 +362,28 @@
   window.continueFocusTen=()=>{const subject=F.subject,topic=F.topic;$f('#focusSummaryDialog')?.close();startNexmirFocus({duration:10,subject,topic})};
 
 
-  function playRewardSound(correct,recovered){
-    if(!state.focusPreferences?.reward_sounds||!correct)return;
-    try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=recovered?740:620;g.gain.setValueAtTime(.035,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.start();o.stop(c.currentTime+.12);o.onended=()=>c.close()}catch{}
+  let rewardAudio=null;
+  function unlockRewardAudio(){
+    if(!state.focusPreferences?.reward_sounds&&!$f('#prefRewardSounds')?.checked)return;
+    try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;rewardAudio??=new C();if(rewardAudio.state==='suspended')rewardAudio.resume().catch(()=>{});}catch{}
   }
+  function playRewardSound(kind='correct',preview=false){
+    if(!preview&&!state.focusPreferences?.reward_sounds)return;
+    try{
+      unlockRewardAudio();const c=rewardAudio;if(!c||c.state==='closed')return;
+      const notes=kind==='complete'?[523,659,784]:kind==='recovered'?[587,784,988]:[523,659];
+      const start=c.currentTime+.015;
+      notes.forEach((frequency,i)=>{const oscillator=c.createOscillator(),gain=c.createGain(),at=start+i*.105;oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,at);gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(.055,at+.018);gain.gain.exponentialRampToValueAtTime(.0001,at+.19);oscillator.connect(gain);gain.connect(c.destination);oscillator.start(at);oscillator.stop(at+.2);oscillator.onended=()=>{oscillator.disconnect();gain.disconnect()}});
+    }catch(e){console.warn('Sonido Focus no disponible',e)}
+  }
+  window.previewFocusRewardSound=()=>{if(!$f('#prefRewardSounds')?.checked)return toast('Activa primero los sonidos de recompensa');unlockRewardAudio();playRewardSound('complete',true)};
+  window.enableFocusRewardSounds=async()=>{
+    if(!state.user||!state.sb)return;
+    const previous=state.focusPreferences||{};state.focusPreferences={...previous,reward_sounds:true};unlockRewardAudio();
+    const {data,error}=await state.sb.from('user_study_preferences').update({reward_sounds:true,updated_at:new Date().toISOString()}).eq('user_id',state.user.id).select().single();
+    if(error){state.focusPreferences=previous;return toast('No se pudo activar el sonido: '+error.message)}
+    state.focusPreferences=data;playRewardSound('complete');renderFocusHome();toast('Sonidos de recompensa activados');
+  };
 
   function showPaceWarning(persistent){ensureDom();const d=$f('#paceWarningDialog');$f('#paceWarningBody').innerHTML=persistent?`<div class="dialog-head"><div><span class="chip">Ritmo de estudio</span><h3 id="paceWarningTitle">⚠️ Ritmo de estudio demasiado rápido</h3></div></div><p>Algunas respuestas no se contabilizarán como actividad válida mientras continúen respondiéndose en muy pocos segundos.</p><p class="muted">Puedes seguir estudiando normalmente.</p><div class="dialog-actions"><button class="btn primary" onclick="closePaceWarning()">Seguir estudiando</button></div>`:`<div class="dialog-head"><div><span class="chip">Ritmo de estudio</span><h3 id="paceWarningTitle">⚠️ Vas bastante rápido</h3></div></div><p>Algunas respuestas se están registrando en muy pocos segundos.</p><p class="muted">Para que tus preguntas cuenten correctamente para tu progreso y racha, asegúrate de leer y responder cada una con calma.</p><div class="dialog-actions"><button class="btn primary" onclick="closePaceWarning()">Seguir estudiando</button></div>`;d.showModal()}
   window.closePaceWarning=()=>{$f('#paceWarningDialog')?.close();F.lastInteraction=now()};
@@ -379,10 +399,10 @@
 
   async function saveFocusPreferences(){
     const row={user_id:state.user.id,timezone:state.focusPreferences?.timezone||timezone(),reduce_animations:!!$f('#prefReduceAnimations')?.checked,hide_ranking_during_study:!!$f('#prefHideRanking')?.checked,one_task_at_a_time:!!$f('#prefOneTask')?.checked,show_timer:!!$f('#prefShowTimer')?.checked,reward_sounds:!!$f('#prefRewardSounds')?.checked,auto_focus:!!$f('#prefAutoFocus')?.checked,show_progress:!!$f('#prefShowProgress')?.checked,split_large_goals:!!$f('#prefSplitGoals')?.checked,updated_at:new Date().toISOString()};
-    const {data,error}=await state.sb.from('user_study_preferences').upsert(row,{onConflict:'user_id'}).select().single();if(error)return toast('No se guardaron las preferencias: '+error.message);state.focusPreferences=data;applyPreferences();toast('Preferencias de estudio guardadas')
+    unlockRewardAudio();const {data,error}=await state.sb.from('user_study_preferences').upsert(row,{onConflict:'user_id'}).select().single();if(error)return toast('No se guardaron las preferencias: '+error.message);state.focusPreferences=data;applyPreferences();if(data.reward_sounds)playRewardSound('correct');toast('Preferencias de estudio guardadas')
   }
   window.saveFocusPreferences=saveFocusPreferences;
-  function preferencesHtml(){const p=state.focusPreferences||{};const ck=(v,d=false)=>(v??d)?'checked':'';return `<div class="card focus-preferences-card"><div class="section-head"><div><span class="chip">NexMIR Focus</span><h3>Preferencias de estudio</h3></div></div><div class="focus-pref-grid"><label><input id="prefReduceAnimations" type="checkbox" ${ck(p.reduce_animations)}> Reducir animaciones</label><label><input id="prefHideRanking" type="checkbox" ${ck(p.hide_ranking_during_study,true)}> Ocultar ranking durante estudio</label><label><input id="prefOneTask" type="checkbox" ${ck(p.one_task_at_a_time,true)}> Mostrar una tarea a la vez</label><label><input id="prefShowTimer" type="checkbox" ${ck(p.show_timer,true)}> Mostrar temporizador</label><label><input id="prefRewardSounds" type="checkbox" ${ck(p.reward_sounds)}> Sonidos de recompensa</label><label><input id="prefAutoFocus" type="checkbox" ${ck(p.auto_focus)}> Modo Focus automático</label><label><input id="prefShowProgress" type="checkbox" ${ck(p.show_progress,true)}> Mostrar progreso</label><label><input id="prefSplitGoals" type="checkbox" ${ck(p.split_large_goals,true)}> Dividir objetivos grandes</label></div><button class="btn primary" onclick="saveFocusPreferences()">Guardar preferencias</button></div>`}
+  function preferencesHtml(){const p=state.focusPreferences||{};const ck=(v,d=false)=>(v??d)?'checked':'';return `<div class="card focus-preferences-card"><div class="section-head"><div><span class="chip">NexMIR Focus</span><h3>Preferencias de estudio</h3></div></div><div class="focus-pref-grid"><label><input id="prefReduceAnimations" type="checkbox" ${ck(p.reduce_animations)}> Reducir animaciones</label><label><input id="prefHideRanking" type="checkbox" ${ck(p.hide_ranking_during_study,true)}> Ocultar ranking durante estudio</label><label><input id="prefOneTask" type="checkbox" ${ck(p.one_task_at_a_time,true)}> Mostrar una tarea a la vez</label><label><input id="prefShowTimer" type="checkbox" ${ck(p.show_timer,true)}> Mostrar temporizador</label><label><input id="prefRewardSounds" type="checkbox" ${ck(p.reward_sounds)}> Sonidos de recompensa</label><label><input id="prefAutoFocus" type="checkbox" ${ck(p.auto_focus)}> Modo Focus automático</label><label><input id="prefShowProgress" type="checkbox" ${ck(p.show_progress,true)}> Mostrar progreso</label><label><input id="prefSplitGoals" type="checkbox" ${ck(p.split_large_goals,true)}> Dividir objetivos grandes</label></div><div class="focus-sound-actions"><button class="btn" type="button" onclick="previewFocusRewardSound()">♪ Probar sonido</button><button class="btn primary" type="button" onclick="saveFocusPreferences()">Guardar preferencias</button></div></div>`}
 
   function patchRendering(){
     try{viewNames.focus='NexMIR Focus'}catch{}

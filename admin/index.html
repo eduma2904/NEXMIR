@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXMIR Admin V5.1.29</title>
+  <title>NEXMIR Admin V5.1.36</title>
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="../product_polish.css?v=5.1.5.2" />
-  <link rel="stylesheet" href="responsive_admin.css?v=5.1.12" />
+  <link rel="stylesheet" href="responsive_admin.css?v=5.1.36" />
   <link rel="stylesheet" href="content_hub.css?v=5.1.29" />
 </head>
 <body>
@@ -31,6 +31,7 @@
     </div>
     <div class="nav-group"><div class="nav-group-title">Acceso</div>
       <button class="nav" data-view="users">👥 <span>Usuarios y planes</span></button>
+      <button class="nav" data-view="plans">◇ <span>Adquirir Pro</span></button>
     </div>
     <details class="advanced-imports"><summary>Herramientas de biblioteca</summary><button class="nav" data-view="questions">❓ <span>Todas las preguntas</span></button><button class="nav" data-view="content">▤ <span>Flashcards y teoría</span></button><button class="nav" data-view="simmanager">🗂 <span>Simulacros</span></button><button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
     <div class="sideFoot">V5.1.29 · Administración</div>
@@ -202,15 +203,17 @@
     <section id="questionsView" class="view hidden">
       <div class="pageHead"><div><div class="eyebrow">BANCO PUBLICADO</div><h1>Gestor de preguntas</h1><p>Busca, filtra y corrige todo el banco general, independientemente de si vino de PDF, RemNote o un simulacro.</p></div><div class="actions"><button id="qmRefresh" class="secondary">Actualizar</button></div></div>
       <div id="qmStats" class="stats"></div>
+      <p id="qmEditorialStatus" class="muted" role="status"></p>
       <div class="cardBox qmFilters">
         <input id="qmSearch" type="search" placeholder="Buscar enunciado, tema u origen…">
         <select id="qmStatus"><option value="all">Todos los estados</option><option value="published">Publicadas</option><option value="draft">Borradores</option><option value="archived">Archivadas</option></select>
         <select id="qmSpecialty"><option value="all">Todas las asignaturas MIR</option></select>
         <select id="qmTopic"><option value="all">Todos los temas</option></select>
         <select id="qmSource"><option value="all">Todos los orígenes</option><option value="simulation">Simulacros</option><option value="bank">Bancos PDF/RemNote</option><option value="other">Otros</option></select>
-        <select id="qmQuality"><option value="all">Toda calidad</option><option value="unclassified">Sin clasificar</option><option value="problems">Con problemas</option><option value="no_explanation">Sin explicación</option><option value="no_image">Sin imagen</option><option value="duplicates">Posibles duplicados</option></select>
+        <select id="qmQuality"><option value="all">Toda calidad</option><option value="priority">Prioridad por fallos</option><option value="problems">Con problemas</option><option value="duplicates">Posibles duplicados</option><option value="ambiguous">Posibles ambigüedades</option><option value="inconsistent">Respuesta inconsistente</option><option value="incomplete">Explicación incompleta</option><option value="unclassified">Sin clasificar</option><option value="no_explanation">Sin explicación</option><option value="no_image">Sin imagen</option></select>
       </div>
-      <div class="tableWrap adminTableWrap"><table class="adminTable qmTable"><thead><tr><th>#</th><th>Pregunta</th><th>Clasificación</th><th>Origen</th><th>Exp.</th><th>Imagen</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="qmBody"></tbody></table></div>
+      <div class="tableWrap adminTableWrap"><table class="adminTable qmTable"><thead><tr><th>#</th><th>Pregunta</th><th>Clasificación</th><th>Origen</th><th>Exp.</th><th>Imagen</th><th>Prioridad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="qmBody"></tbody></table></div>
+      <div id="qmPager" class="actions qmPager" aria-live="polite"></div>
       <div id="qmEmpty" class="empty hidden">No hay preguntas con esos filtros.</div>
     </section>
 
@@ -220,6 +223,13 @@
       <div class="cardBox"><div class="filters"><input id="usersSearch" type="search" placeholder="Buscar por nombre o correo…"><select id="usersPlan"><option value="all">Todos los planes</option><option value="free">Free</option><option value="pro">Pro</option></select><select id="usersRole"><option value="all">Todos los roles</option><option value="user">user</option><option value="moderator">moderator</option><option value="admin">admin</option></select></div></div>
       <div class="tableWrap adminTableWrap"><table class="adminTable"><thead><tr><th>Usuario</th><th>Plan</th><th>Rol</th><th>Dispositivo</th><th>Objetivo MIR</th><th>Acciones</th></tr></thead><tbody id="usersBody"></tbody></table></div>
       <div id="usersEmpty" class="empty hidden">No hay usuarios con esos filtros.</div>
+    </section>
+
+    <section id="plansView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">PLAN PRO</div><h1>Canales de adquisición</h1><p>Configura los enlaces o contactos que aparecerán en el perfil. No hay canales activos hasta que los publiques.</p></div><div class="actions"><button id="planChannelAdd" class="primary" type="button">Añadir canal</button></div></div>
+      <p id="planChannelMessage" class="muted" role="status"></p>
+      <div id="planChannelList" class="plan-channel-admin-list"></div>
+      <div class="cardBox"><strong>Activación del plan</strong><p class="muted">Confirma el pago por tu cuenta y cambia Free a Pro desde Usuarios y planes. Un enlace o contacto por sí solo no activa Pro.</p></div>
     </section>
 
 
@@ -267,8 +277,10 @@
 <script src="simulation_manager.js?v=5.1.5"></script>
 <script src="bank_importer.js?v=5.1.5"></script>
 <script src="classification_manager.js?v=5.1.5"></script>
-<script src="question_manager.js?v=5.1.18"></script>
+<script src="question_quality.js?v=5.1.36"></script>
+<script src="question_manager_v2.js?v=5.1.36"></script>
 <script src="users_manager.js?v=5.1.20"></script>
+<script src="plan_channels.js?v=5.1.36"></script>
 <script src="content_reset.js?v=5.1.29"></script>
 <script src="question_reports.js?v=5.1.18"></script>
 <script src="suggestions_manager.js?v=5.1.5"></script>

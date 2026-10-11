@@ -13,7 +13,8 @@
   function hasUnlimitedAccess(profile={}){return ['admin','moderator'].includes(String(profile.role||'').toLowerCase())||normalizePlan(profile.plan)==='pro'}
   function localDay(value=new Date()){
     const d=value instanceof Date?value:new Date(value);
-    return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).map(p=>[p.type,p.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
   }
   function usedToday(kind,data={},now=new Date()){
     const day=localDay(now),sameDay=value=>value&&localDay(value)===day;

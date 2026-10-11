@@ -614,3 +614,18 @@ dialog.dialog [class$='-body'],.focus-question-area{overscroll-behavior:contain}
 .focus-duration:last-child{font-size:12px;overflow-wrap:normal}
 @media(max-width:900px){.focus-hero{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.focus-duration:last-child{grid-column:1/-1}.focus-hero h1{font-size:26px}.focus-resume .btn{width:100%}}
+.topic-coverage-list{display:grid;gap:12px;max-height:430px;overflow:auto;overscroll-behavior:contain}
+.topic-coverage-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,180px) 48px;align-items:center;gap:12px}
+.topic-coverage-row>div:first-child{min-width:0;display:grid;gap:2px}
+.topic-coverage-row strong,.topic-coverage-row span{overflow-wrap:anywhere}
+.topic-coverage-row>strong{text-align:right}
+@media(max-width:600px){.topic-coverage-row{grid-template-columns:minmax(0,1fr) 50px;gap:8px}.topic-coverage-row .progress-track{grid-column:1/-1;grid-row:2}.topic-coverage-row>strong{grid-column:2;grid-row:1}}
+.focus-sound-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.focus-sound-callout{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}.focus-sound-callout p{margin:4px 0 0}.focus-sound-callout .btn{flex-shrink:0}
+.plan-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.plan-comparison .card{min-width:0}.plan-comparison ul{padding-left:20px;line-height:1.65}.pro-plan-card{border-color:rgba(39,211,194,.5)}
+.signup-plan-details{margin-top:16px;border-top:1px solid var(--line);padding-top:10px}.signup-plan-details summary{cursor:pointer;font-weight:700}.signup-plan-details .plan-comparison{margin-top:12px}.signup-plan-details .card{padding:12px}.signup-plan-details h3{font-size:16px}
+.profile-plan-overview{margin-bottom:16px}.profile-plan-overview .section-head{margin-top:0}.plan-channel-list{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.plan-channel-list small{width:100%;color:var(--muted)}
+.profile-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.profile-sections details{min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--n-card,#10243a);padding:14px}.profile-sections summary{cursor:pointer;font-size:16px;font-weight:750;list-style-position:inside}.profile-sections details>.card,.profile-sections details>.grid{margin-top:14px}.profile-sections details>.card{box-shadow:none}.profile-sections details .plan-comparison{margin-top:14px}.profile-sections details .grid{display:block}
+.pro-upsell-dialog{width:min(520px,calc(100vw - 24px))}
+@media(max-width:720px){.profile-sections,.plan-comparison{grid-template-columns:1fr}.signup-plan-details .plan-comparison{grid-template-columns:1fr}.plan-channel-list .btn{width:100%;text-align:center}.profile-plan-overview .section-head{align-items:flex-start}.focus-sound-callout{align-items:stretch;flex-direction:column}}

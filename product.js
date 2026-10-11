@@ -48,17 +48,17 @@
   function latestAttempt(q){return qAttempts(q).sort((a,b)=>new Date(b.answered_at)-new Date(a.answered_at))[0]||null}
   function weakMap(){const m=new Map();for(const a of state.attempts.filter(a=>a.is_valid!==false)){const q=getAttemptQuestion(a);if(!q)continue;const k=[q.specialty||'Sin clasificar',q.topic||'General'].join('||'),v=m.get(k)||{n:0,ok:0};v.n++;if(a.is_correct)v.ok++;m.set(k,v)}return m}
   function userTargetDifficulty(){const a=state.attempts.filter(x=>x.is_valid!==false).slice(0,150);const acc=a.length?a.filter(x=>x.is_correct).length/a.length:.55;return acc>.8?'hard':acc>.62?'medium':'easy'}
-  function adaptiveScore(q){let s=Math.random()*1.5;const la=latestAttempt(q),all=qAttempts(q),k=[q.specialty||'Sin clasificar',q.topic||'General'].join('||'),w=weakMap().get(k);if(!all.length)s+=7;else{s+=Math.max(0,4-all.length*.35);if(la&&!la.is_correct)s+=9;const days=la?(Date.now()-new Date(la.answered_at).getTime())/DAY:999;if(days<7&&!la?.is_correct)s+=4;if(days<2&&la?.is_correct)s-=3}if(w&&w.n>=3){const acc=w.ok/w.n;s+=(1-acc)*8}if(state.bookmarks.some(b=>b.item_type==='question'&&b.item_id===q.id))s+=3;const target=userTargetDifficulty(),d=String(q.difficulty||'').toLowerCase();if(d&&((target==='hard'&&/hard|dif/i.test(d))||(target==='medium'&&/med|inter/i.test(d))||(target==='easy'&&/easy|fac/i.test(d))))s+=2;return s}
-  function buildAdaptivePool(n=20){return questionPool().slice().sort((a,b)=>adaptiveScore(b)-adaptiveScore(a)).slice(0,Math.min(n,questionPool().length))}
-  function startAdaptiveBank(n=20){let limit=remaining('bank');if(limit===0)return toast('Has alcanzado el límite diario del plan Free');if(limit!==Infinity)n=Math.min(n,limit);const pool=buildAdaptivePool(n);if(!pool.length)return toast('No hay preguntas disponibles');state.bank={pool,index:0,answered:false,selected:null,mode:'end',results:[],context:'adaptive',highlights:{},answers:{},submitted:false};showQuestion()}
+  function adaptiveScore(q,history,weak,latest,marks,target){let s=Math.random()*1.5;const la=(q._aliases||[qKey(q)]).map(k=>latest.get(k)).filter(Boolean).sort((a,b)=>Date.parse(b.answered_at)-Date.parse(a.answered_at))[0],k=[q.specialty||'Sin clasificar',q.topic||'General'].join('||'),w=weak.get(k),usage=NexmirBankInsights.usage(q,history);s+=usage.count===0?45:-Math.min(30,usage.count*8);if(la&&!la.is_correct)s+=9;const days=la?(Date.now()-new Date(la.answered_at).getTime())/DAY:999;if(days<7&&!la?.is_correct)s+=4;if(days<2&&la?.is_correct)s-=3;if(w&&w.n>=3){const acc=w.ok/w.n;s+=(1-acc)*8}if(marks.has(qKey(q)))s+=3;const d=String(q.difficulty||'').toLowerCase();if(d&&((target==='hard'&&/hard|dif/i.test(d))||(target==='medium'&&/med|inter/i.test(d))||(target==='easy'&&/easy|fac/i.test(d))))s+=2;return s}
+  function buildAdaptivePool(n=20){const pool=questionPool(),history=NexmirBankInsights.history(state.attempts),weak=weakMap(),latest=new Map(),marks=new Set(state.bookmarks.filter(b=>b.item_type==='question').map(b=>`questions:${b.item_id}`)),target=userTargetDifficulty();for(const a of state.attempts){const k=NexmirBankInsights.key({id:a.question_id||a.source_content_id,_source:a.question_id?'questions':'remnote'});if(!latest.has(k))latest.set(k,a)}return pool.map(q=>({q,score:adaptiveScore(q,history,weak,latest,marks,target)})).sort((a,b)=>b.score-a.score).slice(0,Math.min(n,pool.length)).map(x=>x.q)}
+  function startAdaptiveBank(n=20){let limit=remaining('bank');if(limit===0)return window.showProUpsell('Alcanzaste el límite diario de preguntas del plan Free.');if(limit!==Infinity)n=Math.min(n,limit);const pool=buildAdaptivePool(n);if(!pool.length)return toast('No hay preguntas disponibles');state.bank={pool,index:0,answered:false,selected:null,mode:'end',results:[],context:'adaptive',highlights:{},answers:{},submitted:false};showQuestion()}
   window.startAdaptiveBank=startAdaptiveBank;
 
   const oldStartBank=startBank;
-  startBank=function(){if(unlimited())return oldStartBank();let rem=remaining('bank');if(rem<=0)return toast('Plan Free: ya usaste tus 15 preguntas de hoy');const input=$v('#bankCount');let asked=Math.max(0,Math.floor(Number(input?.value)||0));if(asked===0||asked>rem){if(input)input.value=rem;toast(`Plan Free: usarás como máximo ${rem} preguntas hoy`)}return oldStartBank()};
+  startBank=function(){if(unlimited())return oldStartBank();let rem=remaining('bank');if(rem<=0)return window.showProUpsell('Ya usaste tus 15 preguntas de banqueo de hoy.');const input=$v('#bankCount');let asked=Math.max(0,Math.floor(Number(input?.value)||0));if(asked===0||asked>rem){if(input)input.value=rem;toast(`Plan Free: usarás como máximo ${rem} preguntas hoy`)}return oldStartBank()};
   const oldStartMirSimulation=startMirSimulation;
-  startMirSimulation=function(n,config=null){if(unlimited())return oldStartMirSimulation(n,config);if(Number(n)===15&&(!config||!config.reserveCount)){if(remaining('miniSimulations')<=0)return toast('Plan Free: ya utilizaste tu Mini-MIR de 15 preguntas de hoy');return oldStartMirSimulation(15,config)}return toast('Plan Free: los simulacros completos son Pro. Puedes hacer 1 Mini-MIR de 15 preguntas al día')};
+  startMirSimulation=function(n,config=null){if(unlimited())return oldStartMirSimulation(n,config);if(Number(n)===15&&(!config||!config.reserveCount)){if(remaining('miniSimulations')<=0)return window.showProUpsell('Ya utilizaste el Mini-MIR de hoy.');return oldStartMirSimulation(15,config)}return window.showProUpsell('Los simulacros completos y personalizados están disponibles con Pro. En Free puedes hacer un Mini-MIR diario.')};
   const oldRateCard=rateCard;
-  rateCard=async function(q){if(!unlimited()&&remaining('reviews')<=0){toast('Plan Free: ya completaste tus 20 flashcards de hoy');return}return oldRateCard(q)};
+  rateCard=async function(q){if(!unlimited()&&remaining('reviews')<=0){window.showProUpsell('Ya completaste tus 20 flashcards de hoy.');return}return oldRateCard(q)};
 
   // gamification derived from real activity
   function activeDates(){const ds=new Set();state.attempts.forEach(a=>a.answered_at&&ds.add(localDay(new Date(a.answered_at))));state.reviews.forEach(r=>r.last_reviewed_at&&ds.add(localDay(new Date(r.last_reviewed_at))));state.simulations.forEach(s=>s.finished_at&&ds.add(localDay(new Date(s.finished_at))));return ds}
@@ -84,7 +84,7 @@
     if(!root)return;
     root.querySelectorAll('button[onclick*="startMirSimulation(200)"],button[onclick*="startCustomSimulation("]').forEach(btn=>{btn.disabled=true;btn.title='Disponible en Pro';btn.textContent='PRO'});
     const note=root.querySelector('.mir-note');
-    if(note)note.innerHTML='<strong>Plan Free:</strong> 1 Mini-MIR de 15 preguntas al día. Los simulacros personalizados y completos están disponibles en Pro.';
+    if(note)note.innerHTML='<strong>Plan Free:</strong> 1 Mini-MIR de 15 preguntas al día. Los simulacros personalizados y completos están disponibles en Pro. <button class="btn mini" type="button" onclick="route(&quot;profile&quot;)">Ver planes</button>';
   };
 
   // Calendar / study plan
@@ -146,7 +146,7 @@
     try{await navigator.clipboard.writeText(url);toast('Enlace de invitación copiado')}catch{prompt('Copia este enlace de invitación:',url)}
   }
   async function createBattle(rematch=false){
-    if(!unlimited()&&remaining('battles')<=0)return toast('Plan Free: límite diario de batallas alcanzado');
+    if(!unlimited()&&remaining('battles')<=0)return window.showProUpsell('Alcanzaste el límite diario de batallas del plan Free.');
     const previous=rematch?state.battle?.room:null,previousSelection=rematch?state.battle?.selection:null;
     const count=Math.max(5,Math.min(50,rematch?(previous?.question_ids?.length||10):(+ $v('#battleCount')?.value||10))),minutes=Math.max(3,Math.min(60,rematch?Math.ceil((previous?.duration_seconds||600)/60):(+ $v('#battleMinutes')?.value||10)));
     const scope=rematch?(previousSelection?.scope||'mix'):($v('input[name="battleScope"]:checked')?.value||'mix');
@@ -168,7 +168,7 @@
     const code=planRules.sanitizeBattleCode(invitedCode||$v('#battleJoinCode')?.value);if(code.length!==6)return toast('Escribe un código de 6 caracteres');
     const {data:room,error}=await state.sb.from('battle_rooms').select('*').eq('code',code).in('status',['waiting','active']).maybeSingle();if(error||!room)return toast('Sala no encontrada o ya finalizada');
     const alreadyJoined=(state.battleHistory||[]).some(x=>String(x.room_id)===String(room.id));
-    if(!alreadyJoined&&!unlimited()&&remaining('battles')<=0)return toast('Plan Free: límite diario de batallas alcanzado');
+    if(!alreadyJoined&&!unlimited()&&remaining('battles')<=0)return window.showProUpsell('Alcanzaste el límite diario de batallas del plan Free.');
     const participantResult=alreadyJoined
       ?await state.sb.from('battle_participants').select('*').eq('room_id',room.id).eq('user_id',state.user.id).single()
       :await state.sb.from('battle_participants').insert({room_id:room.id,user_id:state.user.id,display_name:profileName()}).select().single();
