@@ -1,0 +1,11 @@
+NEXMIR V5.1.35 — MENÚ MÓVIL LIMPIO Y ANÁLISIS DE SIMULACROS
+
+No hay pasos en Supabase ni SQL. Sube todo, incluida la carpeta dist/.
+
+1) Móvil: se oculta el botón de tres líneas (otras reglas lo forzaban con !important). La navegación queda solo en la barra inferior.
+2) Simulacros (todas las plataformas), al entregar:
+   - Pestañas «Análisis» (por defecto) y «Revisión» (la de siempre).
+   - Dónde perdiste puntos: por asignatura, netas obtenidas de las posibles, netas perdidas, incorrectas y en blanco, tiempo medio por pregunta y «Prioridad» en las 3 que más restan. Compara con tu precisión anterior en esa asignatura (estimada con tus respuestas guardadas).
+   - Tiempo total, tiempo medio por pregunta y rendimiento neto (netas ÷ preguntas) frente al promedio de tus simulacros anteriores, más una gráfica de los últimos 6.
+   - «Repasar solo lo fallado (N)» en un clic: abre una sesión de banqueo con corrección inmediata con las preguntas incorrectas (principales y reservas). «Incluir las que dejaste en blanco» las añade.
+Notas: el tiempo por pregunta se mide desde esta versión (no existe para simulacros ya entregados); para esos solo hay tiempo total entre preguntas. Archivos nuevos: sim_analysis.js y sim_analysis.css.
