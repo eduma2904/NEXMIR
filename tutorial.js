@@ -104,7 +104,7 @@
     const select=el('select','');select.setAttribute('aria-label','Especialidad para el diagnóstico');
     specs.forEach(sp=>{const option=document.createElement('option');option.value=sp;option.textContent=sp;select.append(option)});
     if(specs.includes(state.profile?.goal_specialty))select.value=state.profile.goal_specialty;
-    go.onclick=()=>{const sp=select.value;d.close();d.remove();if(sp){route('study').then(()=>window.startSpecialtyDiagnostic?.(encodeURIComponent(sp),'study'))}};
+    go.onclick=()=>{const sp=select.value;d.close();d.remove();if(sp){route('study').then(()=>window.startSpecialtyDiagnostic?.(encodeActionArg(sp),'study'))}};
     actions.append(later,go);d.append(head,copy);
     if(specs.length)d.append(select);else{const empty=el('p','muted small');empty.textContent='Aún no hay preguntas clasificadas para un diagnóstico.';d.append(empty)}
     d.append(actions);d.addEventListener('close',()=>d.remove(),{once:true});

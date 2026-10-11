@@ -62,6 +62,7 @@
   const prevAvgQ=prev.length?prev.reduce((t,x)=>t+(Date.parse(x.finished_at)-Date.parse(x.started_at))/1000/x.total,0)/prev.length:null;
   const prevPerf=prev.length?prev.reduce((t,x)=>t+perf(x),0)/prev.length:null,lastPerf=prev.length?perf(prev[0]):null;
   const failed=s.pool.filter(q=>{const a=s.answers[simQKey(q)];return a!==undefined&&+a!==+q.correct_index}).length;
+  const blank=s.pool.filter(q=>s.answers[simQKey(q)]===undefined).length;
   const maxLost=Math.max(0.01,...rows.map(r=>r.lost));
   const delta=(v,ref,unit,better)=>ref===null?'':`<small class="sim-an-delta ${(better?v<ref:v>ref)?'up':(v===ref?'':'down')}">${sgn(v-ref,unit==='s'?0:1)}${unit==='s'?' s':' pts'} vs tu promedio anterior</small>`;
 
@@ -80,7 +81,7 @@
    :`<p class="muted">Este es tu primer simulacro registrado. Con el siguiente verás aquí cómo evolucionas.</p>`;
 
   return `<section id="simAnalysis" class="sim-analysis" aria-label="Análisis del simulacro">
-   <div class="sim-an-actions"><button type="button" class="btn primary" ${failed?'':'disabled'} onclick="reviewFailedSimulation()">${failed?`Repasar solo lo fallado (${failed})`:'No hay preguntas falladas'}</button>${main.blank?`<button type="button" class="btn" onclick="reviewFailedSimulation(true)">Incluir las que dejaste en blanco (${main.blank})</button>`:''}<button type="button" class="btn" onclick="simShowTab('review')">Ver revisión pregunta por pregunta</button></div>
+   <div class="sim-an-actions"><button type="button" class="btn primary" ${failed?'':'disabled'} onclick="reviewFailedSimulation()">${failed?`Repasar solo lo fallado (${failed})`:'No hay preguntas falladas'}</button>${blank?`<button type="button" class="btn" onclick="reviewFailedSimulation(true)">Incluir las que dejaste en blanco (${blank})</button>`:''}<button type="button" class="btn" onclick="simShowTab('review')">Ver revisión pregunta por pregunta</button></div>
    <div class="sim-an-kpis"><div class="card"><span class="muted small">Tiempo total</span><strong>${fmtTotal(elapsed)}</strong></div><div class="card"><span class="muted small">Tiempo medio por pregunta</span><strong>${fmtSec(avgQ)}</strong>${prevAvgQ===null?'':delta(avgQ,prevAvgQ,'s',true)}</div><div class="card"><span class="muted small">Rendimiento neto</span><strong>${perfNow.toFixed(0)}%</strong>${prevPerf===null?'':delta(perfNow,prevPerf,'p',false)}</div></div>
    <h3>Dónde perdiste puntos</h3><p class="muted small">Ordenado por netas perdidas. Cada pregunta vale 1 neta; una incorrecta resta 1/3.</p>${subjectRows}
    ${prior.size?'<p class="muted small">«Antes» compara con tus respuestas guardadas de simulacros anteriores (estimado).</p>':''}

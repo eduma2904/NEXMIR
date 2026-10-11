@@ -31,7 +31,6 @@
   const sp=document.getElementById('reviewSpecialty')?.value||'',topic=document.getElementById('reviewTopic')?.value||'',sub=document.getElementById('reviewSubtopic')?.value||'';
   return x=>(!sp||displaySpecialty(x.specialty)===sp)&&(!topic||(x.topic||'General')===topic)&&(!sub||(x.subtopic||'General')===sub);
  };
- const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
  function plan(){
   const{due,fresh}=split(),ok=matcher(),d=due.filter(ok),n=fresh.filter(ok),allow=allowance(),newUse=n.slice(0,allow),cap=prefs().session;
@@ -101,7 +100,7 @@
  startReview=function(){
   const{pool}=plan();
   if(!pool.length)return toast('No hay tarjetas pendientes para esa selección');
-  window.startReviewPool(shuffle(pool));
+  window.startReviewPool(pool);
  };
 
  /* Registrar qué tarjetas nuevas empezaste hoy (para respetar el límite diario) */
