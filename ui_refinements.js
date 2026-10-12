@@ -66,20 +66,25 @@
       options[(index+(event.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();
     }
   });
+  const pickerLabels={
+    focusSubject:'Elegir asignatura',focusTopic:'Elegir tema',
+    reviewSpecialty:'Elegir asignatura',reviewTopic:'Elegir tema',reviewSubtopic:'Elegir subtema',
+    goalSpecialty:'Elegir especialidad MIR',adaptivePlanSpecialty:'Elegir especialidad',studyDiagnosticSpecialty:'Elegir especialidad'
+  };
   function sync(){
-    for(const select of document.querySelectorAll('#focusSubject,#focusTopic')){
+    for(const select of document.querySelectorAll(Object.keys(pickerLabels).map(id=>'#'+id).join(','))){
       let trigger=select.nextElementSibling;
       if(!trigger?.classList.contains('select-trigger')){
         trigger=document.createElement('button');trigger.type='button';trigger.className='select-trigger';
         trigger.setAttribute('aria-haspopup','dialog');
         select.after(trigger);select.hidden=true;
-        trigger.onclick=()=>{source=select;search.value='';picker.querySelector('h3').textContent=select.id==='focusSubject'?'Elegir asignatura':'Elegir tema';draw();picker.showModal();search.focus()};
+        trigger.onclick=()=>{source=select;search.value='';picker.querySelector('h3').textContent=pickerLabels[select.id]||'Seleccionar';draw();picker.showModal();search.focus()};
       }
       const text=select.selectedOptions[0]?.text||'Seleccionar';
       if(trigger.textContent!==text)trigger.textContent=text;
-      trigger.setAttribute('aria-label',(select.id==='focusSubject'?'Asignatura: ':'Tema: ')+text);
+      trigger.setAttribute('aria-label',(pickerLabels[select.id]||'Seleccionar')+': '+text);
     }
   }
-  new MutationObserver(sync).observe(document.getElementById('view-focus')||document.body,{childList:true,subtree:true});
+  new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});
   sync();
 })();

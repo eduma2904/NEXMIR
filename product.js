@@ -57,6 +57,8 @@
   startBank=function(){if(unlimited())return oldStartBank();let rem=remaining('bank');if(rem<=0)return window.showProUpsell('Ya usaste tus 15 preguntas de banqueo de hoy.');const input=$v('#bankCount');let asked=Math.max(0,Math.floor(Number(input?.value)||0));if(asked===0||asked>rem){if(input)input.value=rem;toast(`Plan Free: usarás como máximo ${rem} preguntas hoy`)}return oldStartBank()};
   const oldStartMirSimulation=startMirSimulation;
   startMirSimulation=function(n,config=null){if(unlimited())return oldStartMirSimulation(n,config);if(Number(n)===15&&(!config||!config.reserveCount)){if(remaining('miniSimulations')<=0)return window.showProUpsell('Ya utilizaste el Mini-MIR de hoy.');return oldStartMirSimulation(15,config)}return window.showProUpsell('Los simulacros completos y personalizados están disponibles con Pro. En Free puedes hacer un Mini-MIR diario.')};
+  const oldStartCustomSimulation=startCustomSimulation;
+  startCustomSimulation=function(){if(!unlimited())return window.showProUpsell('Los simulacros personalizados están disponibles con Pro.');return oldStartCustomSimulation()};
   const oldRateCard=rateCard;
   rateCard=async function(q){const card=state.review?.pool?.[state.review.index],previous=state.reviews.find(r=>r.content_id===card?.id),reviewedToday=previous?.last_reviewed_at&&localDay(new Date(previous.last_reviewed_at))===localDay();if(!unlimited()&&!reviewedToday&&remaining('reviews')<=0){window.showProUpsell('Ya completaste tus 20 flashcards de hoy.');return}return oldRateCard(q)};
 
@@ -82,7 +84,7 @@
     if(unlimited())return;
     const root=$v('#view-simulations');
     if(!root)return;
-    root.querySelectorAll('button[onclick*="startMirSimulation(200)"],button[onclick*="startCustomSimulation("]').forEach(btn=>{btn.disabled=true;btn.title='Disponible en Pro';btn.textContent='PRO'});
+    root.querySelectorAll('button[onclick*="startMirSimulation(200)"],button[onclick*="startCustomSimulation("]').forEach(btn=>{btn.disabled=false;btn.title='Disponible en Pro';btn.classList.add('pro-access-button');btn.textContent='Ver Pro'});
     const note=root.querySelector('.mir-note');
     if(note)note.innerHTML='<strong>Plan Free:</strong> 1 Mini-MIR de 15 preguntas al día. Los simulacros personalizados y completos están disponibles en Pro. <button class="btn mini" type="button" onclick="route(&quot;profile&quot;)">Ver planes</button>';
   };
@@ -134,11 +136,12 @@
     }
     return shuffle(result);
   }
-  window.toggleBattleSpecialties=()=>{const selected=$v('input[name="battleScope"]:checked')?.value==='selected',list=$v('#battleSpecialtyList');if(list)list.hidden=!selected};
+  window.updateBattleSpecialtySummary=()=>{const selected=$$v('#battleSpecialtyList input:checked').length,total=$$v('#battleSpecialtyList input').length,summary=$v('#battleSpecialtyPickerValue');if(summary)summary.textContent=selected?`${selected} de ${total} seleccionada${selected===1?'':'s'}`:'Ninguna seleccionada'};
+  window.toggleBattleSpecialties=()=>{const selected=$v('input[name="battleScope"]:checked')?.value==='selected',picker=$v('#battleSpecialtyPicker');if(picker){picker.hidden=!selected;if(selected)picker.open=true}window.updateBattleSpecialtySummary()};
   function battleScopeHtml(){
     const available=battleSpecialtyCounts();
-    const choices=available.map(([name,n],i)=>'<label class="battle-specialty-choice"><input type="checkbox" name="battleSpecialty" value="'+esc(name)+'"><span>'+esc(name)+'</span><small>'+n+' preguntas</small></label>').join('');
-    return '<fieldset class="battle-scope"><legend>Especialidades de la batalla</legend><div class="battle-scope-modes"><label><input type="radio" name="battleScope" value="mix" checked onchange="toggleBattleSpecialties()"> Mix de todas</label><label><input type="radio" name="battleScope" value="selected" onchange="toggleBattleSpecialties()"> Elegir una o varias</label></div><div id="battleSpecialtyList" class="battle-specialty-list" hidden>'+choices+'</div><p class="muted small">Las preguntas se reparten entre las especialidades elegidas. Ambas personas reciben exactamente el mismo bloque.</p></fieldset>';
+    const choices=available.map(([name,n],i)=>'<label class="battle-specialty-choice"><input type="checkbox" name="battleSpecialty" value="'+esc(name)+'" onchange="updateBattleSpecialtySummary()"><span>'+esc(name)+'</span><small>'+n+' preguntas</small></label>').join('');
+    return '<fieldset class="battle-scope"><legend>Especialidades de la batalla</legend><div class="battle-scope-modes"><label><input type="radio" name="battleScope" value="mix" checked onchange="toggleBattleSpecialties()"> Mix de todas</label><label><input type="radio" name="battleScope" value="selected" onchange="toggleBattleSpecialties()"> Elegir una o varias</label></div><details id="battleSpecialtyPicker" class="selection-picker battle-specialty-picker" hidden><summary><span><strong>Especialidades</strong><small>Elige las que entrarán en la batalla</small></span><span id="battleSpecialtyPickerValue" class="selection-picker-value">Ninguna seleccionada</span></summary><div id="battleSpecialtyList" class="battle-specialty-list">'+choices+'</div></details><p class="muted small">Las preguntas se reparten entre las especialidades elegidas. Ambas personas reciben exactamente el mismo bloque.</p></fieldset>';
   }
   async function shareBattle(code){
     const url=battleInviteUrl(code),share={title:'Batalla NEXMIR',text:`Te invito a una batalla NEXMIR. Crea tu cuenta o inicia sesión y entra con el código ${code}.`,url};

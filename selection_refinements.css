@@ -1,0 +1,43 @@
+/* V5.1.40 · selectores compactos y resultados móviles. */
+.selection-picker-stack{display:grid;gap:12px;margin:18px 0}
+.selection-picker{min-width:0;border:1px solid var(--n-border,var(--line));border-radius:16px;background:var(--n-card,var(--surface));overflow:hidden}
+.selection-picker>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;list-style:none;user-select:none}
+.selection-picker>summary::-webkit-details-marker{display:none}
+.selection-picker>summary::after{content:'⌄';grid-column:2;grid-row:1;color:var(--n-primary,var(--primary));font-size:20px;line-height:1;transition:transform .16s ease}
+.selection-picker[open]>summary{border-bottom:1px solid var(--n-border,var(--line))}
+.selection-picker[open]>summary::after{transform:rotate(180deg)}
+.selection-picker>summary>span:first-child{display:grid;gap:3px;min-width:0;padding-right:24px}
+.selection-picker>summary strong{font-size:14px;color:var(--n-text,var(--text))}
+.selection-picker>summary small{color:var(--n-muted,var(--muted));font-size:12px;overflow-wrap:anywhere}
+.selection-picker-value{grid-column:2;grid-row:1;max-width:170px;padding:5px 9px;border:1px solid color-mix(in srgb,var(--n-primary,var(--primary)) 24%,var(--n-border,var(--line)));border-radius:999px;background:color-mix(in srgb,var(--n-primary,var(--primary)) 8%,var(--n-card,var(--surface)));color:var(--n-primary,var(--primary));font-size:11px;font-weight:750;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selection-picker-panel{padding:14px 16px 16px}
+.selection-picker-panel .filter-actions{display:flex;gap:8px;justify-content:flex-end;margin:0 0 10px}
+.selection-picker-panel .check-grid{max-height:min(350px,46dvh);margin:0;overflow:auto;overscroll-behavior:contain;align-content:start;padding:3px}
+.selection-picker-panel .simulation-filter-grid{max-height:min(320px,42dvh)}
+.selection-picker-panel .bank-specialties{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.topic-picker-actions{justify-content:flex-end}
+.simulation-picker-stack{margin-top:14px}
+.simulation-picker-stack .selection-picker>summary{padding-block:13px}
+.battle-specialty-picker{margin-top:10px}
+.battle-specialty-picker .battle-specialty-list{max-height:min(300px,40dvh);margin:0;border:0;border-radius:0;padding:0}
+.pro-upsell-hero{display:flex;align-items:center;gap:12px;margin:4px 0 14px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--n-primary,var(--primary)) 34%,var(--n-border,var(--line)));border-radius:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--n-primary,var(--primary)) 13%,var(--n-card,var(--surface))),color-mix(in srgb,var(--n-secondary,var(--violet)) 10%,var(--n-card,var(--surface))))}
+.pro-upsell-hero>span{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--n-primary,var(--primary));color:#fff;font-size:21px}
+.pro-upsell-hero div{display:grid;gap:2px}.pro-upsell-hero small{color:var(--n-muted,var(--muted));font-size:12px}
+.pro-access-button{border-color:color-mix(in srgb,var(--n-secondary,var(--violet)) 56%,var(--n-border,var(--line)))!important;background:color-mix(in srgb,var(--n-secondary,var(--violet)) 12%,var(--n-card,var(--surface)))!important;color:var(--n-text,var(--text))!important}
+.focus-summary{display:grid;gap:12px}.focus-summary>h2{margin:0!important}.focus-summary .grid{margin:0}.focus-summary .dialog-actions{margin:0;padding-top:2px}
+@media(max-width:600px){
+ .selection-picker>summary{padding:13px 12px;gap:8px}.selection-picker-panel{padding:12px}
+ .selection-picker-value{max-width:122px;font-size:10px;padding:5px 7px}
+ .selection-picker>summary>span:first-child{padding-right:8px}.selection-picker-panel .bank-specialties{grid-template-columns:1fr}
+ .selection-picker-panel .check-grid{max-height:42dvh}.selection-picker-panel .filter-actions{justify-content:stretch}.selection-picker-panel .filter-actions .btn{flex:1}
+ #focusSummaryDialog.focus-summary-dialog{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px)!important;margin:auto!important;padding:14px!important;overflow:auto!important;border-radius:18px!important}
+ #focusSummaryDialog .focus-summary>.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px}
+ #focusSummaryDialog .focus-summary>.grid.cols-3 .card{min-width:0;padding:10px 7px!important;border-radius:12px!important;text-align:center}
+ #focusSummaryDialog .focus-summary .metric{font-size:clamp(18px,6vw,24px);overflow-wrap:anywhere}
+ #focusSummaryDialog .focus-summary .metric-label{font-size:10px;line-height:1.25}
+ #focusSummaryDialog .focus-summary-lines{margin-top:0;padding:10px 11px;font-size:13px;line-height:1.38}
+ #focusSummaryDialog .focus-summary-lines p{margin:5px 0}
+ #focusSummaryDialog .focus-summary .dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ #focusSummaryDialog .focus-summary .dialog-actions .btn{width:100%;min-width:0;min-height:44px;padding:8px 6px;font-size:12px;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){.selection-picker>summary::after{transition:none}}
