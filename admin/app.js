@@ -37,6 +37,18 @@ function classify(context,source,options={}){return RemnoteTaxonomy.classify(con
 function parseMarkdownTable(lines){if(lines.length<2)return null;const split=row=>row.trim().replace(/^\||\|$/g,'').split('|').map(x=>x.trim());const headers=split(lines[0]);if(!headers.length||!/^\s*\|?\s*:?-{3,}/.test(lines[1]))return null;const rows=lines.slice(2).filter(Boolean).map(split);return{headers,rows,markdown:lines.join('\n')}}
 function theoryBlocks(body){const lines=(body||'').split('\n'),blocks=[];let buf=[];const flush=()=>{const t=buf.join('\n').trim();buf=[];if(t)blocks.push({type:'markdown',text:t})};for(let i=0;i<lines.length;i++){if(lines[i].includes('|')&&i+1<lines.length&&/^\s*\|?\s*:?-{3,}/.test(lines[i+1])){flush();const tbl=[lines[i],lines[i+1]];i+=2;while(i<lines.length&&lines[i].includes('|')&&lines[i].trim()){tbl.push(lines[i]);i++}i--;const parsed=parseMarkdownTable(tbl);if(parsed)blocks.push({type:'table',...parsed});else buf.push(...tbl)}else buf.push(lines[i])}flush();return blocks}
 function applyClassification(obj){const c=classify(obj.context||[],obj.source||'');Object.assign(obj,c);return obj}
+function applyImportClassification(item,route,intent){
+  if(!route?.specialty)return item;
+  const meaningful=value=>{const text=RemnoteTaxonomy.cleanLabel(value);return text&&RemnoteTaxonomy.key(text)!==RemnoteTaxonomy.key('General')&&!RemnoteTaxonomy.unclassified(text)?text:''};
+  let topic=route.topic||meaningful(item.topic);
+  if(!topic&&intent==='theory'){
+    const previousSpecialty=meaningful(item.specialty);
+    if(previousSpecialty&&RemnoteTaxonomy.key(previousSpecialty)!==RemnoteTaxonomy.key(route.specialty))topic=previousSpecialty;
+    if(!topic)topic=[...(item.context||[])].reverse().map(meaningful).find(x=>RemnoteTaxonomy.key(x)!==RemnoteTaxonomy.key(route.specialty))||'General';
+  }
+  Object.assign(item,RemnoteTaxonomy.manual(route.specialty,{topic:topic||'General'}),{classification_origin:'admin_import_route'});
+  return item;
+}
 function stableUid(c){return 'rn_'+hash([c.type,normalize(c.front)].join('§'))}
 function contentHash(c){return hash(JSON.stringify({type:c.type,front:normalize(c.front),back:normalize(c.back||''),items:(c.items||[]).map(x=>normalize(x.text)),content_use:c.content_use||'study',explanation:c.explanation||[],options:(c.options||[]).map(x=>({t:normalize(x.text),c:!!x.correct,e:(x.extra||[]).map(normalize)})),tags:[...(c.tags||[])].sort(),images:c.images||[]}))}
 function resolveRemnoteMcqOptions(options){
@@ -111,6 +123,7 @@ async function parseQueuedFile(entry,session){
     const parsed=parseMarkdown(text,name,{fallbackSpecialty:$('#importFallbackSpecialty')?.value||'',archiveName:file.name}); // Keep the original RemNote path for classification.
     for(const item of [...parsed.cards,...parsed.theory]){
       if(!NexmirContentRules.include(item,entry.intent)){session.excludedByIntent=(session.excludedByIntent||0)+1;continue}
+      applyImportClassification(item,entry.classification,entry.intent);
       item.import_intent=entry.intent;
       if(item.type==='multiple_choice'&&entry.intent==='simulation')item.content_use='simulation';
       if(item.front!=null){item.content_hash=contentHash(item);session.cards.push(item)}else session.theory.push(item);
@@ -148,7 +161,7 @@ async function processFiles(files,choice=null){
   if(choice.pdfCards)remnoteQueue.session.cards.push(...choice.pdfCards);
   for(const file of files){
     if(remnoteQueue.entries.some(e=>!e.status.startsWith('Error:')&&e.file.name===file.name&&e.file.size===file.size&&e.file.lastModified===file.lastModified))continue;
-    const entry={file,intent:choice.intent,status:'En cola'};remnoteQueue.entries.push(entry);remnoteQueue.pending.push(entry);
+    const entry={file,intent:choice.intent,classification:choice.classification||null,status:'En cola'};remnoteQueue.entries.push(entry);remnoteQueue.pending.push(entry);
   }
   $('#fileInput').value='';renderImportQueue();
   if(remnoteQueue.running)return;

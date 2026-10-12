@@ -50,7 +50,7 @@
   function userTargetDifficulty(){const a=state.attempts.filter(x=>x.is_valid!==false).slice(0,150);const acc=a.length?a.filter(x=>x.is_correct).length/a.length:.55;return acc>.8?'hard':acc>.62?'medium':'easy'}
   function adaptiveScore(q,history,weak,latest,marks,target){let s=Math.random()*1.5;const la=(q._aliases||[qKey(q)]).map(k=>latest.get(k)).filter(Boolean).sort((a,b)=>Date.parse(b.answered_at)-Date.parse(a.answered_at))[0],k=[q.specialty||'Sin clasificar',q.topic||'General'].join('||'),w=weak.get(k),usage=NexmirBankInsights.usage(q,history);s+=usage.count===0?45:-Math.min(30,usage.count*8);if(la&&!la.is_correct)s+=9;const days=la?(Date.now()-new Date(la.answered_at).getTime())/DAY:999;if(days<7&&!la?.is_correct)s+=4;if(days<2&&la?.is_correct)s-=3;if(w&&w.n>=3){const acc=w.ok/w.n;s+=(1-acc)*8}if(marks.has(qKey(q)))s+=3;const d=String(q.difficulty||'').toLowerCase();if(d&&((target==='hard'&&/hard|dif/i.test(d))||(target==='medium'&&/med|inter/i.test(d))||(target==='easy'&&/easy|fac/i.test(d))))s+=2;return s}
   function buildAdaptivePool(n=20){const pool=questionPool(),history=NexmirBankInsights.history(state.attempts),weak=weakMap(),latest=new Map(),marks=new Set(state.bookmarks.filter(b=>b.item_type==='question').map(b=>`questions:${b.item_id}`)),target=userTargetDifficulty();for(const a of state.attempts){const k=NexmirBankInsights.key({id:a.question_id||a.source_content_id,_source:a.question_id?'questions':'remnote'});if(!latest.has(k))latest.set(k,a)}return pool.map(q=>({q,score:adaptiveScore(q,history,weak,latest,marks,target)})).sort((a,b)=>b.score-a.score).slice(0,Math.min(n,pool.length)).map(x=>x.q)}
-  function startAdaptiveBank(n=20){let limit=remaining('bank');if(limit===0)return window.showProUpsell('Alcanzaste el límite diario de preguntas del plan Free.');if(limit!==Infinity)n=Math.min(n,limit);const pool=buildAdaptivePool(n);if(!pool.length)return toast('No hay preguntas disponibles');state.bank={pool,index:0,answered:false,selected:null,mode:'end',results:[],context:'adaptive',highlights:{},answers:{},submitted:false};showQuestion()}
+  function startAdaptiveBank(n=20){let limit=remaining('bank');if(limit===0)return window.showProUpsell('Alcanzaste el límite diario de preguntas del plan Free.');if(limit!==Infinity)n=Math.min(n,limit);const pool=buildAdaptivePool(n);if(!pool.length)return toast('No hay preguntas disponibles');state.bank={pool:pool.map(shuffleQuestionOptions),index:0,answered:false,selected:null,mode:'end',results:[],context:'adaptive',highlights:{},answers:{},submitted:false};showQuestion()}
   window.startAdaptiveBank=startAdaptiveBank;
 
   const oldStartBank=startBank;
@@ -164,7 +164,7 @@
     const {data,error}=await state.sb.from('battle_rooms').insert(room).select().single();if(error)return toast(error.message);
     const {data:participant,error:joinError}=await state.sb.from('battle_participants').insert({room_id:data.id,user_id:state.user.id,display_name:profileName()}).select().single();
     if(joinError){await state.sb.from('battle_rooms').delete().eq('id',data.id);return toast(joinError.message)}
-    state.battleHistory.unshift(participant);state.battle={room:data,pool,index:0,answers:{},started:false,participants:[participant],selection:{scope,specialties}};
+    const displayedPool=shuffleSessionOptions(pool,`battle:${data.id}`);state.battleHistory.unshift(participant);state.battle={room:data,pool:displayedPool,index:0,answers:{},started:false,participants:[participant],selection:{scope,specialties}};
     history.replaceState(null,'',battleInviteUrl(code));toast(rematch?'Revancha creada. Comparte la invitación con tu rival.':`Sala ${code} creada`);renderBattles();await pollBattle(data.id);
   }
   async function joinBattle(invitedCode=''){
@@ -177,11 +177,11 @@
       :await state.sb.from('battle_participants').insert({room_id:room.id,user_id:state.user.id,display_name:profileName()}).select().single();
     const {data:participant,error:joinError}=participantResult;if(joinError)return toast(joinError.message);
     if(participant&&!alreadyJoined)state.battleHistory.unshift(participant);
-    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=ids.map((id,i)=>map.get(`${sources[i]}:${id}`)).filter(Boolean);
+    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=shuffleSessionOptions(ids.map((id,i)=>map.get(`${sources[i]}:${id}`)).filter(Boolean),`battle:${room.id}`);
     if(pool.length!==ids.length)return toast('La sala contiene preguntas que ya no están disponibles');
     const {data:prior,error:priorError}=await state.sb.from('battle_answers').select('question_id,source_type,selected_index').eq('room_id',room.id).eq('user_id',state.user.id);
     if(priorError)return toast(priorError.message);
-    const answers=Object.fromEntries((prior||[]).map(a=>[`${a.source_type}:${a.question_id}`,a.selected_index]));
+    const answers=Object.fromEntries((prior||[]).map(a=>{const key=`${a.source_type}:${a.question_id}`,q=pool.find(x=>battleQuestionKey(x)===key),shown=q?._optionOrder?.indexOf(Number(a.selected_index));return[key,shown>=0?shown:Number(a.selected_index)]}));
     const next=pool.findIndex(q=>answers[battleQuestionKey(q)]==null);
     state.battle={room,pool,index:next<0?pool.length:next,answers,started:room.status==='active',participants:participant?[participant]:[]};
     history.replaceState(null,'',battleInviteUrl(code));renderBattles();await pollBattle(room.id);
@@ -213,7 +213,7 @@
     if(!(state.battleHistory||[]).some(p=>p.room_id===roomId))return toast('No participaste en esta batalla');
     const {data:room,error}=await state.sb.from('battle_rooms').select('*').eq('id',roomId).single();
     if(error||!room||!battleEnded(room))return toast('La batalla todavía no ha terminado');
-    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=ids.map((id,i)=>map.get(`${sources[i]}:${id}`));
+    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=shuffleSessionOptions(ids.map((id,i)=>map.get(`${sources[i]}:${id}`)),`battle:${room.id}`);
     if(pool.some(q=>!q))return toast('Hay preguntas de esta batalla que ya no están disponibles');
     const [{data:rows,error:answersError},{data:participants,error:partsError}]=await Promise.all([
       state.sb.from('battle_answers').select('question_id,source_type,selected_index').eq('room_id',roomId).eq('user_id',state.user.id),
@@ -221,7 +221,7 @@
     ]);
     if(answersError||partsError)return toast('No se pudo cargar la revisión');
     clearInterval(battlePoll);
-    const answers=Object.fromEntries((rows||[]).map(a=>[`${a.source_type}:${a.question_id}`,a.selected_index]));
+    const answers=Object.fromEntries((rows||[]).map(a=>{const key=`${a.source_type}:${a.question_id}`,q=pool.find(x=>battleQuestionKey(x)===key),shown=q?._optionOrder?.indexOf(Number(a.selected_index));return[key,shown>=0?shown:Number(a.selected_index)]}));
     state.battle={room,pool,index:pool.length,answers,started:true,participants:participants||[],reviewOpen:true,reviewIndex:0};
     history.replaceState(null,'',battleInviteUrl(room.code));route('battles');
   }
@@ -254,7 +254,7 @@
     const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q),i=b?.selected;
     if(!q||!Number.isInteger(i)||b.submitting||b.answers[key]!=null||b.room.status!=='active')return;
     b.submitting=true;renderBattles();
-    const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:i});
+    const originalIndex=q._optionOrder?.[i]??i;const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:originalIndex});
     if(state.battle!==b)return;
     b.submitting=false;
     if(error){renderBattles();return toast(error.message)}

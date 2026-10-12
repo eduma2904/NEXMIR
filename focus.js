@@ -193,7 +193,7 @@
     const duration=opts.duration!==undefined?opts.duration:F.draftDuration;
     const subject=opts.subject!==undefined?opts.subject:($f('#focusSubject')?.value||'');
     const topic=opts.topic!==undefined?opts.topic:($f('#focusTopic')?.value||'');
-    const pm=personalMedian(),target=R.focusQuestionTarget(duration,pm.median,pm.count),pool=buildFocusPool(subject,topic,Math.max(target*2,target+10));
+    const pm=personalMedian(),target=R.focusQuestionTarget(duration,pm.median,pm.count),client=F.startClientId||uuid(),pool=shuffleSessionOptions(buildFocusPool(subject,topic,Math.max(target*2,target+10)),`focus:${client}`);
     if(!pool.length)return toast('No hay preguntas disponibles para este Focus');
     const finalTarget=Math.min(target,Math.max(1,pool.length)),missionSubject=subject||displaySpecialty(pool[0]?.specialty)||'Prioridad adaptativa';
     F.pendingPlan={duration,subject,topic,target:finalTarget};ensureDom();
@@ -210,7 +210,7 @@
     const topic=opts.topic!==undefined?opts.topic:($f('#focusTopic')?.value||'');
     const pm=personalMedian(),target=R.focusQuestionTarget(duration,pm.median,pm.count),pool=buildFocusPool(subject,topic,Math.max(target*2,target+10));
     if(!pool.length)return toast('No hay preguntas disponibles para este Focus');
-    const finalTarget=Math.min(target,Math.max(1,pool.length));const client=F.startClientId||uuid();F.startClientId=client;const initial=masteryForFilter(subject,topic);
+    const finalTarget=Math.min(target,Math.max(1,pool.length));F.startClientId=client;const initial=masteryForFilter(subject,topic);
     const sessionState={poolKeys:pool.map(qKey),index:0,subject,topic,duration:duration||null,questionTarget:finalTarget,initialMastery:initial};
     const {data,error}=await state.sb.rpc('nexmir_start_focus',{p_client_session_id:client,p_duration_minutes:duration||null,p_question_target:finalTarget,p_subject:subject||null,p_topic:topic||null,p_initial_state:sessionState});
     if(error)return toast('No se pudo iniciar Focus: '+error.message);
@@ -228,7 +228,7 @@
   async function resumeNexmirFocus(){
     if(!state.focusActiveSession){await loadFocusData();if(!state.focusActiveSession)return toast('No hay una sesión Focus pendiente')}
     const s=state.focusActiveSession,checkpoint=readCheckpoint(s.id),ss=checkpoint?.state||s.session_state||{},map=new Map(questionPool().map(q=>[qKey(q),q]));let pool=(ss.poolKeys||[]).map(raw=>{const retry=String(raw).startsWith('retry|'),k=retry?String(raw).slice(6):String(raw),q=map.get(k);return q?(retry?{...q,_focusRetry:true}:q):null}).filter(Boolean);
-    if(!pool.length)pool=buildFocusPool(s.subject_filter||'',s.topic_filter||'',Math.max(s.question_target*2,s.question_target+10));
+    if(!pool.length)pool=buildFocusPool(s.subject_filter||'',s.topic_filter||'',Math.max(s.question_target*2,s.question_target+10));pool=shuffleSessionOptions(pool,`focus:${s.client_session_id||''}`);
     activateSession(s,pool,ss);if(checkpoint){F.activeSeconds=Math.max(F.activeSeconds,checkpoint.activeSeconds||0);F.questionActiveSeconds=checkpoint.questionActiveSeconds||0;F.skipped=Math.max(F.skipped,checkpoint.skipped||0);if(checkpoint.questionKey===qKey(currentQ())){F.selected=checkpoint.selected;F.answerEventId=checkpoint.answerEventId;F.result=checkpoint.result||null}F.reachedTime=!!(F.session.duration_target_minutes&&F.activeSeconds>=F.session.duration_target_minutes*60)}openFocusDialog();
   }
   window.resumeNexmirFocus=resumeNexmirFocus;
