@@ -27,9 +27,11 @@
 .pro-upsell-dialog .plan-price{margin:12px 0}
 
 /* Pasos */
-.plan-steps{counter-reset:plan;list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}
-.plan-steps li{counter-increment:plan;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;line-height:1.45;font-size:14.5px}
-.plan-steps li::before{content:counter(plan);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--n-primary,#3478ef) 68%,#000);color:#fff;font-weight:800;font-size:14px}
+.plan-steps{counter-reset:plan;list-style:none;margin:0 0 10px;padding:0;display:grid;gap:10px}
+/* Bloque en vez de grid: evita que reglas globales de la app corten el texto del paso en pantallas estrechas. */
+.plan-steps li{counter-increment:plan;position:relative;display:block;min-width:0;margin:0;padding:2px 0 2px 42px;line-height:1.5;font-size:14.5px;overflow-wrap:anywhere}
+.plan-steps li::before{content:counter(plan);position:absolute;left:0;top:1px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--n-primary,#3478ef) 68%,#000);color:#fff;font-weight:800;font-size:14px}
+.plan-steps li strong{display:inline;font-size:inherit;line-height:inherit;white-space:normal}
 .plan-renew-note{margin:0 0 14px;padding:10px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--n-text,#edf4ff) 35%,var(--n-border,#2e435d));background:color-mix(in srgb,var(--n-text,#edf4ff) 5%,var(--n-card,#19273a));font-size:13.5px}
 
 /* Cuentas bancarias y CCI (antes: texto claro sobre fondo celeste claro fijo) */

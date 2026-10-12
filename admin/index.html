@@ -63,6 +63,11 @@
           <div><span class="badge">Memoria clínica</span><h2>Clasificaciones MIR</h2><p class="muted">Añade clasificaciones, casos y tablas finales de repaso mediante JSON.</p></div>
           <button type="button" class="primary" onclick="go('arcadeclasses')">Modificar clasificaciones</button>
         </article>
+        <article class="cardBox arcadeGameOption">
+          <div class="arcadeGameIcon" aria-hidden="true">⌁</div>
+          <div><span class="badge">Velocidad diagnóstica</span><h2>Criteria Rush</h2><p class="muted">Crea criterios, hallazgos válidos, distractores, puntajes e interpretación final.</p></div>
+          <button type="button" class="primary" onclick="go('criteriarush')">Gestionar Criteria Rush</button>
+        </article>
       </div>
     </section>
     <section id="arcadeView" class="view hidden"></section>
@@ -83,6 +88,24 @@
           <div id="classesPreviewBox" class="cardBox" hidden></div>
         </div>
         <h2>Contenido añadido desde el panel</h2><p id="classesCount" class="muted"></p><div id="classesList"></div>
+      </div>
+    </section>
+    <section id="criteriarushView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">NEXMIR ARCADE</div><h1>Criteria Rush</h1><p>Agrega, edita, publica o elimina criterios clínicos. Cada criterio contiene hallazgos válidos y distractores; añade puntuación solo cuando la escala la tenga.</p></div><div class="actions arcadeAdminHeadActions"><button type="button" class="ghost" onclick="go('arcadehub')">← Elegir juego</button><button id="criteriaRefresh" class="secondary">Actualizar</button></div></div>
+      <p id="criteriaMessage" role="status" aria-live="polite" class="muted"></p>
+      <div id="criteriaBody" hidden>
+        <div class="cardBox">
+          <h2 id="criteriaTitle">Nuevo criterio</h2>
+          <form id="criteriaForm">
+            <div class="grid2"><label class="fieldLabel">Nombre<input id="criteriaName" required minlength="3" maxlength="120" placeholder="Ej. Wells para TEP"></label><label class="fieldLabel">Especialidad<input id="criteriaTopic" required minlength="3" maxlength="100" placeholder="Neumología"></label></div>
+            <div class="grid2"><label class="fieldLabel">Icono<input id="criteriaIcon" maxlength="8" placeholder="✚"></label><label class="fieldLabel">Descripción breve<input id="criteriaNote" required minlength="10" maxlength="300" placeholder="Qué aprenderá el alumno al jugar"></label></div>
+            <label class="fieldLabel">Hallazgos y distractores (JSON)<textarea id="criteriaItems" rows="13" required spellcheck="false" placeholder='[{"text":"Hallazgo que pertenece","belongs":true,"value":1},{"text":"Distractor","belongs":false,"value":0}]'></textarea><small class="muted">Entre 6 y 30 tarjetas. <code>text</code> y <code>belongs</code> son obligatorios. <code>value</code> solo se usa si este criterio puntúa.</small></label>
+            <label class="fieldLabel">Puntuación e interpretación (JSON opcional)<textarea id="criteriaScoring" rows="4" spellcheck="false" placeholder='{"range":"0 a 5","interpretation":"0–1 bajo riesgo · 2–3 intermedio · ≥4 alto riesgo"}'></textarea><small class="muted">Déjalo vacío en criterios diagnósticos que no tengan una suma única.</small></label>
+            <label class="arcadePublish"><input id="criteriaPublished" type="checkbox"> Publicado para los alumnos</label>
+            <div class="actions"><button id="criteriaExample" type="button" class="secondary">Cargar ejemplo</button><button id="criteriaPreview" type="button" class="secondary">Validar y previsualizar</button><button id="criteriaSave" type="submit" class="primary">Guardar criterio</button><button id="criteriaCancel" type="button" class="ghost">Cancelar edición</button></div>
+          </form><div id="criteriaPreviewBox" class="cardBox" hidden></div>
+        </div>
+        <h2>Contenido de Criteria Rush</h2><p id="criteriaCount" class="muted"></p><div id="criteriaList"></div>
       </div>
     </section>
     <section id="dashboardView" class="view">
@@ -293,6 +316,7 @@
 <link rel="stylesheet" href="arcade_manager.css?v=5.1.26">
 <script src="arcade_manager.js?v=5.1.26"></script>
 <script src="classification_arcade_manager.js?v=5.1.26"></script>
+<script src="criteria_rush_manager.js?v=5.1.40"></script>
 <style>
 #classesJson{width:100%;min-height:360px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
 #classesPreviewBox{overflow-x:auto;margin-top:18px}

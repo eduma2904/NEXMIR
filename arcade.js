@@ -1,7 +1,7 @@
 /* Arcade is separate from attempts, XP, streaks and Free/Pro quotas. */
 (() => {
  'use strict';
- let frame=null, rows=[], definitions=[], activeGame=null, request=0;
+ let frame=null, rows=[], definitions=[], rushCriteria=[], activeGame=null, request=0;
  async function imageUrls(items){
    const paths=[...new Set(items.flatMap(x=>[x.answer_image_path,x.clue_image_path]).filter(Boolean))];
    if(!paths.length)return items;
@@ -84,6 +84,9 @@
    if(state.view!=='arcade'||!state.user||activeGame!=='clasificaciones'
      ||!/^classification:[a-z][a-z0-9_-]{2,39}:[0-9]{1,3}$/.test(sourceId))return;
    openReport({id:sourceId,clue:title+' · '+prompt,classification:true});
+ },openCriteriaRush(sourceId,title,prompt){
+   if(state.view!=='arcade'||!state.user||activeGame!=='criteria_rush'||!/^criteria-rush:[a-z0-9_-]{2,80}:[0-9]{1,3}$/.test(sourceId))return;
+   openReport({id:sourceId,clue:title+' · '+prompt,classification:true});
  }};
  function openReport(row){
    reportQuestion=row;reportForm.reset();
@@ -126,7 +129,7 @@
    finally{button.disabled=false}
  };
  function openClassificationSuggestion(){
-   if(state.view!=='arcade'||!state.user||activeGame!=='clasificaciones')return false;
+   if(state.view!=='arcade'||!state.user||!['clasificaciones','criteria_rush'].includes(activeGame))return false;
    suggestForm.reset();document.getElementById('arcadeSuggestMessage').textContent='';
    (expanded?document.getElementById('arcadePlayer'):document.body).appendChild(suggestDialog);
    if(!suggestDialog.open)suggestDialog.showModal();
@@ -141,26 +144,27 @@
    window.NexmirArcadeReports.openClassification(sourceId,title,prompt);return true;
  }
  window.NexmirArcadeActions={
-   exit(){if(state.view!=='arcade'||activeGame!=='clasificaciones')return false;home();return true},
+   exit(){if(state.view!=='arcade'||!activeGame)return false;home();return true},
    suggest:openClassificationSuggestion,
    'classification-report':openClassificationReport
  };
  const observer=new MutationObserver(()=>send('nexmir:arcade-theme',theme()));
  observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-palette','data-theme-mode']});
- function clean(){exitExpanded();reportDialog.close();suggestDialog.close();reportQuestion=null;request++;frame=null;rows=[];definitions=[];activeGame=null;root()?.replaceChildren()}
+ function clean(){exitExpanded();reportDialog.close();suggestDialog.close();reportQuestion=null;request++;frame=null;rows=[];definitions=[];rushCriteria=[];activeGame=null;root()?.replaceChildren()}
  window.addEventListener('nexmir:signout',clean);
  function home(){
    exitExpanded();reportDialog.close();reportQuestion=null;
-   request++;frame=null;rows=[];definitions=[];activeGame=null;
-   root().innerHTML='<div class="section-head"><div><span class="chip">NEXMIR Arcade</span><h2>Repasa jugando</h2><p class="muted">Perlas clínicas y memoria activa, una partida a la vez.</p></div></div><div class="grid cols-3"><article class="card arcade-game"><div class="type-icon" aria-hidden="true">✦</div><span class="chip">Ahorcado médico</span><h3>Código Vital</h3><p class="muted">Descubre el término a partir de una pista clínica. Elige especialidad y repasa diagnósticos, pruebas, tratamientos y criterios.</p><p class="muted small">6 errores por caso · Explicación al terminar</p><button class="btn primary" id="arcadePlay">Jugar a Código Vital</button></article><article class="card arcade-game"><div class="type-icon" aria-hidden="true">▦</div><span class="chip">Memoria clínica</span><h3>Clasificaciones MIR</h3><p class="muted">Resuelve casos de Apgar, CURB-65, Hinchey, Forrest, Garden y más. Puntúa cada criterio o elige el grado sin pistas que revelen la tabla.</p><p class="muted small">Repaso completo al terminar · 13 clasificaciones incluidas</p><button class="btn primary" id="arcadePlayClassifications">Jugar a clasificaciones</button></article></div><p class="muted small">Arcade está disponible para Free y Pro. Sus partidas no consumen banqueo ni suman XP, dominio o racha de estudio.</p>';
+   request++;frame=null;rows=[];definitions=[];rushCriteria=[];activeGame=null;
+   root().innerHTML='<div class="section-head"><div><span class="chip">NEXMIR Arcade</span><h2>Repasa jugando</h2><p class="muted">Perlas clínicas y memoria activa, una partida a la vez.</p></div></div><div class="grid cols-3"><article class="card arcade-game"><div class="type-icon" aria-hidden="true">✦</div><span class="chip">Ahorcado médico</span><h3>Código Vital</h3><p class="muted">Descubre el término a partir de una pista clínica. Elige especialidad y repasa diagnósticos, pruebas, tratamientos y criterios.</p><p class="muted small">6 errores por caso · Explicación al terminar</p><button class="btn primary" id="arcadePlay">Jugar a Código Vital</button></article><article class="card arcade-game"><div class="type-icon" aria-hidden="true">▦</div><span class="chip">Memoria clínica</span><h3>Clasificaciones MIR</h3><p class="muted">Resuelve casos de Apgar, CURB-65, Hinchey, Forrest, Garden y más. Puntúa cada criterio o elige el grado sin pistas que revelen la tabla.</p><p class="muted small">Repaso completo al terminar · 13 clasificaciones incluidas</p><button class="btn primary" id="arcadePlayClassifications">Jugar a clasificaciones</button></article><article class="card arcade-game"><div class="type-icon" aria-hidden="true">⌁</div><span class="chip">Velocidad diagnóstica</span><h3>Criteria Rush</h3><p class="muted">Atrapa los hallazgos que pertenecen a un criterio clínico y rechaza distractores. Incluye puntajes cuando la escala los utiliza.</p><p class="muted small">Repaso tarjeta por tarjeta · criterios ampliables desde Admin</p><button class="btn primary" id="arcadePlayCriteriaRush">Jugar a Criteria Rush</button></article></div><p class="muted small">Arcade está disponible para Free y Pro. Sus partidas no consumen banqueo ni suman XP, dominio o racha de estudio.</p>';
    document.getElementById('arcadePlay').onclick=()=>play('codigo_vital');
    document.getElementById('arcadePlayClassifications').onclick=()=>play('clasificaciones');
+   document.getElementById('arcadePlayCriteriaRush').onclick=()=>play('criteria_rush');
  }
- function play(kind='codigo_vital'){return runPlanLoading(()=>loadGame(kind),kind==='clasificaciones'?'Cargando Clasificaciones MIR…':'Cargando Código Vital…')}
+ function play(kind='codigo_vital'){const label=kind==='clasificaciones'?'Cargando Clasificaciones MIR…':kind==='criteria_rush'?'Cargando Criteria Rush…':'Cargando Código Vital…';return runPlanLoading(()=>loadGame(kind),label)}
  async function loadGame(kind='codigo_vital'){
    const ticket=++request;activeGame=kind;frame=null;rows=[];definitions=[];
    root().innerHTML='<div id="arcadePlayer"><div class="section-head arcade-toolbar"><h2 id="arcadeGameTitle"></h2><div class="arcade-actions"><button class="btn" id="arcadeBack">← Juegos</button><button class="btn primary arcade-expand" id="arcadeExpand" aria-label="Ampliar a pantalla completa" aria-pressed="false" title="Ampliar a pantalla completa" disabled><span aria-hidden="true">⛶</span> <span>Ampliar</span></button></div></div><p id="arcadeLoading" role="status" class="muted">Cargando juego…</p><div id="arcadeHost"></div></div>';
-   document.getElementById('arcadeGameTitle').textContent=kind==='clasificaciones'?'Clasificaciones MIR':'Código Vital';
+   document.getElementById('arcadeGameTitle').textContent=kind==='clasificaciones'?'Clasificaciones MIR':kind==='criteria_rush'?'Criteria Rush':'Código Vital';
    document.getElementById('arcadeBack').onclick=home;
    document.getElementById('arcadeExpand').onclick=toggleExpanded;
    try{
@@ -183,6 +187,11 @@
        document.getElementById('arcadeExpand').disabled=false;
        document.getElementById('arcadeLoading').textContent=definitions.length?'Selecciona una clasificación para practicar.':'Selecciona una clasificación. Los casos incluidos están disponibles aunque aún no se instale la ampliación del panel admin.';
        return;
+     }
+     if(kind==='criteria_rush'){
+       try{const {data,error}=await state.sb.from('arcade_criteria_rush').select('id,name,topic,icon,note,items,scoring,published').eq('published',true).order('name');if(error)throw error;rushCriteria=data||[]}catch(error){console.warn('Criteria Rush personalizado pendiente de instalación o conexión',error);rushCriteria=[]}
+       if(ticket!==request||state.view!=='arcade')return;
+       const host=document.getElementById('arcadeHost');frame=document.createElement('iframe');frame.title='Criteria Rush · Atrapa los criterios';frame.className='arcade-frame';frame.src='arcade/criteria-rush.html?v=5.1.40';host.appendChild(frame);document.getElementById('arcadeExpand').disabled=false;document.getElementById('arcadeLoading').textContent=rushCriteria.length?'Criterios extra cargados desde el panel Admin.':'Criterios base listos para jugar.';return;
      }
      const collected=[];
      for(let start=0;;start+=500){
@@ -214,6 +223,9 @@
    if(event.data?.type==='nexmir:arcade-classification-report'&&activeGame==='clasificaciones'){
      openClassificationReport(event.data);return;
    }
+   if(event.data?.type==='nexmir:criteria-rush-report'&&activeGame==='criteria_rush'){
+     const d=event.data||{};window.NexmirArcadeReports.openCriteriaRush(String(d.sourceId||''),String(d.title||'').slice(0,120),String(d.prompt||'').slice(0,1200));return;
+   }
    if(event.data?.type==='nexmir:arcade-report'){window.NexmirArcadeReports.open(event.data.game,event.data.questionId);return}
    if(event.data?.type==='nexmir:arcade-ready'){
      if(activeGame==='clasificaciones'){
@@ -221,6 +233,9 @@
        send('nexmir:arcade-theme',theme());
        send('nexmir:arcade-fullscreen',{expanded});
        return;
+     }
+     if(activeGame==='criteria_rush'){
+       send('nexmir:arcade-criteria-init',{criteria:rushCriteria});send('nexmir:arcade-theme',theme());send('nexmir:arcade-fullscreen',{expanded});return;
      }
      const specialties=[...new Set([...RemnoteTaxonomy.subjects,...detectedSpecialties().map(x=>RemnoteTaxonomy.canonical(x)),...rows.map(x=>x.specialty)])].filter(x=>!RemnoteTaxonomy.unclassified(x)).sort((a,b)=>a.localeCompare(b,'es'));
      send('nexmir:arcade-init',{questions:rows,specialties,...theme()});
