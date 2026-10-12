@@ -62,10 +62,12 @@ declare
 begin
   if u is null or public.nexmir_plan_is_unlimited(u) then return new; end if;
 
-  if tg_table_name='user_question_attempts' and coalesce(new.mode,'')='bank' then
-    select count(*) into used from public.user_question_attempts
-      where user_id=u and mode='bank' and (answered_at at time zone 'America/Lima')::date=today_lima;
-    if used>=15 then raise exception 'Plan Free: alcanzaste el límite de 15 preguntas de banqueo de hoy.' using errcode='P0001'; end if;
+  if tg_table_name='user_question_attempts' then
+    if coalesce(new.mode,'')='bank' then
+      select count(*) into used from public.user_question_attempts
+        where user_id=u and mode='bank' and (answered_at at time zone 'America/Lima')::date=today_lima;
+      if used>=15 then raise exception 'Plan Free: alcanzaste el límite de 15 preguntas de banqueo de hoy.' using errcode='P0001'; end if;
+    end if;
   elsif tg_table_name='user_flashcard_reviews' then
     if tg_op='UPDATE' and old.last_reviewed_at is not null and (old.last_reviewed_at at time zone 'America/Lima')::date=today_lima then return new; end if;
     select count(*) into used from public.user_flashcard_reviews
