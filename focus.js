@@ -208,7 +208,7 @@
     const duration=opts.duration!==undefined?opts.duration:F.draftDuration;
     const subject=opts.subject!==undefined?opts.subject:($f('#focusSubject')?.value||'');
     const topic=opts.topic!==undefined?opts.topic:($f('#focusTopic')?.value||'');
-    const pm=personalMedian(),target=R.focusQuestionTarget(duration,pm.median,pm.count),pool=buildFocusPool(subject,topic,Math.max(target*2,target+10));
+    const pm=personalMedian(),target=R.focusQuestionTarget(duration,pm.median,pm.count),client=F.startClientId||uuid(),pool=shuffleSessionOptions(buildFocusPool(subject,topic,Math.max(target*2,target+10)),`focus:${client}`);
     if(!pool.length)return toast('No hay preguntas disponibles para este Focus');
     const finalTarget=Math.min(target,Math.max(1,pool.length));F.startClientId=client;const initial=masteryForFilter(subject,topic);
     const sessionState={poolKeys:pool.map(qKey),index:0,subject,topic,duration:duration||null,questionTarget:finalTarget,initialMastery:initial};

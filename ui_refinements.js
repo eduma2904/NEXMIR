@@ -1,3 +1,16 @@
+/* NEXMIR 5.1.46: registro local de errores de código para diagnóstico (no depende de la consola). */
+(()=>{
+  const KEY='nexmir_last_client_errors';
+  window.nexmirReportClientError=(error,where='')=>{
+    try{
+      const list=JSON.parse(sessionStorage.getItem(KEY)||'[]');
+      list.push({at:new Date().toISOString(),where,name:error?.name||'Error',message:String(error?.message||error).slice(0,300),stack:String(error?.stack||'').split('\n').slice(0,4).join(' | ').slice(0,500)});
+      sessionStorage.setItem(KEY,JSON.stringify(list.slice(-20)));
+    }catch{}
+  };
+  window.addEventListener('error',e=>window.nexmirReportClientError(e.error||e.message,'window.onerror'));
+  window.addEventListener('unhandledrejection',e=>window.nexmirReportClientError(e.reason,'unhandledrejection'));
+})();
 /* NEXMIR 5.1.1: shared loading and searchable Focus selectors. */
 (() => {
   const loadingTasks={
@@ -32,7 +45,7 @@
       if(pending)return;
       pending=true;
       try{return await runPlanLoading(()=>original.apply(this,args),label)}
-      catch(error){console.error(error);toast('No se pudo completar la operación. Inténtalo de nuevo.')}
+      catch(error){window.nexmirReportClientError?.(error,name);console.error('[NEXMIR]',name,error);const code=(error&&(error.name==='ReferenceError'||error.name==='TypeError'))?` (código ${name})`:'';const detail=error&&error.message&&!/is not defined|is not a function|undefined|null|Cannot read/i.test(error.message)?' '+error.message:'';toast('No se pudo completar la operación. Inténtalo de nuevo.'+detail+code)}
       finally{pending=false}
     };
   }
