@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXMIR Admin V5.1.38</title>
+  <title>NEXMIR Admin V5.1.39</title>
   <link rel="stylesheet" href="styles.css?v=5.1.5" />
   <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
   <link rel="stylesheet" href="../product_polish.css?v=5.1.5.2" />
-  <link rel="stylesheet" href="responsive_admin.css?v=5.1.38" />
+  <link rel="stylesheet" href="responsive_admin.css?v=5.1.39" />
   <link rel="stylesheet" href="content_hub.css?v=5.1.29" />
+  <link rel="stylesheet" href="plan_access.css?v=5.1.39" />
 </head>
 <body>
 <header class="topbar">
@@ -34,7 +35,7 @@
       <button class="nav" data-view="plans">◇ <span>Adquirir Pro</span></button>
     </div>
     <details class="advanced-imports"><summary>Herramientas de biblioteca</summary><button class="nav" data-view="questions">❓ <span>Todas las preguntas</span></button><button class="nav" data-view="content">▤ <span>Flashcards y teoría</span></button><button class="nav" data-view="simmanager">🗂 <span>Simulacros</span></button><button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
-    <div class="sideFoot">V5.1.38 · Administración</div>
+    <div class="sideFoot">V5.1.39 · Administración</div>
   </aside>
 
   <main class="main">
@@ -219,9 +220,10 @@
 
 
     <section id="usersView" class="view hidden">
-      <div class="pageHead"><div><div class="eyebrow">ACCESO</div><h1>Usuarios y planes</h1><p>Gestiona Free/Pro, roles y el dispositivo vinculado de cada cuenta.</p></div><div class="actions"><button id="usersRefresh" class="secondary">Actualizar</button></div></div>
-      <div class="cardBox"><div class="filters"><input id="usersSearch" type="search" placeholder="Buscar por nombre o correo…"><select id="usersPlan"><option value="all">Todos los planes</option><option value="free">Free</option><option value="pro">Pro</option></select><select id="usersRole"><option value="all">Todos los roles</option><option value="user">user</option><option value="moderator">moderator</option><option value="admin">admin</option></select></div></div>
-      <div class="tableWrap adminTableWrap"><table class="adminTable"><thead><tr><th>Usuario</th><th>Plan</th><th>Rol</th><th>Dispositivo</th><th>Objetivo MIR</th><th>Acciones</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+      <div class="pageHead"><div><div class="eyebrow">ACCESO</div><h1>Usuarios y planes</h1><p>Verifica el pago, activa Pro por 30 días calendario y renueva o quita el acceso. Si no renueva, el Pro se retira solo.</p></div><div class="actions"><button id="usersRefresh" class="secondary">Actualizar</button></div></div>
+      <div class="cardBox"><div class="filters"><input id="usersSearch" type="search" placeholder="Buscar por nombre o correo…"><select id="usersPlan"><option value="all">Todos los planes</option><option value="free">Free</option><option value="pro">Pro (todos)</option><option value="expiring">Por vencer o vencidos</option><option value="legacy">Pro sin fecha</option></select><select id="usersRole"><option value="all">Todos los roles</option><option value="user">user</option><option value="moderator">moderator</option><option value="admin">admin</option></select></div></div>
+      <div id="usersPlanSummary" aria-live="polite"></div>
+      <div class="tableWrap adminTableWrap"><table class="adminTable"><thead><tr><th>Usuario</th><th>Plan y vigencia</th><th>Rol</th><th>Dispositivo</th><th>Objetivo MIR</th><th>Acciones</th></tr></thead><tbody id="usersBody"></tbody></table></div>
       <div id="usersEmpty" class="empty hidden">No hay usuarios con esos filtros.</div>
     </section>
 
@@ -277,10 +279,10 @@
 <script src="simulation_manager.js?v=5.1.5"></script>
 <script src="bank_importer.js?v=5.1.5"></script>
 <script src="classification_manager.js?v=5.1.5"></script>
-<script src="question_quality.js?v=5.1.38"></script>
-<script src="question_manager_v2.js?v=5.1.38"></script>
+<script src="question_quality.js?v=5.1.39"></script>
+<script src="question_manager_v2.js?v=5.1.39"></script>
 <script src="users_manager.js?v=5.1.20"></script>
-<script src="plan_channels.js?v=5.1.38"></script>
+<script src="plan_channels.js?v=5.1.39"></script>
 <script src="content_reset.js?v=5.1.29"></script>
 <script src="question_reports.js?v=5.1.18"></script>
 <script src="suggestions_manager.js?v=5.1.5"></script>

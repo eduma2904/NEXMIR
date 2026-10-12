@@ -8,7 +8,7 @@
   state.studyPlan=null; state.battle=null; state.battleRooms=[]; state.battleHistory=[]; state.deviceBlocked=false; state.mySuggestions=[];
   viewNames.calendar='Plan de estudio';
 
-  function planName(){return planRules.normalizePlan(state.profile?.plan)}
+  function planName(){return planRules.effectivePlan(state.profile)}
   function unlimited(){return planRules.hasUnlimitedAccess(state.profile)}
   function localDay(d=new Date()){return planRules.localDay(d)}
   function todayAttempts(mode){const t=localDay();return state.attempts.filter(a=>localDay(new Date(a.answered_at))===t&&(!mode||a.mode===mode))}

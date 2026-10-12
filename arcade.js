@@ -17,12 +17,15 @@
  const root=()=>document.getElementById('view-arcade');
  const theme=()=>({palette:document.documentElement.dataset.palette||'blue',mode:document.documentElement.dataset.themeMode||'dark'});
  function send(type,extra={}){if(frame?.contentWindow)frame.contentWindow.postMessage({type,...extra},location.origin)}
+ function syncViewportHeight(){const h=window.visualViewport?.height||window.innerHeight;document.documentElement.style.setProperty('--mx-vvh',Math.round(h)+'px')}
+ function watchViewport(on){const vv=window.visualViewport;if(on){syncViewportHeight();vv?.addEventListener('resize',syncViewportHeight);window.addEventListener('resize',syncViewportHeight);window.addEventListener('orientationchange',syncViewportHeight)}else{vv?.removeEventListener('resize',syncViewportHeight);window.removeEventListener('resize',syncViewportHeight);window.removeEventListener('orientationchange',syncViewportHeight);document.documentElement.style.removeProperty('--mx-vvh')}}
  function setExpanded(value){
    const panel=document.getElementById('arcadePlayer');
    if(value===expanded||!panel)return;
    expanded=value;
    panel.classList.toggle('is-expanded',value);
    document.documentElement.classList.toggle('arcade-expanded',value);
+   watchViewport(value);
    const button=document.getElementById('arcadeExpand');
    button.innerHTML=value?'<span aria-hidden="true">×</span>':'<span aria-hidden="true">⛶</span> <span>Ampliar</span>';
    button.setAttribute('aria-label',value?'Salir de pantalla completa (Esc)':'Ampliar a pantalla completa');

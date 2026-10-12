@@ -15,3 +15,16 @@ html.arcade-expanded,html.arcade-expanded body{overflow:hidden!important}
 .arcade-report-dialog{max-width:min(520px,94vw)}
 .arcade-report-dialog h3{margin:0 0 10px}
 .arcade-report-dialog textarea{min-height:100px;resize:vertical}
+
+/* V5.1.39: pantalla ampliada del Arcade siempre por encima de barra superior, barra inferior, hojas y avisos. */
+html.arcade-expanded .app,html.arcade-expanded .main,html.arcade-expanded .view,html.arcade-expanded #view-arcade{
+  animation:none!important;transform:none!important;filter:none!important;opacity:1!important;perspective:none!important;
+  will-change:auto!important;contain:none!important;isolation:auto!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.arcade-expanded #mxBottomNav,html.arcade-expanded #mxSheet,html.arcade-expanded #mxSheetScrim,html.arcade-expanded #mxTop,
+html.arcade-expanded .topbar,html.arcade-expanded .mx-tip{visibility:hidden!important;pointer-events:none!important}
+#arcadePlayer.is-expanded{z-index:2147483000;height:100vh;height:100dvh;height:var(--mx-vvh,100dvh);overscroll-behavior:contain}
+#arcadePlayer.is-expanded .arcade-frame{display:block;width:100%;flex:1 1 auto;min-height:0}
+/* Inline (sin ampliar): el marco nunca debe quedar bajo la barra inferior. */
+@media(max-width:1080px){
+  body.mx-has-bottom-nav #view-arcade{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
+}

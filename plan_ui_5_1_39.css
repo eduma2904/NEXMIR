@@ -1,0 +1,71 @@
+/* NEXMIR V5.1.39 · Plan Pro: precio, ventana de compra, cuentas bancarias y CCI.
+   Todos los colores salen de los tokens del tema (--n-*), así se leen bien en modo claro y oscuro y con cualquier paleta. */
+.plan-dialog,.pro-upsell-dialog{
+  --pl-card:var(--n-card,var(--surface,#19273a));--pl-text:var(--n-text,var(--text,#edf4ff));--pl-border:var(--n-border,var(--line,#2e435d));--pl-primary:var(--n-primary,var(--primary,#3478ef));
+  --pl-soft:color-mix(in srgb,var(--pl-text) 6%,var(--pl-card));--pl-label:color-mix(in srgb,var(--pl-text) 74%,var(--pl-card));
+  width:min(820px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;
+  padding:20px;border:1px solid var(--pl-border);border-radius:20px;background:var(--pl-card);color:var(--pl-text);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.pro-upsell-dialog{width:min(520px,calc(100vw - 24px))}
+.plan-dialog::backdrop,.pro-upsell-dialog::backdrop{background:rgba(5,12,22,.62);backdrop-filter:blur(3px)}
+.plan-dialog .dialog-head,.pro-upsell-dialog .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.plan-dialog h3,.pro-upsell-dialog h3{margin:0;color:var(--pl-text)}
+.plan-dialog p,.plan-dialog li,.pro-upsell-dialog p{color:var(--pl-text)}
+.plan-dialog .icon-btn,.pro-upsell-dialog .icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--pl-border);background:var(--pl-soft);color:var(--pl-text);font-size:24px;line-height:1;cursor:pointer}
+.plan-dialog .chip,.pro-upsell-dialog .chip{background:color-mix(in srgb,var(--pl-primary) 14%,var(--pl-card))!important;color:var(--pl-text)!important;border:1px solid color-mix(in srgb,var(--pl-primary) 40%,var(--pl-border))!important}
+
+/* Precio */
+.plan-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:10px 0 14px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--n-primary,#3478ef) 40%,var(--n-border,#2e435d));border-radius:16px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--n-primary,#3478ef) 16%,var(--n-card,#19273a)),color-mix(in srgb,var(--n-primary,#3478ef) 6%,var(--n-card,#19273a)));color:var(--n-text,#edf4ff)}
+.plan-price-amount{display:inline-flex;align-items:baseline;gap:6px}
+.plan-price-amount strong{font-size:28px;line-height:1;font-weight:850;letter-spacing:-.01em;color:var(--n-text,#edf4ff);font-variant-numeric:tabular-nums}
+.plan-price-amount small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
+.plan-price-or{font-size:14px;font-weight:700;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
+.plan-price-term{flex-basis:100%;font-size:13px;font-weight:650;color:color-mix(in srgb,var(--n-text,#edf4ff) 82%,var(--n-card,#19273a))}
+.plan-comparison .plan-price{margin:8px 0 12px;padding:10px 12px}
+.plan-comparison .plan-price-amount strong{font-size:22px}
+.pro-plan-card{border-color:color-mix(in srgb,var(--n-primary,#3478ef) 60%,var(--n-border,#2e435d))!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--n-primary,#3478ef) 24%,transparent),var(--n-shadow,none)!important}
+.pro-upsell-dialog .plan-price{margin:12px 0}
+
+/* Pasos */
+.plan-steps{counter-reset:plan;list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}
+.plan-steps li{counter-increment:plan;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;line-height:1.45;font-size:14.5px}
+.plan-steps li::before{content:counter(plan);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--n-primary,#3478ef) 68%,#000);color:#fff;font-weight:800;font-size:14px}
+.plan-renew-note{margin:0 0 14px;padding:10px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--n-text,#edf4ff) 35%,var(--n-border,#2e435d));background:color-mix(in srgb,var(--n-text,#edf4ff) 5%,var(--n-card,#19273a));font-size:13.5px}
+
+/* Cuentas bancarias y CCI (antes: texto claro sobre fondo celeste claro fijo) */
+.bank-channel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.bank-channel-card{min-width:0;display:grid;gap:10px;padding:14px;border:1px solid var(--n-border,#2e435d);border-radius:16px;background:var(--n-card,#19273a);color:var(--n-text,#edf4ff)}
+.bank-channel-head h4{margin:8px 0 2px;font-size:17px;color:var(--n-text,#edf4ff)}
+.bank-channel-note{margin:0;font-size:13px;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
+.bank-channel-amount{margin:8px 0 0;font-size:14px;font-weight:650;color:var(--n-text,#edf4ff)}
+.bank-channel-amount strong{font-size:16px}
+.bank-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:11px 12px;border:1px solid var(--n-border,#2e435d);border-radius:12px;
+  background:color-mix(in srgb,var(--n-text,#edf4ff) 7%,var(--n-card,#19273a));color:var(--n-text,#edf4ff)}
+.bank-detail .bank-detail-label,.bank-detail span{grid-column:1/-1;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
+.bank-detail .bank-detail-value,.bank-detail strong{min-width:0;font-size:16px;font-weight:750;letter-spacing:.02em;color:var(--n-text,#edf4ff);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.bank-copy{min-height:44px!important;padding:8px 14px!important;border:1px solid color-mix(in srgb,var(--n-primary,#3478ef) 55%,var(--n-border,#2e435d))!important;border-radius:10px!important;
+  background:color-mix(in srgb,var(--n-primary,#3478ef) 14%,var(--n-card,#19273a))!important;color:var(--n-text,#edf4ff)!important;font-weight:700;cursor:pointer}
+.bank-copy:hover{background:color-mix(in srgb,var(--n-primary,#3478ef) 24%,var(--n-card,#19273a))!important}
+.bank-copy:focus-visible{outline:3px solid var(--n-primary,#3478ef);outline-offset:2px}
+.bank-copy.is-copied{border-color:var(--green,#2ecc8a)!important;background:color-mix(in srgb,var(--green,#2ecc8a) 22%,var(--n-card,#19273a))!important}
+.plan-channel-list{display:grid;gap:8px;margin-top:6px}
+.plan-channel-list .btn{min-height:46px}
+.plan-channel-list small{color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
+
+/* Vigencia en el perfil */
+.plan-expiry{margin:10px 0 0;padding:10px 12px;border-radius:12px;border:1px solid var(--n-border,#2e435d);background:color-mix(in srgb,var(--n-primary,#3478ef) 10%,var(--n-card,#19273a));color:var(--n-text,#edf4ff);font-size:14px}
+.plan-expiry.is-soon{border-color:var(--amber,#f5b942);background:color-mix(in srgb,var(--amber,#f5b942) 20%,var(--n-card,#19273a))}
+
+@media(max-width:720px){
+  .plan-dialog,.pro-upsell-dialog{padding:16px;border-radius:16px}
+  .bank-channel-grid{grid-template-columns:1fr}
+  .plan-price-amount strong{font-size:25px}
+}
+@media(max-width:420px){
+  .bank-detail{grid-template-columns:1fr}
+  .bank-copy{width:100%}
+}
+@media(max-width:760px){
+  /* en móvil la ventana ocupa la pantalla completa y respeta las áreas seguras */
+  .plan-dialog{inset:0;margin:0;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0;padding:16px 16px max(20px,env(safe-area-inset-bottom))}
+}

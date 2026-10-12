@@ -109,7 +109,7 @@
   window.addEventListener('nexmir:signout',()=>{clearInterval(F.tick);F.tick=null;F.session=null;F.pool=[];state.focusActiveSession=null;focusLoadUser=null;focusLoadPromise=null;focusLoadPending=false;F.ready=false;window.NEXMIR_FOCUS_BACKEND_READY=false;window.nexmirFocusReadyPromise=null});
 
   function focusFeatureFlags(){
-    const pro=['admin','moderator'].includes(state.profile?.role)||String(state.profile?.plan||'free').toLowerCase()==='pro';
+    const pro=window.NexmirPlanRules?NexmirPlanRules.hasUnlimitedAccess(state.profile):(['admin','moderator'].includes(state.profile?.role)||String(state.profile?.plan||'free').toLowerCase()==='pro');
     return {focus_basic:true,advanced_statistics:pro,advanced_adaptation:pro,intelligent_recommendations:pro,advanced_history:pro,advanced_personalization:pro};
   }
   window.nexmirFocusFeatureFlags=focusFeatureFlags;

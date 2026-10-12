@@ -10,7 +10,19 @@
   });
 
   function normalizePlan(value){return String(value||'free').trim().toLowerCase()==='pro'?'pro':'free'}
-  function hasUnlimitedAccess(profile={}){return ['admin','moderator'].includes(String(profile.role||'').toLowerCase())||normalizePlan(profile.plan)==='pro'}
+  // V5.1.39: Pro con vencimiento. Sin fecha (plan_expires_at nulo) se considera Pro vigente (activación manual antigua).
+  function isProActive(profile={},now=new Date()){
+    if(normalizePlan(profile?.plan)!=='pro')return false;
+    const raw=profile?.plan_expires_at;if(!raw)return true;
+    const end=new Date(raw).getTime();return Number.isFinite(end)?end>new Date(now).getTime():true;
+  }
+  function effectivePlan(profile={},now=new Date()){return isProActive(profile,now)?'pro':'free'}
+  function proDaysLeft(profile={},now=new Date()){
+    if(normalizePlan(profile?.plan)!=='pro'||!profile?.plan_expires_at)return null;
+    const end=new Date(profile.plan_expires_at).getTime();if(!Number.isFinite(end))return null;
+    return Math.max(0,Math.ceil((end-new Date(now).getTime())/86400000));
+  }
+  function hasUnlimitedAccess(profile={}){return ['admin','moderator'].includes(String(profile?.role||'').toLowerCase())||isProActive(profile)}
   function localDay(value=new Date()){
     const d=value instanceof Date?value:new Date(value);
     const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).map(p=>[p.type,p.value]));
@@ -40,5 +52,5 @@
   }
   function sanitizeBattleCode(value){return String(value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
   function battleInviteUrl(base,code){const url=new URL(base),clean=sanitizeBattleCode(code);url.search='';url.hash='';if(clean)url.searchParams.set('battle',clean);return url.toString()}
-  return Object.freeze({LIMITS,normalizePlan,hasUnlimitedAccess,localDay,usedToday,remaining,canStartSimulation,sanitizeBattleCode,battleInviteUrl});
+  return Object.freeze({LIMITS,normalizePlan,isProActive,effectivePlan,proDaysLeft,hasUnlimitedAccess,localDay,usedToday,remaining,canStartSimulation,sanitizeBattleCode,battleInviteUrl});
 });

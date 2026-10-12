@@ -63,3 +63,19 @@
 @media (prefers-reduced-motion:reduce){
   #mxSheet,.mx-tab,.mx-bar-ind,.mx-sheet-item{transition:none!important;animation:none!important}
 }
+
+/* V5.1.39 · Reglas de seguridad de capas: nada debe quedar tapado por la barra inferior en ningún dispositivo. */
+:root{--mx-nav-space:calc(84px + env(safe-area-inset-bottom,0px))}
+@media (max-width:1080px){
+  /* Espacio reservado fijo (antes lo pisaban reglas del dashboard como 'body:has(#dashboardView) .main'). */
+  body.mx-has-bottom-nav .main,body.mx-has-bottom-nav:has(#dashboardView) .main{padding-bottom:var(--mx-nav-space)!important}
+  html{scroll-padding-bottom:var(--mx-nav-space)}
+  /* Los elementos pegajosos al borde inferior suben por encima de la barra. */
+  body.mx-has-bottom-nav .bank-nav-actions:not(dialog *){bottom:var(--mx-nav-space)}
+  /* Los avisos y el botón de subir nunca se montan sobre la barra. */
+  body.mx-has-bottom-nav .toast,body.mx-has-bottom-nav .mx-tip,body.mx-has-bottom-nav #mxTop{bottom:var(--mx-nav-space)!important}
+}
+/* Pantallas bajas (móvil horizontal): barra compacta, reservar menos espacio. */
+@media (max-width:1080px) and (max-height:480px){
+  :root{--mx-nav-space:calc(58px + env(safe-area-inset-bottom,0px))}
+}

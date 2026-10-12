@@ -20,13 +20,13 @@ html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
 #mxRoute.on{opacity:1}
 
 /* Entrada de vistas, con dirección según el orden del menú */
-.view.active{animation:mx-view-in .42s var(--mx-ease) both}
+.view.active{animation:mx-view-in .42s var(--mx-ease) backwards}
 .view.active.mx-from-down{animation-name:mx-view-in-up}
 @keyframes mx-view-in{from{opacity:0;transform:translateX(18px) scale(.995)}to{opacity:1;transform:none}}
 @keyframes mx-view-in-up{from{opacity:0;transform:translateX(-18px) scale(.995)}to{opacity:1;transform:none}}
 
 /* Aparición escalonada de tarjetas y bloques */
-.view.active .mx-stagger{animation:mx-rise .55s var(--mx-ease) both;animation-delay:calc(var(--mx-i,0) * 45ms)}
+.view.active .mx-stagger{animation:mx-rise .55s var(--mx-ease) backwards;animation-delay:calc(var(--mx-i,0) * 45ms)}
 @keyframes mx-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .mx-reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--mx-ease),transform .55s var(--mx-ease)}
 .mx-reveal.mx-in{opacity:1;transform:none}
@@ -139,3 +139,6 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px color-mix(in srgb,v
   .mx-reveal{opacity:1;transform:none;transition:none}
   html{scroll-behavior:auto}
 }
+
+/* V5.1.39: con fill-mode 'both' la vista conservaba opacity/transform al terminar la animación y quedaba como contexto de apilamiento permanente,
+   lo que dejaba los paneles fijos (Arcade ampliado, etc.) por debajo de la barra inferior. 'backwards' devuelve el estado normal al terminar. */
