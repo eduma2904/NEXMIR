@@ -322,7 +322,7 @@
     const eventId=F.answerEventId||uuid();F.answerEventId=eventId;saveCheckpoint();const ctx=reviewContext(q);
     const slow=setTimeout(()=>{const button=$f('.focus-session-actions .btn.primary');if(F.processing&&button)button.textContent='Esperando conexión…'},3000);
     if(heartbeatPending)await heartbeatPending;
-    const {data,error}=await focusRpc('nexmir_submit_answer',{p_source_type:q._source||'questions',p_source_id:q.id,p_selected_index:F.selected,p_mode:'focus',p_active_seconds:Math.max(0,Math.round(F.questionActiveSeconds)),p_focus_session_id:F.session.id,p_client_event_id:eventId,p_review_context:ctx});clearTimeout(slow);
+    const {data,error}=await focusRpc('nexmir_submit_answer',{p_source_type:q._source||'questions',p_source_id:q.id,p_selected_index:originalOptionIndex(q,F.selected),p_mode:'focus',p_active_seconds:Math.max(0,Math.round(F.questionActiveSeconds)),p_focus_session_id:F.session.id,p_client_event_id:eventId,p_review_context:ctx});clearTimeout(slow);
     F.processing=false;
     if(error){toast('No se pudo guardar la respuesta: '+error.message);renderFocusQuestion();return}
     F.answerEventId=null;const a=data?.attempt,l=data?.learning,alreadyRecorded=a&&(state.attempts||[]).some(x=>x.client_event_id===a.client_event_id);if(a)state.attempts=[a,...(state.attempts||[]).filter(x=>x.client_event_id!==a.client_event_id)];if(l)replaceLearning(l);
@@ -428,7 +428,7 @@
     window.persistQuestionAttempt=async function(q,selectedIndex,_isCorrect,mode){
       if(!F.ready||window.NEXMIR_FOCUS_BACKEND_READY!==true)return oldPersist(q,selectedIndex,_isCorrect,mode);
       if(!q)return null;const k=qKey(q),event=F.bankEvents[k]||uuid();F.bankEvents[k]=event;
-      const {data,error}=await focusRpc('nexmir_submit_answer',{p_source_type:q._source||'questions',p_source_id:q.id,p_selected_index:selectedIndex,p_mode:mode||'bank',p_active_seconds:bankActiveFor(q),p_focus_session_id:null,p_client_event_id:event,p_review_context:reviewContext(q)});
+      const {data,error}=await focusRpc('nexmir_submit_answer',{p_source_type:q._source||'questions',p_source_id:q.id,p_selected_index:originalOptionIndex(q,selectedIndex),p_mode:mode||'bank',p_active_seconds:bankActiveFor(q),p_focus_session_id:null,p_client_event_id:event,p_review_context:reviewContext(q)});
       if(error){console.error('attempt save',error);toast('No se pudo guardar el intento: '+error.message);return null}
       delete F.bankEvents[k];const a=data?.attempt,l=data?.learning;if(a)state.attempts=[a,...state.attempts.filter(x=>x.client_event_id!==a.client_event_id)];if(l)replaceLearning(l);if(data?.streak)state.studyStreak={...(state.studyStreak||{}),...data.streak};
       if(a?.pace_warning_triggered)showPaceWarning(false);else if(a?.is_valid===false&&a.invalid_reason==='pace')showPaceWarning(true);syncMissionsSoon();return a;

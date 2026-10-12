@@ -134,7 +134,7 @@
 
   function startSpecialtyDiagnostic(encoded,returnView='study'){
     const sp=decodeURIComponent(encoded),pool=buildDiagnosticPool(sp);if(!pool.length)return toast('Esta especialidad aún no tiene preguntas de opción múltiple clasificadas por tema');
-    state.diagnostic={active:true,pool,index:0,answers:{},specialty:sp,returnView,saving:false,startedAt:new Date().toISOString()};showDiagnosticQuestion();
+    const startedAt=new Date().toISOString();state.diagnostic={active:true,pool:shuffleSessionOptions(pool,`diagnostic:${newOptionSeed()}`),index:0,answers:{},specialty:sp,returnView,saving:false,startedAt};showDiagnosticQuestion();
   }
   function diagnosticKey(q){return`${q._source||'questions'}:${q.id}`}
   let diagnosticSelection=null;
