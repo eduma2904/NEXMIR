@@ -1,0 +1,106 @@
+/* V5.1.47 · Focus: compact chrome and a larger reading surface. */
+
+/* Give the actual study material more visual weight. */
+.focus-session-dialog .focus-question-area{
+  padding-top:18px;
+  padding-bottom:20px;
+}
+.focus-session-dialog .focus-counter{margin-bottom:9px;font-size:13px}
+.focus-session-dialog .highlight-toolbar{margin-bottom:12px}
+.focus-session-dialog .focus-stem{
+  font-size:calc(23px * var(--question-text-scale,1))!important;
+  line-height:1.48!important;
+  margin:0 0 18px;
+}
+.focus-session-dialog .focus-options{gap:11px}
+.focus-session-dialog .focus-option{
+  min-height:64px;
+  padding:14px 16px;
+}
+.focus-session-dialog .focus-option>b{
+  font-size:calc(18px * var(--question-text-scale,1))!important;
+  line-height:1.48!important;
+}
+.focus-session-dialog .focus-session-actions{padding-block:10px}
+
+/* On desktop all secondary controls share one compact toolbar instead of
+   creating three tall header rows. */
+@media(min-width:901px){
+  .focus-session-dialog .focus-session-top{
+    display:grid!important;
+    grid-template-columns:minmax(360px,1fr) auto auto auto;
+    grid-template-areas:"heading meta help finish"!important;
+    align-items:center!important;
+    gap:10px 14px!important;
+    min-height:0;
+    padding:11px 22px!important;
+  }
+  .focus-session-dialog .focus-session-heading{
+    grid-area:heading;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    grid-template-areas:"chip title" "path path";
+    align-items:center;
+    gap:3px 10px;
+  }
+  .focus-session-dialog .focus-session-heading>.chip{grid-area:chip}
+  .focus-session-dialog .focus-session-heading>h2{
+    grid-area:title;
+    margin:0;
+    font-size:clamp(20px,1.45vw,26px);
+    line-height:1.15;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .focus-session-dialog .focus-session-heading>.path{
+    grid-area:path;
+    margin:0;
+    font-size:12px;
+    line-height:1.25;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .focus-session-dialog .focus-session-meta{
+    grid-area:meta!important;
+    width:auto!important;
+    min-width:0;
+    flex-wrap:nowrap!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    white-space:nowrap;
+  }
+  .focus-session-dialog .focus-session-meta>strong{font-size:21px}
+  .focus-session-dialog .focus-session-meta .question-text-controls{margin-left:4px}
+  .focus-session-dialog .tutorial-dialog-help.in-header{
+    grid-area:help!important;
+    justify-self:end!important;
+    min-height:38px!important;
+    padding:6px 9px!important;
+  }
+  .focus-session-dialog .focus-finish-btn{
+    grid-area:finish!important;
+    align-self:center!important;
+    min-height:40px;
+  }
+  .focus-session-dialog .focus-progress{padding:6px 22px}
+}
+
+/* Keep the mobile header easy to scan while preserving most of the viewport. */
+@media(max-width:900px){
+  .focus-session-dialog .focus-session-top{padding-block:10px!important}
+  .focus-session-dialog .focus-progress{padding-block:6px!important}
+  .focus-session-dialog .focus-question-area{padding-top:14px!important}
+}
+
+@media(max-width:600px){
+  .focus-session-dialog .focus-stem{
+    font-size:calc(19px * var(--question-text-scale,1))!important;
+    line-height:1.45!important;
+  }
+  .focus-session-dialog .focus-option{min-height:58px;padding:12px}
+  .focus-session-dialog .focus-option>b{
+    font-size:calc(16.5px * var(--question-text-scale,1))!important;
+  }
+}
