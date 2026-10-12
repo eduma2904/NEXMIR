@@ -43,6 +43,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .plan-channel-admin-actions label{display:flex;align-items:center;gap:8px;margin:0}
 .plan-channel-admin-actions label input[type="checkbox"]{width:auto}
 .plan-channel-admin-actions label input[type="number"]{max-width:84px}
+.pcBankFields[hidden],.pcTargetWrap[hidden]{display:none!important}
 @media(max-width:640px){.plan-channel-admin-actions{align-items:stretch}.plan-channel-admin-actions button{flex:1}.plan-channel-admin .grid2{display:grid;grid-template-columns:1fr}}
 .qmPager{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:14px 0;flex-wrap:wrap}
 .qmTable .qmIssue{overflow-wrap:anywhere;line-height:1.4}

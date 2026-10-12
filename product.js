@@ -58,7 +58,7 @@
   const oldStartMirSimulation=startMirSimulation;
   startMirSimulation=function(n,config=null){if(unlimited())return oldStartMirSimulation(n,config);if(Number(n)===15&&(!config||!config.reserveCount)){if(remaining('miniSimulations')<=0)return window.showProUpsell('Ya utilizaste el Mini-MIR de hoy.');return oldStartMirSimulation(15,config)}return window.showProUpsell('Los simulacros completos y personalizados están disponibles con Pro. En Free puedes hacer un Mini-MIR diario.')};
   const oldRateCard=rateCard;
-  rateCard=async function(q){if(!unlimited()&&remaining('reviews')<=0){window.showProUpsell('Ya completaste tus 20 flashcards de hoy.');return}return oldRateCard(q)};
+  rateCard=async function(q){const card=state.review?.pool?.[state.review.index],previous=state.reviews.find(r=>r.content_id===card?.id),reviewedToday=previous?.last_reviewed_at&&localDay(new Date(previous.last_reviewed_at))===localDay();if(!unlimited()&&!reviewedToday&&remaining('reviews')<=0){window.showProUpsell('Ya completaste tus 20 flashcards de hoy.');return}return oldRateCard(q)};
 
   // gamification derived from real activity
   function activeDates(){const ds=new Set();state.attempts.forEach(a=>a.answered_at&&ds.add(localDay(new Date(a.answered_at))));state.reviews.forEach(r=>r.last_reviewed_at&&ds.add(localDay(new Date(r.last_reviewed_at))));state.simulations.forEach(s=>s.finished_at&&ds.add(localDay(new Date(s.finished_at))));return ds}

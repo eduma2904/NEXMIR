@@ -24,7 +24,7 @@
       st.rows=[...(formal||[]).map(q=>({...q,_source:'questions'})),...remnote];
       st.stats=new Map((summary.data||[]).map(x=>[`${x.source_type}:${x.source_id}`,x]));
       st.flags=Q.inspect(st.rows,reports.data||[]);
-      $('#qmEditorialStatus').textContent=summary.error?'Para ordenar por fallos de usuarios, ejecuta supabase/MEJORAS_ESTUDIO_PLANES_5_1_36.sql.':'Prioridad basada en respuestas válidas de al menos 3 usuarios y 5 intentos.';
+      $('#qmEditorialStatus').textContent=summary.error?'Para ordenar por fallos de usuarios, ejecuta supabase/MEJORAS_ESTUDIO_PLANES_5_1_37.sql.':'Prioridad basada en respuestas válidas de al menos 3 usuarios y 5 intentos.';
       fillFilters();st.page=0;render();
     }catch(error){body.innerHTML=`<tr><td colspan="9">${safe(error.message)}</td></tr>`}
   }

@@ -20,3 +20,5 @@
 @keyframes mx-tip-out{to{opacity:0;transform:translateY(14px)}}
 @media (max-width:1080px){body.mx-has-bottom-nav .mx-tip{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:12px;left:12px;width:auto}}
 @media (prefers-reduced-motion:reduce){.mx-tip,.mx-tip.out{animation:none!important}}
+
+#cardDialogBody .flash-study-layout{touch-action:pan-y}

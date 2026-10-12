@@ -157,9 +157,10 @@
   function closeDiagnostic(){if(confirm('¿Salir del diagnóstico? Las respuestas aún no se han guardado.')){$('#questionDialog').close();state.diagnostic.active=false}}
   async function finishDiagnostic(){
     const d=state.diagnostic;if(d.saving)return;d.saving=true;const btn=$('#questionDialogBody .btn.primary');if(btn){btn.disabled=true;btn.textContent='Guardando…'}
-    const answeredAt=new Date().toISOString(),rows=d.pool.map(q=>({...attemptPayload(q,d.answers[diagnosticKey(q)],+d.answers[diagnosticKey(q)]===+q.correct_index,'diagnostic'),answered_at:answeredAt,...(window.NEXMIR_FOCUS_BACKEND_READY===true&&typeof window.nexmirQuestionActiveSeconds==='function'?{question_active_time_seconds:window.nexmirQuestionActiveSeconds(q,'diagnostic')}: {})}));
+    try{const answeredAt=new Date().toISOString(),rows=d.pool.map(q=>({...attemptPayload(q,d.answers[diagnosticKey(q)],+d.answers[diagnosticKey(q)]===+q.correct_index,'diagnostic'),answered_at:answeredAt,...(window.NEXMIR_FOCUS_BACKEND_READY===true&&typeof window.nexmirQuestionActiveSeconds==='function'?{question_active_time_seconds:window.nexmirQuestionActiveSeconds(q,'diagnostic')}: {})}));
     const {data,error}=await state.sb.from('user_question_attempts').insert(rows).select('*');if(error){d.saving=false;toast('No se pudo guardar el diagnóstico: '+error.message);showDiagnosticQuestion();return}
     state.attempts=[...(data||rows),...state.attempts];d.saving=false;d.active=false;renderDiagnosticResults(d);
+    }catch(error){toast('No se pudo guardar el diagnóstico: '+(error.message||'Error de conexión'));showDiagnosticQuestion()}finally{d.saving=false;if(btn)btn.disabled=false}
   }
   function currentDiagnosticResults(d){const by=new Map();for(const q of d.pool){const t=q.topic||'General',v=by.get(t)||{topic:t,n:0,ok:0};v.n++;if(+d.answers[diagnosticKey(q)]===+q.correct_index)v.ok++;by.set(t,v)}return[...by.values()].map(v=>({...v,acc:Math.round(100*v.ok/v.n)})).sort((a,b)=>a.acc-b.acc||a.topic.localeCompare(b.topic,'es'))}
   function renderDiagnosticResults(d){
