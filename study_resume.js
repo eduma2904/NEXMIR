@@ -19,12 +19,18 @@
     catch{if(!window.nexmirStudySaveFailed)toast('No se pudo guardar en este navegador. Mantén esta pestaña abierta hasta enviar las respuestas.');window.nexmirStudySaveFailed=true;return false}
   }
   let restoring=false;
+  let restorePromise=null;
+  const resumeDialog=()=>document.getElementById('resumeLoadingDialog');
+  function openResumeLoading(){const d=resumeDialog();if(!d)return;d.querySelector('h3').textContent='Recuperando tu sesión…';d.querySelector('p').textContent='Restaurando tu actividad. No cierres esta ventana.';if(!d.open)d.showModal()}
+  function closeResumeLoading(){const d=resumeDialog();if(d?.open)d.close()}
   window.nexmirSaveStudy=save;
   window.nexmirClearStudyResume=()=>{try{localStorage.removeItem(key());localStorage.removeItem(`nexmir_focus_checkpoint:${state.user?.id}`)}catch{}};
   window.nexmirRestoreStudy=()=>{
     const saved=read();if(!saved||state.deviceBlocked)return false;
+    if(restorePromise)return true;
     restoring=true;
-    (async()=>{
+    openResumeLoading();
+    restorePromise=(async()=>{
       await route(Object.hasOwn(viewNames,saved.view)?saved.view:'dashboard');
       if(saved.focusOpen){
         await window.nexmirFocusReadyPromise;
@@ -39,9 +45,10 @@
         else showQuestion();
       }
       if(saved.review){state.review={pool:saved.review.pool||[],index:Math.min(saved.review.index||0,Math.max(0,(saved.review.pool||[]).length-1)),revealed:!!saved.review.revealed};if(state.review.pool.length)showReviewCard()}
-    })().catch(error=>{console.error('Restaurar estudio',error);toast('No se pudo reabrir el estudio. Tu sesión Focus sigue disponible en Continuar.')}).finally(()=>{restoring=false;save()});
+    })().catch(error=>{console.error('Restaurar estudio',error);toast('No se pudo reabrir el estudio. Tu sesión Focus sigue disponible en Continuar.')}).finally(()=>{restoring=false;save();closeResumeLoading();restorePromise=null});
     return true;
   };
+  window.nexmirRestoreStudyReady=()=>restorePromise||Promise.resolve();
   const oldRoute=window.route;
   window.route=async function(...args){const result=await oldRoute.apply(this,args);if(!restoring)save();return result};
   const oldRenderBank=window.renderBank;

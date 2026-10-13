@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>NEXMIR V5.1.48</title>
+  <title>NEXMIR V5.1.49</title>
   <meta name="theme-color" content="#081525" />
   <link rel="stylesheet" href="styles.css?v=5.1.39" />
   <link rel="stylesheet" href="layout_refinements.css?v=5.1.39" />
@@ -113,6 +113,7 @@
 </div>
 
 <dialog id="planLoadingDialog" class="dialog plan-loading" aria-labelledby="planLoadingTitle"><div class="loading-spinner" aria-hidden="true"></div><h3 id="planLoadingTitle" role="status" aria-live="polite">Cargando…</h3><p class="muted">Preparando tu plan de estudio</p></dialog>
+<dialog id="resumeLoadingDialog" class="dialog plan-loading" aria-labelledby="resumeLoadingTitle"><div class="loading-spinner" aria-hidden="true"></div><h3 id="resumeLoadingTitle" role="status" aria-live="polite">Recuperando tu sesión…</h3><p class="muted">Restaurando tu actividad. No cierres esta ventana.</p></dialog>
 <dialog id="resetPasswordDialog" class="dialog"><div class="dialog-head"><h3>Nueva contraseña</h3><button data-close="resetPasswordDialog" class="icon-btn">×</button></div><p class="muted">Escribe una nueva contraseña para tu cuenta.</p><label for="newPassword">Nueva contraseña</label><div class="password-field"><input id="newPassword" type="password" autocomplete="new-password" minlength="8"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button></div><div class="dialog-actions"><button data-close="resetPasswordDialog" class="btn">Cancelar</button><button id="saveNewPasswordBtn" class="btn primary">Actualizar contraseña</button></div></dialog>
 <dialog id="deviceDialog" class="dialog"><div class="dialog-head"><h3>Un dispositivo por cuenta</h3></div><p id="deviceMessage" class="muted">Esta cuenta ya está vinculada a otro dispositivo.</p><div class="dialog-actions"><button id="deviceLogoutBtn" class="btn">Cerrar sesión</button><button id="deviceReplaceBtn" class="btn primary">Usar este dispositivo</button></div></dialog>
 
@@ -126,11 +127,12 @@
 <dialog id="studyTimerDialog" class="dialog"><div class="dialog-head"><div><span class="chip">Cronómetro de estudio</span><h3>Tu tiempo de estudio</h3></div><button class="icon-btn" type="button" onclick="document.getElementById('studyTimerDialog').close()">×</button></div><p class="timer-big" id="studyTimerBig">00:00:00</p><p class="muted">Cuenta solo cuando resuelves preguntas, flashcards/repasos o simulacros con esta pestaña visible.</p><div class="dialog-actions"><button class="btn" type="button" onclick="toggleStudyTimerManual()" id="studyTimerManualBtn">Pausar</button><button class="btn primary" type="button" onclick="document.getElementById('studyTimerDialog').close()">Listo</button></div></dialog>
 
 <script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
+<script>document.getElementById('resumeLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
 <script src="content_rules.js?v=5.1.39"></script>
 <script src="taxonomy.js?v=5.1.39"></script>
 <script src="session_manager.js?v=5.1.39"></script>
 <script src="bank_insights.js?v=5.1.39"></script>
-<script src="app.js?v=5.1.48"></script>
+<script src="app.js?v=5.1.49"></script>
 <script src="review_queue.js?v=5.1.39"></script>
 <script src="content_admin.js?v=5.1.39"></script>
 <script src="plan_rules.js?v=5.1.39"></script>
