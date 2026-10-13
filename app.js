@@ -54,6 +54,10 @@ async function enterSession(user,{session=null,fresh=false}={}){
     showApp({restoreStudy:false,announceReady:false});
     try{await loadAll()}catch(error){console.error('Sincronización inicial pendiente',error);toast('Abriste NEXMIR. No pudimos actualizar tus datos todavía; vuelve a cargar cuando recuperes conexión.');return}
     if(generation!==authGeneration||state.user?.id!==user.id||!window.NexmirSessions.active())return;
+    // El primer render ocurre antes de recibir el perfil; sincroniza ahora el acceso real.
+    const isAdmin=['admin','moderator'].includes(String(state.profile?.role||'').toLowerCase());
+    $('#adminLink')?.classList.toggle('hidden',!isAdmin);
+    $('#planPill').textContent=isAdmin?String(state.profile.role).replace(/^./,c=>c.toUpperCase()):state.profile?.plan||'Free';
     const restored=window.nexmirRestoreStudy?.();
     if(!restored)await route(state.view||'dashboard');
     window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}));
