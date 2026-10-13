@@ -118,15 +118,12 @@
    state.studyPath.sub=null;state.studyPath.kind='all';
    seg.insertAdjacentHTML('beforebegin','<div id="topicActions" class="topic-actions"></div>');
    renderTopicActions();
-   const subHead=$$('.section-head',body).find(h=>/Subtemas/.test(h.textContent));
-   if(subHead){
-    const grid=subHead.nextElementSibling;
-    subHead.insertAdjacentHTML('afterend','<p class="muted small" style="margin:-4px 0 10px">Toca un subtema para ver solo sus contenidos y estudiarlo.</p>');
-    grid?.querySelectorAll(':scope > .card').forEach(card=>{
-     const name=card.querySelector('strong')?.textContent||'General';
-     card.classList.add('sub-clickable');card.dataset.sub=name;card.setAttribute('role','button');card.tabIndex=0;
+   const subtopics=body.querySelector('.topic-subtopics');
+   if(subtopics){
+    subtopics.querySelectorAll('.subtopic-option').forEach(card=>{
+     const name=card.dataset.sub||card.querySelector('strong')?.textContent||'General';
+     card.classList.add('sub-clickable');card.dataset.sub=name;
      card.addEventListener('click',()=>window.topicPickSub(name));
-     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.topicPickSub(name)}});
     });
    }
   }catch(e){console.warn('tema',e)}
