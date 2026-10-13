@@ -259,11 +259,12 @@ matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if(
 let current,used=[],errors=0,streak=0,finished=false,won=false,last=-1,lastGuess='',specialty='Neumología';
 const scene=$('scene'),shell=$('shell');
 
-function specialtyHasCases(name){return questions.some(q=>q.s===name)}
+function specialtyHasCases(name){return name==='__mix__'||questions.some(q=>q.s===name)}
 function renderSpecialties(filter=''){
  const query=filter.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  $('specialty-grid').innerHTML='';
  const matches=SPECIALTIES.filter(name=>name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query));
+ if(!query){const mix=document.createElement('button');mix.type='button';mix.className='specialty-card';mix.innerHTML='✦ Mix de todas las especialidades<small>Preguntas mezcladas de todo NEXMIR</small>';mix.onclick=()=>chooseSpecialty('__mix__');$('specialty-grid').appendChild(mix)}
  if(!matches.length){$('specialty-grid').innerHTML='<p class="muted">No encontramos esa especialidad.</p>';return}
  for(const name of matches){
   const active=specialtyHasCases(name),button=document.createElement('button');
@@ -275,8 +276,8 @@ function renderSpecialties(filter=''){
 }
 function chooseSpecialty(name){
  if(!specialtyHasCases(name))return;
- specialty=name;$('selected-specialty').textContent=name;$('topic').value='all';
- $('topic').replaceChildren(new Option('Todas las categorías','all'),...[...new Set(questions.filter(q=>q.s===name).map(q=>q.c))].map(c=>new Option(c,c)));
+ specialty=name;$('selected-specialty').textContent=name==='__mix__'?'Mix de todas las especialidades':name;$('topic').value='all';
+ $('topic').replaceChildren(new Option('Todas las categorías','all'),...[...new Set(questions.filter(q=>name==='__mix__'||q.s===name).map(q=>q.c))].map(c=>new Option(c,c)));
  closeSpecialtyModal();init();
 }
 function openSpecialtyModal(){
@@ -289,7 +290,7 @@ function buildKeyboard(){
  for(const ch of LETTERS){const b=document.createElement('button');b.type='button';b.textContent=ch;b.dataset.l=ch;b.setAttribute('aria-label',`Letra ${ch}`);b.onclick=()=>guess(ch);kb.appendChild(b)}
 }
 function init(){
- const pool=questions.filter(q=>q.s===specialty&&($('topic').value==='all'||q.c===$('topic').value));
+ const pool=questions.filter(q=>(specialty==='__mix__'||q.s===specialty)&&($('topic').value==='all'||q.c===$('topic').value));
  if(!pool.length){if($('topic').value!=='all'){$('topic').value='all';return init()}return}
  let options=pool.map(q=>questions.indexOf(q)).filter(i=>i!==last);
  if(!options.length)options=pool.map(q=>questions.indexOf(q));

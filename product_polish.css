@@ -121,7 +121,7 @@ dialog[open]{animation:dialog-arrive var(--ui-enter) var(--ui-ease)}
 .flash-study-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,.92fr);gap:20px;align-items:stretch}
 .flash-prompt-panel,.flash-answer-panel,.flash-reveal-panel{border:1px solid var(--n-border);border-radius:16px;background:color-mix(in srgb,var(--n-card) 92%,var(--n-tint));padding:22px;min-width:0}
 .flash-panel-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:750;color:var(--n-primary);margin-bottom:12px}
-.flash-prompt-panel .flash-front{font-size:clamp(20px,2vw,27px);line-height:1.42;margin:0;min-height:150px;display:block}
+.flash-prompt-panel .flash-front{font-size:clamp(20px,2vw,27px);line-height:1.42;margin:0;min-height:150px;display:flex;align-items:center}
 .flash-answer-panel{display:flex;flex-direction:column}.flash-answer-panel .flash-back{font-size:18px;line-height:1.55;margin:0 0 18px;background:transparent!important;border:0!important;padding:0;box-shadow:none!important}
 .flash-reveal-panel{display:flex;flex-direction:column;justify-content:center;min-height:180px}.flash-reveal-panel p{margin:0 0 16px;color:var(--n-muted)}
 .rating-grid{margin-top:auto;gap:8px}.rating-grid button{display:grid;gap:3px;justify-items:center;align-content:center;min-height:92px;padding:12px 8px!important}.rating-grid strong{font-size:20px;line-height:1}.rating-grid span{font-weight:700}.rating-grid small{font-size:12px;font-weight:500;opacity:.9}.flash-shortcuts{text-align:center;margin:12px 0 0;color:var(--n-muted);font-size:12px}

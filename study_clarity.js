@@ -79,7 +79,7 @@
  function renderTopicActions(){
   const box=$('#topicActions');if(!box)return;
   const{sp,t,sub}=path(),c=topicCards(sp,t,sub),nq=topicQuestions(sp,t,sub).length;
-  const cardBtn=c.all.length?`<button type="button" class="btn primary" ${c.pending.length?'':'disabled'} onclick="studyTopicCards()">${c.pending.length?`Repasar flashcards (${Math.min(c.pending.length,30)}${c.pending.length>30?' de '+c.pending.length:''})`:'Flashcards al día'}</button>`:'';
+  const cardBtn=c.all.length?`<button type="button" class="btn primary" ${c.pending.length?'':'disabled'} onclick="studyTopicCards()">${c.pending.length?`Estudiar tarjetas (${Math.min(c.pending.length,30)}${c.pending.length>30?' de '+c.pending.length:''})`:'Tarjetas al día'}</button>`:'';
   const qBtn=nq?`<button type="button" class="btn" onclick="banqueoTopic()">Banquear este tema (${Math.min(nq,20)}${nq>20?' de '+nq:''})</button>`:'';
   box.innerHTML=`${cardBtn}${qBtn}${sub?`<span class="chip">Subtema: ${esc(sub)} <button type="button" class="link-btn" onclick="topicPickSub()">quitar</button></span>`:''}${!cardBtn&&!qBtn?'<span class="muted small">Este tema solo tiene teoría por ahora.</span>':''}`;
  }
@@ -93,9 +93,8 @@
   state.studyPath.kind=kind;renderTopicList();
  };
  window.topicPickSub=function(name){
-  const st=path(),selecting=!!name&&st.sub!==name;st.sub=selecting?name:null;st.kind=selecting?'card':'all';
-  $$('#studyDialogBody .sub-clickable').forEach(c=>{const active=!!st.sub&&c.dataset.sub===st.sub;c.classList.toggle('sub-active',active);c.setAttribute('aria-pressed',String(active))});
-  $$('#studyDialogBody .seg button[data-kind]').forEach(b=>b.classList.toggle('active',b.dataset.kind===st.kind));
+  const st=path();st.sub=(name&&st.sub!==name)?name:null;
+  $$('#studyDialogBody .sub-clickable').forEach(c=>c.classList.toggle('sub-active',!!st.sub&&c.dataset.sub===st.sub));
   renderTopicList();renderTopicActions();
  };
  window.studyTopicCards=function(){
@@ -122,10 +121,10 @@
    const subHead=$$('.section-head',body).find(h=>/Subtemas/.test(h.textContent));
    if(subHead){
     const grid=subHead.nextElementSibling;
+    subHead.insertAdjacentHTML('afterend','<p class="muted small" style="margin:-4px 0 10px">Toca un subtema para ver solo sus contenidos y estudiarlo.</p>');
     grid?.querySelectorAll(':scope > .card').forEach(card=>{
      const name=card.querySelector('strong')?.textContent||'General';
-     card.classList.add('sub-clickable');card.dataset.sub=name;card.setAttribute('role','button');card.setAttribute('aria-pressed','false');card.tabIndex=0;
-     card.insertAdjacentHTML('beforeend','<span class="subtopic-open-label">Ver flashcards <span aria-hidden="true">→</span></span>');
+     card.classList.add('sub-clickable');card.dataset.sub=name;card.setAttribute('role','button');card.tabIndex=0;
      card.addEventListener('click',()=>window.topicPickSub(name));
      card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.topicPickSub(name)}});
     });

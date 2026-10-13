@@ -57,8 +57,6 @@
   startBank=function(){if(unlimited())return oldStartBank();let rem=remaining('bank');if(rem<=0)return window.showProUpsell('Ya usaste tus 15 preguntas de banqueo de hoy.');const input=$v('#bankCount');let asked=Math.max(0,Math.floor(Number(input?.value)||0));if(asked===0||asked>rem){if(input)input.value=rem;toast(`Plan Free: usarás como máximo ${rem} preguntas hoy`)}return oldStartBank()};
   const oldStartMirSimulation=startMirSimulation;
   startMirSimulation=function(n,config=null){if(unlimited())return oldStartMirSimulation(n,config);if(Number(n)===15&&(!config||!config.reserveCount)){if(remaining('miniSimulations')<=0)return window.showProUpsell('Ya utilizaste el Mini-MIR de hoy.');return oldStartMirSimulation(15,config)}return window.showProUpsell('Los simulacros completos y personalizados están disponibles con Pro. En Free puedes hacer un Mini-MIR diario.')};
-  const oldStartCustomSimulation=startCustomSimulation;
-  startCustomSimulation=function(){if(!unlimited())return window.showProUpsell('Los simulacros personalizados están disponibles con Pro.');return oldStartCustomSimulation()};
   const oldRateCard=rateCard;
   rateCard=async function(q){const card=state.review?.pool?.[state.review.index],previous=state.reviews.find(r=>r.content_id===card?.id),reviewedToday=previous?.last_reviewed_at&&localDay(new Date(previous.last_reviewed_at))===localDay();if(!unlimited()&&!reviewedToday&&remaining('reviews')<=0){window.showProUpsell('Ya completaste tus 20 flashcards de hoy.');return}return oldRateCard(q)};
 
@@ -84,7 +82,7 @@
     if(unlimited())return;
     const root=$v('#view-simulations');
     if(!root)return;
-    root.querySelectorAll('button[onclick*="startMirSimulation(200)"],button[onclick*="startCustomSimulation("]').forEach(btn=>{btn.disabled=false;btn.title='Disponible en Pro';btn.classList.add('pro-access-button');btn.textContent='Ver Pro'});
+    root.querySelectorAll('button[onclick*="startMirSimulation(200)"],button[onclick*="startCustomSimulation("]').forEach(btn=>{btn.disabled=true;btn.title='Disponible en Pro';btn.textContent='PRO'});
     const note=root.querySelector('.mir-note');
     if(note)note.innerHTML='<strong>Plan Free:</strong> 1 Mini-MIR de 15 preguntas al día. Los simulacros personalizados y completos están disponibles en Pro. <button class="btn mini" type="button" onclick="route(&quot;profile&quot;)">Ver planes</button>';
   };
@@ -136,12 +134,11 @@
     }
     return shuffle(result);
   }
-  window.updateBattleSpecialtySummary=()=>{const selected=$$v('#battleSpecialtyList input:checked').length,total=$$v('#battleSpecialtyList input').length,summary=$v('#battleSpecialtyPickerValue');if(summary)summary.textContent=selected?`${selected} de ${total} seleccionada${selected===1?'':'s'}`:'Ninguna seleccionada'};
-  window.toggleBattleSpecialties=()=>{const selected=$v('input[name="battleScope"]:checked')?.value==='selected',picker=$v('#battleSpecialtyPicker');if(picker){picker.hidden=!selected;if(selected)picker.open=true}window.updateBattleSpecialtySummary()};
+  window.toggleBattleSpecialties=()=>{const selected=$v('input[name="battleScope"]:checked')?.value==='selected',list=$v('#battleSpecialtyList');if(list)list.hidden=!selected};
   function battleScopeHtml(){
     const available=battleSpecialtyCounts();
-    const choices=available.map(([name,n],i)=>'<label class="battle-specialty-choice"><input type="checkbox" name="battleSpecialty" value="'+esc(name)+'" onchange="updateBattleSpecialtySummary()"><span>'+esc(name)+'</span><small>'+n+' preguntas</small></label>').join('');
-    return '<fieldset class="battle-scope"><legend>Especialidades de la batalla</legend><div class="battle-scope-modes"><label><input type="radio" name="battleScope" value="mix" checked onchange="toggleBattleSpecialties()"> Mix de todas</label><label><input type="radio" name="battleScope" value="selected" onchange="toggleBattleSpecialties()"> Elegir una o varias</label></div><details id="battleSpecialtyPicker" class="selection-picker battle-specialty-picker" hidden><summary><span><strong>Especialidades</strong><small>Elige las que entrarán en la batalla</small></span><span id="battleSpecialtyPickerValue" class="selection-picker-value">Ninguna seleccionada</span></summary><div id="battleSpecialtyList" class="battle-specialty-list">'+choices+'</div></details><p class="muted small">Las preguntas se reparten entre las especialidades elegidas. Ambas personas reciben exactamente el mismo bloque.</p></fieldset>';
+    const choices=available.map(([name,n],i)=>'<label class="battle-specialty-choice"><input type="checkbox" name="battleSpecialty" value="'+esc(name)+'"><span>'+esc(name)+'</span><small>'+n+' preguntas</small></label>').join('');
+    return '<fieldset class="battle-scope"><legend>Especialidades de la batalla</legend><div class="battle-scope-modes"><label><input type="radio" name="battleScope" value="mix" checked onchange="toggleBattleSpecialties()"> Mix de todas</label><label><input type="radio" name="battleScope" value="selected" onchange="toggleBattleSpecialties()"> Elegir una o varias</label></div><div id="battleSpecialtyList" class="battle-specialty-list" hidden>'+choices+'</div><p class="muted small">Las preguntas se reparten entre las especialidades elegidas. Ambas personas reciben exactamente el mismo bloque.</p></fieldset>';
   }
   async function shareBattle(code){
     const url=battleInviteUrl(code),share={title:'Batalla NEXMIR',text:`Te invito a una batalla NEXMIR. Crea tu cuenta o inicia sesión y entra con el código ${code}.`,url};
@@ -164,7 +161,7 @@
     const {data,error}=await state.sb.from('battle_rooms').insert(room).select().single();if(error)return toast(error.message);
     const {data:participant,error:joinError}=await state.sb.from('battle_participants').insert({room_id:data.id,user_id:state.user.id,display_name:profileName()}).select().single();
     if(joinError){await state.sb.from('battle_rooms').delete().eq('id',data.id);return toast(joinError.message)}
-    const displayedPool=shuffleSessionOptions(pool,`battle:${data.id}`);state.battleHistory.unshift(participant);state.battle={room:data,pool:displayedPool,index:0,answers:{},started:false,participants:[participant],selection:{scope,specialties}};
+    state.battleHistory.unshift(participant);state.battle={room:data,pool,index:0,answers:{},started:false,participants:[participant],selection:{scope,specialties}};
     history.replaceState(null,'',battleInviteUrl(code));toast(rematch?'Revancha creada. Comparte la invitación con tu rival.':`Sala ${code} creada`);renderBattles();await pollBattle(data.id);
   }
   async function joinBattle(invitedCode=''){
@@ -177,11 +174,11 @@
       :await state.sb.from('battle_participants').insert({room_id:room.id,user_id:state.user.id,display_name:profileName()}).select().single();
     const {data:participant,error:joinError}=participantResult;if(joinError)return toast(joinError.message);
     if(participant&&!alreadyJoined)state.battleHistory.unshift(participant);
-    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=shuffleSessionOptions(ids.map((id,i)=>map.get(`${sources[i]}:${id}`)).filter(Boolean),`battle:${room.id}`);
+    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=ids.map((id,i)=>map.get(`${sources[i]}:${id}`)).filter(Boolean);
     if(pool.length!==ids.length)return toast('La sala contiene preguntas que ya no están disponibles');
     const {data:prior,error:priorError}=await state.sb.from('battle_answers').select('question_id,source_type,selected_index').eq('room_id',room.id).eq('user_id',state.user.id);
     if(priorError)return toast(priorError.message);
-    const answers=Object.fromEntries((prior||[]).map(a=>{const key=`${a.source_type}:${a.question_id}`,q=pool.find(x=>battleQuestionKey(x)===key),shown=q?._optionOrder?.indexOf(Number(a.selected_index));return[key,shown>=0?shown:Number(a.selected_index)]}));
+    const answers=Object.fromEntries((prior||[]).map(a=>[`${a.source_type}:${a.question_id}`,a.selected_index]));
     const next=pool.findIndex(q=>answers[battleQuestionKey(q)]==null);
     state.battle={room,pool,index:next<0?pool.length:next,answers,started:room.status==='active',participants:participant?[participant]:[]};
     history.replaceState(null,'',battleInviteUrl(code));renderBattles();await pollBattle(room.id);
@@ -213,7 +210,7 @@
     if(!(state.battleHistory||[]).some(p=>p.room_id===roomId))return toast('No participaste en esta batalla');
     const {data:room,error}=await state.sb.from('battle_rooms').select('*').eq('id',roomId).single();
     if(error||!room||!battleEnded(room))return toast('La batalla todavía no ha terminado');
-    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=shuffleSessionOptions(ids.map((id,i)=>map.get(`${sources[i]}:${id}`)),`battle:${room.id}`);
+    const ids=room.question_ids||[],sources=room.question_sources?.length===ids.length?room.question_sources:ids.map(()=>'questions'),map=new Map(questionPool().map(q=>[battleQuestionKey(q),q])),pool=ids.map((id,i)=>map.get(`${sources[i]}:${id}`));
     if(pool.some(q=>!q))return toast('Hay preguntas de esta batalla que ya no están disponibles');
     const [{data:rows,error:answersError},{data:participants,error:partsError}]=await Promise.all([
       state.sb.from('battle_answers').select('question_id,source_type,selected_index').eq('room_id',roomId).eq('user_id',state.user.id),
@@ -221,7 +218,7 @@
     ]);
     if(answersError||partsError)return toast('No se pudo cargar la revisión');
     clearInterval(battlePoll);
-    const answers=Object.fromEntries((rows||[]).map(a=>{const key=`${a.source_type}:${a.question_id}`,q=pool.find(x=>battleQuestionKey(x)===key),shown=q?._optionOrder?.indexOf(Number(a.selected_index));return[key,shown>=0?shown:Number(a.selected_index)]}));
+    const answers=Object.fromEntries((rows||[]).map(a=>[`${a.source_type}:${a.question_id}`,a.selected_index]));
     state.battle={room,pool,index:pool.length,answers,started:true,participants:participants||[],reviewOpen:true,reviewIndex:0};
     history.replaceState(null,'',battleInviteUrl(room.code));route('battles');
   }
@@ -254,7 +251,7 @@
     const b=state.battle,q=b?.pool?.[b.index],key=battleQuestionKey(q),i=b?.selected;
     if(!q||!Number.isInteger(i)||b.submitting||b.answers[key]!=null||b.room.status!=='active')return;
     b.submitting=true;renderBattles();
-    const originalIndex=q._optionOrder?.[i]??i;const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:originalIndex});
+    const {error}=await state.sb.from('battle_answers').insert({room_id:b.room.id,user_id:state.user.id,question_id:q.id,source_type:q._source||'questions',selected_index:i});
     if(state.battle!==b)return;
     b.submitting=false;
     if(error){renderBattles();return toast(error.message)}

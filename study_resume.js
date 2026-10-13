@@ -8,7 +8,7 @@
     const value={view:state.view,focusOpen:!!document.querySelector('#focusSessionDialog[open]')};
     const bank=state.bank;
     if(bank?.pool?.length&&(!bank.submitted||document.querySelector('#questionDialog[open] .bank-results-shell'))){
-      value.bank={keys:bank.pool.map(qkey),optionSeed:bank.optionSeed||null,index:bank.index,mode:bank.mode,context:bank.context,submitted:!!bank.submitted,
+      value.bank={keys:bank.pool.map(qkey),index:bank.index,mode:bank.mode,context:bank.context,submitted:!!bank.submitted,
         answers:Object.fromEntries(Object.entries(bank.answers||{}).map(([k,a])=>[k,{...a,saving:false}])),
         highlights:bank.highlights||{},eliminations:bank.eliminations||{},activity:window.nexmirBankCheckpoint?.()};
     }
@@ -30,7 +30,7 @@
       if(saved.bank){
         const map=new Map(questionPool().map(q=>[qkey(q),q])),pool=saved.bank.keys.map(k=>map.get(k));
         if(pool.some(q=>!q)){toast('Parte del banco cambió. Inicia un nuevo bloque para usar el contenido actualizado.');return}
-        const b=saved.bank,optionSeed=b.optionSeed||null;state.bank={...b,optionSeed,_optionsShuffled:!optionSeed,pool,index:Math.min(b.index||0,pool.length-1),selected:null,answered:false,results:[]};window.nexmirRestoreBankCheckpoint?.(b.activity);
+        const b=saved.bank;state.bank={...b,pool,index:Math.min(b.index||0,pool.length-1),selected:null,answered:false,results:[]};window.nexmirRestoreBankCheckpoint?.(b.activity);
         if(b.submitted){state.bank.results=pool.map(q=>{const selected=b.answers?.[bankQKey(q)]?.selected??null;return {q,selected,correct:selected===null?null:+selected===+q.correct_index}});renderBankResults()}
         else showQuestion();
       }

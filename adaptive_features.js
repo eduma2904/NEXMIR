@@ -71,4 +71,12 @@
     showQuestion();
     const head=document.querySelector('#questionDialogBody .dialog-head');if(head&&!document.getElementById('quickSessionLabel'))head.insertAdjacentHTML('afterend',`<div id="quickSessionLabel" class="quick-session-label">${state.bank.sessionLabel}</div>`);
   };
+  // El mapa no sustituye al registro: aporta el contexto por especialidad y tema
+  // antes de revisar una pregunta concreta.
+  const renderErrorsWithFeedback=renderErrors;
+  renderErrors=function(){
+    renderErrorsWithFeedback();
+    const root=document.getElementById('view-errors');
+    if(root&&window.nexmirPerformanceFeedbackHtml&&!document.getElementById('errorsPerformanceFeedback'))root.insertAdjacentHTML('afterbegin',window.nexmirPerformanceFeedbackHtml('errors'));
+  };
 })();

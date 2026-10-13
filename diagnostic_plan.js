@@ -134,7 +134,7 @@
 
   function startSpecialtyDiagnostic(encoded,returnView='study'){
     const sp=decodeURIComponent(encoded),pool=buildDiagnosticPool(sp);if(!pool.length)return toast('Esta especialidad aún no tiene preguntas de opción múltiple clasificadas por tema');
-    const startedAt=new Date().toISOString();state.diagnostic={active:true,pool:shuffleSessionOptions(pool,`diagnostic:${newOptionSeed()}`),index:0,answers:{},specialty:sp,returnView,saving:false,startedAt};showDiagnosticQuestion();
+    state.diagnostic={active:true,pool,index:0,answers:{},specialty:sp,returnView,saving:false,startedAt:new Date().toISOString()};showDiagnosticQuestion();
   }
   function diagnosticKey(q){return`${q._source||'questions'}:${q.id}`}
   let diagnosticSelection=null;
@@ -207,6 +207,47 @@
     state.bank={pool,index:0,answered:false,selected:null,mode:'immediate',results:[],context:'bank',highlights:{},answers:{},eliminations:{},submitted:false};showQuestion();
   }
   function studyPlanTopic(es,et){const sp=decodeURIComponent(es),topic=decodeURIComponent(et);const items=studyContent().filter(x=>sameSpecialty(x.specialty,sp)&&(x.topic||'General')===topic);if(!items.length)return startPlanQuestions(es,et);openTopic(encodeActionArg(sp),encodeActionArg(topic))}
+  // Feedback visible del mismo motor que ordena el plan. La precisión se estabiliza
+  // para que una única pregunta no convierta artificialmente una especialidad en la
+  // mejor o peor del usuario.
+  function performanceSpecialties(){
+    const grouped=new Map();
+    for(const a of state.attempts.filter(a=>a.is_valid!==false)){
+      const q=getAttemptQuestion(a);if(!q?.specialty)continue;
+      const sp=displaySpecialty(q.specialty);if(sp==='Desagrupadas')continue;const v=grouped.get(sp)||{name:sp,n:0,ok:0};
+      v.n++;if(a.is_correct)v.ok++;grouped.set(sp,v);
+    }
+    return [...grouped.values()].map(v=>{
+      v.acc=Math.round(100*v.ok/v.n);v.score=(v.ok+2)/(v.n+4);v.confidence=v.n>=8?'Datos suficientes':v.n>=3?'Muestra inicial':'Muestra pequeña';
+      return v;
+    }).sort((a,b)=>a.score-b.score||b.n-a.n||a.name.localeCompare(b.name,'es'));
+  }
+  function performanceTopics(sp,mode){
+    const attempts=new Map();
+    for(const a of state.attempts.filter(a=>a.is_valid!==false)){
+      const q=getAttemptQuestion(a);if(!q||!sameSpecialty(q.specialty,sp))continue;
+      const name=q.topic||'General',v=attempts.get(name)||{n:0,ok:0};v.n++;if(a.is_correct)v.ok++;attempts.set(name,v);
+    }
+    return topicMetrics(sp).map(m=>{
+      const v=attempts.get(m.topic)||{n:0,ok:0};
+      return {...m,n:v.n,ok:v.ok,acc:v.n?Math.round(100*v.ok/v.n):null,score:(v.ok+2)/(v.n+4)};
+    }).sort((a,b)=>mode==='strong'?(b.score-a.score||b.n-a.n):(a.score-b.score||b.n-a.n));
+  }
+  function performanceDetailHtml(sp,mode){
+    const rows=performanceTopics(sp,mode),title=mode==='strong'?'Temas con mejor desempeño':'Temas que más conviene reforzar';
+    if(!rows.length)return '<div class="empty">Aún no hay temas clasificados para esta especialidad.</div>';
+    return `<div class="performance-detail-head"><div><span class="chip">${mode==='strong'?'Fortaleza':'Refuerzo'}</span><h3>${esc(sp)}</h3><p class="muted small">${title}. El orden combina tus respuestas con errores y repasos pendientes; la etiqueta muestra tus respuestas reales.</p></div></div><div class="performance-topic-list">${rows.map((x,i)=>`<div class="performance-topic-row"><span class="plan-rank">${i+1}</span><div class="grow"><button type="button" class="plan-topic-link" onclick="studyPlanTopic('${encodeActionArg(sp)}','${encodeActionArg(x.topic)}')">${esc(x.topic)} →</button><div class="path">${x.n?`${x.acc}% · ${x.ok}/${x.n} correctas`:'Sin respuestas todavía'} · ${x.errorSum||0} error${x.errorSum===1?'':'es'} activos · prioridad ${x.priorityPct}%</div><div class="priority-track"><i style="width:${Math.min(100,Math.max(8,mode==='strong'?Math.round(x.score*100):x.priorityPct))}%"></i></div></div><button class="btn mini" type="button" onclick="studyPlanTopic('${encodeActionArg(sp)}','${encodeActionArg(x.topic)}')">Estudiar</button></div>`).join('')}</div>`;
+  }
+  function performanceFeedbackInner(context,selected,mode){
+    const rows=performanceSpecialties();
+    if(!rows.length)return `<div class="section-head"><div><span class="chip">Feedback adaptativo</span><h2>Tu mapa de rendimiento</h2><p class="muted">Responde preguntas clasificadas para ver qué especialidades y temas requieren más trabajo.</p></div></div><div class="empty">Aún no hay respuestas suficientes para construir tu ranking.</div>`;
+    const sorted=mode==='strong'?rows.slice().reverse():rows,chosen=rows.find(x=>x.name===selected)?.name||sorted[0].name,weak=rows[0],strong=rows[rows.length-1];
+    return `<div class="section-head"><div><span class="chip">Feedback adaptativo</span><h2>Tu mapa de rendimiento</h2><p class="muted">El plan se recalcula con estas señales. Toca una especialidad para ver el ranking de sus temas y abrirlos directamente.</p></div><button class="btn mini" type="button" onclick="route('errors')">Ver preguntas falladas</button></div><div class="performance-summary"><div class="performance-summary-card weak"><span>Área a reforzar</span><strong>${esc(weak.name)}</strong><small>${weak.acc}% · ${weak.n} respuestas</small></div><div class="performance-summary-card strong"><span>Mejor desempeño</span><strong>${esc(strong.name)}</strong><small>${strong.acc}% · ${strong.n} respuestas</small></div></div><div class="performance-tabs"><button class="btn mini ${mode==='weak'?'primary':''}" type="button" onclick="setPerformanceFeedbackMode('weak','${context}')">Necesito reforzar</button><button class="btn mini ${mode==='strong'?'primary':''}" type="button" onclick="setPerformanceFeedbackMode('strong','${context}')">Lo hago mejor</button><span class="muted small">Ranking estabilizado · evita sobreinterpretar una sola pregunta.</span></div><div class="performance-layout"><div class="performance-specialty-list">${sorted.map((x,i)=>`<button type="button" class="performance-specialty ${x.name===chosen?'selected':''}" onclick="openPerformanceSpecialty('${encodeActionArg(x.name)}','${context}')"><span class="performance-position">${i+1}</span><span class="grow"><strong>${esc(x.name)}</strong><small>${x.acc}% · ${x.ok}/${x.n} correctas · ${x.confidence}</small></span><span class="performance-score">${x.acc}%</span></button>`).join('')}</div><div id="${context}FeedbackDetail" class="performance-detail">${performanceDetailHtml(chosen,mode)}</div></div>`;
+  }
+  function performanceFeedbackHtml(context='plan'){return `<section id="${context}PerformanceFeedback" class="card performance-feedback">${performanceFeedbackInner(context,'','weak')}</section>`}
+  function renderPerformanceFeedback(context='plan',selected='',mode='weak'){const root=$(`#${context}PerformanceFeedback`);if(root)root.innerHTML=performanceFeedbackInner(context,selected,mode)}
+  function openPerformanceSpecialty(encoded,context='plan'){const sp=decodeURIComponent(encoded),root=$(`#${context}PerformanceFeedback`),mode=root?.dataset?.mode||'weak';renderPerformanceFeedback(context,sp,mode);const fresh=$(`#${context}PerformanceFeedback`);if(fresh){fresh.dataset.mode=mode;fresh.dataset.selected=sp}}
+  function setPerformanceFeedbackMode(mode,context='plan'){const root=$(`#${context}PerformanceFeedback`),current=root?.dataset?.selected||'';renderPerformanceFeedback(context,current,mode);const fresh=$(`#${context}PerformanceFeedback`);if(fresh){fresh.dataset.mode=mode;fresh.dataset.selected=current}}
   function specialtyWeekHtml(plan,preferred){
     if(!plan.days.length)return'<div class="empty">Publica preguntas o tarjetas clasificadas para mostrar la semana de estudio.</div>';
     return `<section class="card plan-main-week"><div class="section-head"><div><span class="chip">PASO 1 · SEMANA COMPLETA</span><h2>Qué estudiar cada día</h2><p class="muted">Cada bloque indica <strong>especialidad → tema</strong>. Hay 28 bloques de 25 minutos: las especialidades más frecuentes y tus áreas difíciles aparecen más veces. Pulsa un bloque para ver sus temas y comenzar a estudiar.</p></div><div class="plan-week-actions"><span class="chip">4 bloques por día</span><button type="button" class="btn mini" onclick="refreshStudyPlanData()">Actualizar frecuencias</button></div></div><div class="adaptive-week">${plan.days.map(day=>`<div class="adaptive-day specialty-day"><strong>${day.label}</strong>${day.items.map(x=>`<button type="button" data-plan-specialty="${esc(x.name)}" aria-pressed="${x.name===preferred}" class="${x.name===preferred?'selected':''}" onclick="selectPlanSpecialty('${encodeActionArg(x.name)}')"><span class="plan-block-specialty">${esc(x.name)}</span><small>Tema: ${esc(x.topic)}</small><span class="plan-block-action">Ver por qué y estudiar →</span></button>`).join('')}</div>`).join('')}</div><p class="muted small plan-source">Distribución basada en ${esc(plan.source)} y ajustada según tus respuestas y repasos. Cada simulacro publicado actualiza las frecuencias al abrir o actualizar este plan. ${state.planSyncError?'No se pudo comprobar la última carga; se muestran los datos disponibles.':''}</p></section>`;
@@ -217,7 +258,7 @@
     oldRenderCalendar();const plan=specialtyWeek();state.planWeek=plan;
     const specs=[...new Set([...specialtySummary().map(x=>x.name),...questionPool().map(x=>displaySpecialty(x.specialty))])].filter(x=>x!=='Desagrupadas');
     const preferred=specs.includes(state.planSpecialty)?state.planSpecialty:(plan.days.flatMap(x=>x.items)[0]?.name||specs[0]||'');state.planSpecialty=preferred;
-    const root=$('#view-calendar');if(root)root.insertAdjacentHTML('beforeend',`${specialtyWeekHtml(plan,preferred)}<section id="planSpecialtyDetail" class="plan-specialty-detail"><div class="section-head"><div><span class="chip">PASO 2 · DETALLE DEL BLOQUE</span><h2>Temas de la especialidad elegida</h2><p class="muted">Selecciona un bloque de arriba o una especialidad aquí. Se muestran sus sesiones de esa misma semana.</p></div><label class="plan-specialty-select">Especialidad<select id="adaptivePlanSpecialty" onchange="refreshAdaptivePlan()">${specs.map(x=>`<option value="${esc(x)}" ${x===preferred?'selected':''}>${esc(x)}</option>`).join('')}</select></label></div><div id="adaptivePlanBody">${preferred?planPanelHtml(preferred,plan):'<div class="empty">Publica contenido clasificado para crear el plan.</div>'}</div></section>`);
+    const root=$('#view-calendar');if(root)root.insertAdjacentHTML('beforeend',`${performanceFeedbackHtml('plan')}${specialtyWeekHtml(plan,preferred)}<section id="planSpecialtyDetail" class="plan-specialty-detail"><div class="section-head"><div><span class="chip">PASO 2 · DETALLE DEL BLOQUE</span><h2>Temas de la especialidad elegida</h2><p class="muted">Selecciona un bloque de arriba o una especialidad aquí. Se muestran sus sesiones de esa misma semana.</p></div><label class="plan-specialty-select">Especialidad<select id="adaptivePlanSpecialty" onchange="refreshAdaptivePlan()">${specs.map(x=>`<option value="${esc(x)}" ${x===preferred?'selected':''}>${esc(x)}</option>`).join('')}</select></label></div><div id="adaptivePlanBody">${preferred?planPanelHtml(preferred,plan):'<div class="empty">Publica contenido clasificado para crear el plan.</div>'}</div></section>`);
   };
 
   let planDataRefreshedAt=0,planRefreshPromise=null;
@@ -251,7 +292,7 @@
   window.refreshStudyPlanData=()=>{planDataRefreshedAt=0;return route('calendar')};
   if(typeof document!=='undefined')document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.view==='calendar'&&Date.now()-planDataRefreshedAt>=60000)route('calendar')});
 
-  window.startSpecialtyDiagnostic=startSpecialtyDiagnostic;window.startSelectedStudyDiagnostic=startSelectedStudyDiagnostic;window.startSelectedReviewDiagnostic=startSelectedReviewDiagnostic;window.refreshStudyDiagnosticStatus=refreshStudyDiagnosticStatus;window.chooseDiagnosticOption=chooseDiagnosticOption;window.nextDiagnosticQuestion=nextDiagnosticQuestion;window.closeDiagnostic=closeDiagnostic;window.openDiagnosticPlan=openDiagnosticPlan;window.refreshAdaptivePlan=refreshAdaptivePlan;window.selectPlanSpecialty=selectPlanSpecialty;window.studyPlanTopic=studyPlanTopic;window.highlightDiagnostic=highlightDiagnostic;window.captureDiagnosticHighlight=captureDiagnosticHighlight;window.toggleDiagnosticDiscard=toggleDiagnosticDiscard;
+  window.startSpecialtyDiagnostic=startSpecialtyDiagnostic;window.startSelectedStudyDiagnostic=startSelectedStudyDiagnostic;window.startSelectedReviewDiagnostic=startSelectedReviewDiagnostic;window.refreshStudyDiagnosticStatus=refreshStudyDiagnosticStatus;window.chooseDiagnosticOption=chooseDiagnosticOption;window.nextDiagnosticQuestion=nextDiagnosticQuestion;window.closeDiagnostic=closeDiagnostic;window.openDiagnosticPlan=openDiagnosticPlan;window.refreshAdaptivePlan=refreshAdaptivePlan;window.selectPlanSpecialty=selectPlanSpecialty;window.studyPlanTopic=studyPlanTopic;window.highlightDiagnostic=highlightDiagnostic;window.captureDiagnosticHighlight=captureDiagnosticHighlight;window.toggleDiagnosticDiscard=toggleDiagnosticDiscard;window.nexmirPerformanceFeedbackHtml=performanceFeedbackHtml;window.openPerformanceSpecialty=openPerformanceSpecialty;window.setPerformanceFeedbackMode=setPerformanceFeedbackMode;
   window.startPlanQuestions=startPlanQuestions;
   window.__nexmirDiagnosticTest={buildDiagnosticPool,diagnosticStatus,topicMetrics,specialtyWeek,planPanelHtml,specialtyWeekHtml};
 })();
