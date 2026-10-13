@@ -28,8 +28,8 @@
 #view-calendar .plan-detail-intro p{margin:0;line-height:1.55}
 #view-calendar .plan-detail-count{white-space:nowrap;font-size:17px;font-weight:800;color:var(--primary)}
 #view-calendar .plan-topic-row{grid-template-columns:28px minmax(0,1fr) auto auto}
-#view-calendar .plan-topic-link{padding:0;border:0;background:none;color:var(--n-text,var(--text));font:inherit;font-weight:700;text-align:left;cursor:pointer}
-#view-calendar .plan-topic-link:hover{text-decoration:underline;color:var(--primary)}
+#view-calendar .plan-topic-link,.performance-feedback .plan-topic-link{padding:0;border:0;background:none;color:var(--n-text,var(--text));font:inherit;font-weight:700;text-align:left;cursor:pointer}
+#view-calendar .plan-topic-link:hover,.performance-feedback .plan-topic-link:hover{text-decoration:underline;color:var(--primary)}
 #view-calendar .plan-allocation{font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap}
 #view-calendar .plan-selected-week{display:grid;gap:10px}
 #view-calendar .plan-selected-day{display:grid;grid-template-columns:50px minmax(0,1fr);gap:8px;align-items:stretch}

@@ -86,13 +86,18 @@ function showStartupError(error){
 function showAuth(){hideBootScreen();state.profile=null;$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.remove('hidden');$('#app').classList.add('hidden');const invite=$('#battleInviteAuth'),code=new URLSearchParams(location.search).get('battle');if(invite)invite.classList.toggle('hidden',!/^[a-z0-9]{6}$/i.test(code||''));window.dispatchEvent(new Event('nexmir:signout'))}
 function showApp(){ hideBootScreen();$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden');const n=profileName();$('#userAvatar').textContent=n[0]?.toUpperCase()||'N';$('#planPill').textContent=(state.profile?.role==='admin'?'Admin':state.profile?.plan||'Free');if(['admin','moderator'].includes(state.profile?.role))$('#adminLink').classList.remove('hidden');const restored=window.nexmirRestoreStudy?.();if(!restored)route('dashboard');window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}))}
 async function safeLoad(label,fn,fallback=[]){try{return await fn()}catch(e){console.warn('Carga opcional falló:',label,e);return fallback}}
-async function refreshErrorLog(){
+let errorLogRefreshedAt=0,errorLogRefreshPromise=null;
+async function refreshErrorLog(force=false){
  const uid=state.user?.id,generation=authGeneration;
  if(!uid)return false;
- const rows=await fetchAllPages(()=>state.sb.from('user_error_log').select('*').eq('user_id',uid));
- if(generation!==authGeneration||state.user?.id!==uid)return false;
- state.errorLog=rows;
- return true;
+ if(!force&&Date.now()-errorLogRefreshedAt<45000)return true;
+ if(errorLogRefreshPromise)return errorLogRefreshPromise;
+ errorLogRefreshPromise=(async()=>{
+  const rows=await fetchAllPages(()=>state.sb.from('user_error_log').select('*').eq('user_id',uid));
+  if(generation!==authGeneration||state.user?.id!==uid)return false;
+  state.errorLog=rows;errorLogRefreshedAt=Date.now();return true;
+ })();
+ try{return await errorLogRefreshPromise}finally{errorLogRefreshPromise=null}
 }
 async function loadAll(){
  const uid=state.user.id,generation=authGeneration;
@@ -225,9 +230,12 @@ function route(v){
  if(target)target.classList.add('active');
  $$('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
  $('#viewTitle').textContent=viewNames[v]||v;$('#crumb').textContent='';
+ const cacheMs=v==='calendar'?60000:v==='errors'?45000:0;
+ const reusable=cacheMs&&target?.dataset.nexmirRendered==='1'&&Date.now()-(Number(target.dataset.nexmirRenderedAt)||0)<cacheMs;
+ if(reusable){document.querySelector('.sidebar')?.classList.remove('open');return Promise.resolve()}
  const paint=async()=>{
   if(generation!==routeGeneration||!state.user)return;
-  try{await render(v)}catch(e){
+  try{await render(v);if(generation===routeGeneration&&target){target.dataset.nexmirRendered='1';target.dataset.nexmirRenderedAt=String(Date.now())}}catch(e){
    console.error('Error renderizando vista',v,e);
    if(target&&state.user&&generation===routeGeneration)target.innerHTML=`<div class="card view-error"><h3>No se pudo cargar esta sección</h3><p class="muted">${esc(e?.message||'Error inesperado')}</p><button class="btn" onclick="route('${esc(v)}')">Reintentar</button></div>`;
   }
