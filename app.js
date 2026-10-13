@@ -46,10 +46,23 @@ async function enterSession(user,{session=null,fresh=false}={}){
  const work=(async()=>{
    if(!session){const result=await state.sb.auth.getSession();session=result.data?.session}
    if(!await window.NexmirSessions.open(session,{fresh})||generation!==authGeneration)return;
-   state.user=user;$('#authMsg').textContent='Cargando tu contenido…';
-   await loadAll();
-   if(generation!==authGeneration||state.user?.id!==user.id||!window.NexmirSessions.active())return;
-   showApp();$('#authMsg').textContent='';
+   state.user=user;
+   // En una sesión que ya existe no bloqueamos la entrada por las consultas pesadas.
+   // La cuenta ya fue validada arriba; el catálogo e historial se sincronizan después.
+   const fastResume=!!session&&!fresh;
+   if(fastResume){
+    showApp({restoreStudy:false,announceReady:false});
+    try{await loadAll()}catch(error){console.error('Sincronización inicial pendiente',error);toast('Abriste NEXMIR. No pudimos actualizar tus datos todavía; vuelve a cargar cuando recuperes conexión.');return}
+    if(generation!==authGeneration||state.user?.id!==user.id||!window.NexmirSessions.active())return;
+    const restored=window.nexmirRestoreStudy?.();
+    if(!restored)await route(state.view||'dashboard');
+    window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}));
+   }else{
+    $('#authMsg').textContent='Cargando tu contenido…';
+    await loadAll();
+    if(generation!==authGeneration||state.user?.id!==user.id||!window.NexmirSessions.active())return;
+    showApp();$('#authMsg').textContent='';
+   }
  })().finally(()=>{if(authTransition===work)authTransition=null});
  authTransition=work;return work;
 }
@@ -84,7 +97,7 @@ function showStartupError(error){
  card.innerHTML=`<div class="logo-mark">N</div><h2>No pudimos terminar de cargar</h2><p class="muted">Tu sesión sigue abierta. Comprueba la conexión y vuelve a intentarlo para regresar a tu pregunta.</p><button class="btn primary" type="button" onclick="location.reload()">Volver a intentar</button><p class="muted small">${esc(error?.message||'Error temporal de conexión')}</p>`;
 }
 function showAuth(){hideBootScreen();state.profile=null;$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.remove('hidden');$('#app').classList.add('hidden');const invite=$('#battleInviteAuth'),code=new URLSearchParams(location.search).get('battle');if(invite)invite.classList.toggle('hidden',!/^[a-z0-9]{6}$/i.test(code||''));window.dispatchEvent(new Event('nexmir:signout'))}
-function showApp(){ hideBootScreen();$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden');const n=profileName();$('#userAvatar').textContent=n[0]?.toUpperCase()||'N';$('#planPill').textContent=(state.profile?.role==='admin'?'Admin':state.profile?.plan||'Free');if(['admin','moderator'].includes(state.profile?.role))$('#adminLink').classList.remove('hidden');const restored=window.nexmirRestoreStudy?.();if(!restored)route('dashboard');window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}))}
+function showApp({restoreStudy=true,announceReady=true}={}){ hideBootScreen();$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden');const n=profileName();$('#userAvatar').textContent=n[0]?.toUpperCase()||'N';$('#planPill').textContent=(state.profile?.role==='admin'?'Admin':state.profile?.plan||'Free');if(['admin','moderator'].includes(state.profile?.role))$('#adminLink').classList.remove('hidden');const restored=restoreStudy&&window.nexmirRestoreStudy?.();if(!restored)route('dashboard');if(announceReady)window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}));return!!restored}
 async function safeLoad(label,fn,fallback=[]){try{return await fn()}catch(e){console.warn('Carga opcional falló:',label,e);return fallback}}
 let errorLogRefreshedAt=0,errorLogRefreshPromise=null;
 async function refreshErrorLog(force=false){
