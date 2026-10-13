@@ -20,9 +20,8 @@
   }
   let restoring=false;
   let restorePromise=null;
-  const resumeDialog=()=>document.getElementById('resumeLoadingDialog');
-  function openResumeLoading(){const d=resumeDialog();if(!d)return;d.querySelector('h3').textContent='Recuperando tu sesión…';d.querySelector('p').textContent='Restaurando tu actividad. No cierres esta ventana.';if(!d.open)d.showModal()}
-  function closeResumeLoading(){const d=resumeDialog();if(d?.open)d.close()}
+  function openResumeLoading(){window.nexmirResumeLoading?.open()}
+  function closeResumeLoading(){window.nexmirResumeLoading?.close()}
   window.nexmirSaveStudy=save;
   window.nexmirClearStudyResume=()=>{try{localStorage.removeItem(key());localStorage.removeItem(`nexmir_focus_checkpoint:${state.user?.id}`)}catch{}};
   window.nexmirRestoreStudy=()=>{
