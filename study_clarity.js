@@ -92,8 +92,9 @@
   btn.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
   state.studyPath.kind=kind;renderTopicList();
  };
- window.topicPickSub=function(name){
-  const st=path();st.sub=(name&&st.sub!==name)?name:null;
+ window.topicPickSub=function(encodedName){
+  const name=encodedName?decodeURIComponent(encodedName):null,st=path();
+  st.sub=(name&&st.sub!==name)?name:null;
   $$('#studyDialogBody .sub-clickable').forEach(c=>c.classList.toggle('sub-active',!!st.sub&&c.dataset.sub===st.sub));
   renderTopicList();renderTopicActions();
  };
@@ -119,13 +120,7 @@
    seg.insertAdjacentHTML('beforebegin','<div id="topicActions" class="topic-actions"></div>');
    renderTopicActions();
    const subtopics=body.querySelector('.topic-subtopics');
-   if(subtopics){
-    subtopics.querySelectorAll('.subtopic-option').forEach(card=>{
-     const name=card.dataset.sub||card.querySelector('strong')?.textContent||'General';
-     card.classList.add('sub-clickable');card.dataset.sub=name;
-     card.addEventListener('click',()=>window.topicPickSub(name));
-    });
-   }
+   if(subtopics)subtopics.querySelectorAll('.subtopic-option').forEach(card=>card.classList.add('sub-clickable'));
   }catch(e){console.warn('tema',e)}
   return result;
  };
