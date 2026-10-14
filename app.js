@@ -24,7 +24,7 @@ function initSb(){
  state.sb=window.supabase.createClient(DEFAULT_SB.url,DEFAULT_SB.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:AUTH_STORAGE_KEY},global:{fetch:window.NexmirSessions.fetch}});
  window.NexmirSessions.configure({client:state.sb,url:DEFAULT_SB.url,key:DEFAULT_SB.key,storageKey:AUTH_STORAGE_KEY,onEnd:clearSignedInUi});
 }
-async function fetchAllPages(makeQuery,pageSize=1000){const out=[];for(let from=0;;from+=pageSize){const {data,error}=await makeQuery().range(from,from+pageSize-1);if(error)throw error;const rows=data||[];out.push(...rows);if(rows.length<pageSize)break}return out}
+async function fetchAllPages(makeQuery,pageSize=1000,concurrency=3){const out=[];for(let from=0;;from+=pageSize*concurrency){const waves=await Promise.all(Array.from({length:concurrency},(_,i)=>makeQuery().range(from+i*pageSize,from+(i+1)*pageSize-1)));let done=false;for(const {data,error} of waves){if(error)throw error;const rows=data||[];out.push(...rows);if(rows.length<pageSize){done=true;break}}if(done)break}return out}
 function cleanRemnoteMarks(s=''){return String(s??'').replace(/\^\^/g,'').replace(/\u200b/g,'')}
 function unclassifiedSpecialty(s=''){return RemnoteTaxonomy.unclassified(s)}
 function displaySpecialty(s=''){return unclassifiedSpecialty(s)?'Desagrupadas':String(s||'Desagrupadas')}
@@ -110,17 +110,27 @@ async function loadAll(){
    safeLoad('simulaciones',async()=>{const r=await state.sb.from('simulations').select('*').eq('user_id',uid).order('finished_at',{ascending:false}).limit(100);if(r.error)throw r.error;return r.data||[]}),
    safeLoad('registro de errores',()=>fetchAllPages(()=>state.sb.from('user_error_log').select('*').eq('user_id',uid)))
  ]);
- // Datos esenciales: si estos fallan sí debemos informar al usuario.
- const [pr,ct,qs]=await Promise.all([
-   state.sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
-   fetchAllPages(()=>state.sb.from('content_items').select('id,source_uid,kind,card_type,status,current_version,payload,source_hash,source_path,specialty,topic,subtopic,section,last_reviewed_at,created_at,updated_at').eq('status','published').order('specialty')),
-   fetchAllPages(()=>state.sb.from('questions').select('id,source_uid,source_number,source_exam,source,status,stem,options,correct_index,explanation,specialty,topic,subtopic,section,image_path,year,remnote_metadata,created_at,updated_at').eq('status','published').order('created_at',{ascending:false}))
- ]);
+ // Datos esenciales: el perfil (rol, plan, permisos) se lee SIEMPRE fresco del servidor.
+ // El catálogo publicado se muestra desde la caché local si existe y se refresca completo en segundo plano.
+ const profileP=state.sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+ const catalogFresh=Promise.all([
+   fetchAllPages(()=>state.sb.from('content_items').select('id,source_uid,kind,card_type,status,current_version,payload,source_hash,source_path,specialty,topic,subtopic,section,last_reviewed_at,created_at,updated_at').eq('status','published').order('specialty').order('id')),
+   fetchAllPages(()=>state.sb.from('questions').select('id,source_uid,source_number,source_exam,source,status,stem,options,correct_index,explanation,specialty,topic,subtopic,section,image_path,year,remnote_metadata,created_at,updated_at').eq('status','published').order('created_at',{ascending:false}).order('id'))
+ ]).then(r=>{window.NexmirBootCache?.write(uid,r[0],r[1]);return r});
+ catalogFresh.catch(()=>{});
+ const cached=window.NexmirBootCache?await window.NexmirBootCache.read(uid):null;
+ let ct,qs;
+ const pr=await profileP;
+ if(cached){ct=cached.content;qs=cached.questions}else{[ct,qs]=await catalogFresh}
  if(generation!==authGeneration||state.user?.id!==uid){await secondary;return}
  if(pr.error)throw pr.error;
  state.profile=pr.data||{id:uid,role:'user',plan:'free',display_name:state.user?.email?.split('@')[0]||'MIR'};
  state.content=(ct||[]).map(repairImportedClassification);
  state.questions=(qs||[]).map(repairImportedClassification);
+ if(cached)catalogFresh.then(([fc,fq])=>{
+   if(generation!==authGeneration||state.user?.id!==uid)return;
+   if(JSON.stringify(fc)!==JSON.stringify(cached.content)||JSON.stringify(fq)!==JSON.stringify(cached.questions))state.pendingCatalog={uid,content:fc,questions:fq};
+ }).catch(e=>console.warn('Catálogo en segundo plano',e));
  // Datos secundarios: nunca deben impedir entrar a la app.
  const [rv,at,bm,nt,sm,el]=await secondary;
  if(generation!==authGeneration||state.user?.id!==uid)return;
@@ -222,7 +232,9 @@ async function runPlanLoading(work,label='Cargando…'){
  }
 }
 runPlanLoading.pending=0;
+function applyPendingCatalog(){const p=state.pendingCatalog;if(!p)return;state.pendingCatalog=null;if(p.uid!==state.user?.id)return;state.content=p.content.map(repairImportedClassification);state.questions=p.questions.map(repairImportedClassification);hydrateQuestionImages().catch(e=>console.warn('Imágenes diferidas',e))}
 function route(v){
+ if(v!==state.view)applyPendingCatalog();
  const generation=++routeGeneration;
  state.view=v;
  $$('.view').forEach(x=>x.classList.remove('active'));

@@ -1,0 +1,37 @@
+/* NEXMIR Arcade · tokens compartidos V5.1.48
+   Estos valores son los mismos de la app (styles.css). arcade-theme.js los
+   sincroniza en vivo con el tema elegido (paleta + modo claro/oscuro). */
+:root{
+  color-scheme:dark;
+  --bg:#081525;--surface:#10243a;--surface2:#142d46;--line:#23445f;--text:#f3f6fa;--muted:#8fa6b9;
+  --primary:#3b82f6;--violet:#6d5ce7;
+  --good:#2ecc8a;--bad:#ff667a;--warn:#f5b942;
+  --good-text:#4fe0a2;--bad-text:#ff8a9b;--warn-text:#f7c85f;
+}
+:root[data-palette="green"]{--primary:#16a978;--violet:#46a47f}
+:root[data-palette="orange"]{--primary:#e87928;--violet:#c85f41}
+:root[data-palette="pink"]{--primary:#e65b95;--violet:#a75ce7}
+:root[data-theme-mode="light"]{
+  color-scheme:light;
+  --bg:#edf3fa;--surface:#ffffff;--surface2:#e4edf8;--line:#c9d8e8;--text:#14243a;--muted:#5b7087;
+  --good:#16a978;--bad:#d64560;--warn:#d99a1c;
+  --good-text:#0b7a53;--bad-text:#b42339;--warn-text:#8a5a00;
+}
+/* Derivados: nunca se editan a mano, siguen siempre a --primary */
+:root{
+  --card:var(--surface2);
+  --accent:var(--primary);
+  --accent-fill:color-mix(in srgb,var(--primary) 75%,#000);
+  --accent-fill-hover:color-mix(in srgb,var(--primary) 65%,#000);
+  --on-accent:#fff;
+  --accent-text:color-mix(in srgb,var(--primary) 70%,#fff);
+  --accent-soft:color-mix(in srgb,var(--primary) 18%,var(--surface));
+  --accent-line:color-mix(in srgb,var(--primary) 55%,var(--line));
+  --glow:color-mix(in srgb,var(--primary) 22%,transparent);
+}
+:root[data-theme-mode="light"]{
+  --card:color-mix(in srgb,var(--surface2) 40%,var(--surface));
+  --accent-text:color-mix(in srgb,var(--primary) 70%,#000);
+  --accent-soft:color-mix(in srgb,var(--primary) 13%,var(--surface));
+}
+html{background:var(--bg)}
