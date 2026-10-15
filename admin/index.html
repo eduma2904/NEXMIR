@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>NEXMIR Admin V5.1.39</title>
-  <link rel="stylesheet" href="styles.css?v=5.1.5" />
-  <link rel="stylesheet" href="review_refinements.css?v=5.1.5" />
-  <link rel="stylesheet" href="admin_refinements.css?v=5.1.5" />
-  <link rel="stylesheet" href="../product_polish.css?v=5.1.5.2" />
-  <link rel="stylesheet" href="responsive_admin.css?v=5.1.39" />
-  <link rel="stylesheet" href="content_hub.css?v=5.1.29" />
-  <link rel="stylesheet" href="plan_access.css?v=5.1.39" />
+  <link rel="stylesheet" href="styles.css?v=5.1.50" />
+  <link rel="stylesheet" href="review_refinements.css?v=5.1.50" />
+  <link rel="stylesheet" href="admin_refinements.css?v=5.1.50" />
+  <link rel="stylesheet" href="../product_polish.css?v=5.1.50" />
+  <link rel="stylesheet" href="responsive_admin.css?v=5.1.50" />
+  <link rel="stylesheet" href="content_hub.css?v=5.1.50" />
+  <link rel="stylesheet" href="plan_access.css?v=5.1.50" />
 </head>
 <body>
 <header class="topbar">
@@ -28,6 +28,7 @@
     <div class="nav-group"><div class="nav-group-title">Revisión</div>
       <button class="nav" data-view="reports">⚑ <span>Reportes de estudiantes</span></button>
       <button class="nav" data-view="suggestions">💡 <span>Sugerencias</span></button>
+      <button class="nav" data-view="cuadros">▦ <span>Cuadros con nombre</span></button>
       <button class="nav" data-view="history">↺ <span>Historial</span></button>
     </div>
     <div class="nav-group"><div class="nav-group-title">Acceso</div>
@@ -35,7 +36,7 @@
       <button class="nav" data-view="plans">◇ <span>Adquirir Pro</span></button>
     </div>
     <details class="advanced-imports"><summary>Herramientas de biblioteca</summary><button class="nav" data-view="questions">❓ <span>Todas las preguntas</span></button><button class="nav" data-view="content">▤ <span>Flashcards y teoría</span></button><button class="nav" data-view="simmanager">🗂 <span>Simulacros</span></button><button class="nav" data-view="grouping">▤ <span>Desagrupadas / Agrupar</span></button><button class="nav" data-view="bankimport">📥 <span>Importar banco</span></button><button class="nav" data-view="simimport">📝 <span>Importar simulacro</span></button></details>
-    <div class="sideFoot">V5.1.39 · Administración</div>
+    <div class="sideFoot">V5.1.50 · Administración</div>
   </aside>
 
   <main class="main">
@@ -272,6 +273,13 @@
       <p id="editorialCount" class="muted" aria-live="polite"></p><div id="contentList" class="panel"></div>
     </section>
 
+    <section id="cuadrosView" class="view hidden">
+      <div class="pageHead"><div><div class="eyebrow">REVISIÓN</div><h1>Cuadros con nombre</h1><p>Revisa los cuadros (tablas) de la teoría ya publicada y ponles un nombre. Ese nombre aparece en Estudiar y en Repaso. Solo cambia el nombre, nunca el contenido del cuadro.</p></div></div>
+      <div id="cuadrosStats" class="panel" aria-live="polite"></div>
+      <div class="toolbar"><div class="filters"><select id="cuadrosState"><option value="all">Todos</option><option value="unnamed">Solo sin nombre</option><option value="named">Solo con nombre</option></select><select id="cuadrosSubject"><option value="">Todas las asignaturas</option></select><input id="cuadrosSearch" placeholder="Buscar por nombre, tema o encabezado"><button type="button" class="secondary" id="cuadrosSuggestPage">Sugerir nombres en esta página</button></div></div>
+      <p id="cuadrosCount" class="muted" aria-live="polite"></p><p id="cuadrosMessage" class="muted" aria-live="polite"></p>
+      <div id="cuadrosList" class="panel"></div><div id="cuadrosPager" class="cuadroPager"></div>
+    </section>
     <section id="historyView" class="view hidden">
       <div class="pageHead"><div><div class="eyebrow">AUDITORÍA</div><h1>Historial de cambios</h1><p>Cada publicación conserva qué cambió, cuándo y qué versión quedó vigente.</p></div></div>
       <div id="historyList" class="panel"></div>
@@ -289,34 +297,36 @@
 <dialog id="questionManagerDialog"><button class="dialogClose" id="questionManagerClose">×</button><div id="questionManagerBody"></div></dialog>
 <script src="../vendor/supabase.js?v=2.57.4"></script>
 <script src="vendor/pdf.min.js?v=3.11.174"></script>
-<script src="jszip.min.js?v=5.1.5"></script>
-<script src="../content_rules.js?v=5.1.5"></script>
-<script src="../taxonomy.js?v=5.1.5"></script>
-<script src="../session_manager.js?v=5.1.20"></script>
-<script src="app.js?v=5.1.27"></script>
-<script src="spanish_spelling.js?v=5.1.18"></script>
-<script src="../content_admin.js?v=5.1.5.2"></script>
-<script src="content_editor.js?v=5.1.5"></script>
-<script src="remnote_upload.js?v=5.1.5"></script>
-<script src="sim_importer.js?v=5.1.27"></script>
-<script src="simulation_manager.js?v=5.1.5"></script>
-<script src="bank_importer.js?v=5.1.5"></script>
-<script src="classification_manager.js?v=5.1.5"></script>
-<script src="question_quality.js?v=5.1.39"></script>
-<script src="question_manager_v2.js?v=5.1.39"></script>
-<script src="users_manager.js?v=5.1.20"></script>
-<script src="plan_channels.js?v=5.1.39"></script>
-<script src="content_reset.js?v=5.1.29"></script>
-<script src="question_reports.js?v=5.1.18"></script>
-<script src="suggestions_manager.js?v=5.1.5"></script>
-<script src="import_review.js?v=5.1.5"></script>
-<script src="bulk_content.js?v=5.1.5"></script>
-<script src="unified_import.js?v=5.1.5"></script>
-<script src="../interaction_polish.js?v=5.1.5"></script>
-<link rel="stylesheet" href="arcade_manager.css?v=5.1.26">
-<script src="arcade_manager.js?v=5.1.26"></script>
-<script src="classification_arcade_manager.js?v=5.1.26"></script>
-<script src="criteria_rush_manager.js?v=5.1.40"></script>
+<script src="jszip.min.js?v=5.1.50"></script>
+<script src="../content_rules.js?v=5.1.50"></script>
+<script src="../taxonomy.js?v=5.1.50"></script>
+<script src="../session_manager.js?v=5.1.50"></script>
+<script src="app.js?v=5.1.50"></script>
+<script src="spanish_spelling.js?v=5.1.50"></script>
+<script src="../content_admin.js?v=5.1.50"></script>
+<script src="content_editor.js?v=5.1.50"></script>
+<script src="remnote_upload.js?v=5.1.50"></script>
+<script src="sim_importer.js?v=5.1.50"></script>
+<script src="simulation_manager.js?v=5.1.50"></script>
+<script src="bank_importer.js?v=5.1.50"></script>
+<script src="classification_manager.js?v=5.1.50"></script>
+<script src="question_quality.js?v=5.1.50"></script>
+<script src="question_manager_v2.js?v=5.1.50"></script>
+<script src="users_manager.js?v=5.1.50"></script>
+<script src="plan_channels.js?v=5.1.50"></script>
+<script src="content_reset.js?v=5.1.50"></script>
+<script src="question_reports.js?v=5.1.50"></script>
+<script src="suggestions_manager.js?v=5.1.50"></script>
+<script src="import_review.js?v=5.1.50"></script>
+<script src="bulk_content.js?v=5.1.50"></script>
+<script src="unified_import.js?v=5.1.50"></script>
+<script src="../interaction_polish.js?v=5.1.50"></script>
+<link rel="stylesheet" href="arcade_manager.css?v=5.1.50">
+<link rel="stylesheet" href="cuadros_manager.css?v=5.1.50">
+<script src="arcade_manager.js?v=5.1.50"></script>
+<script src="classification_arcade_manager.js?v=5.1.50"></script>
+<script src="criteria_rush_manager.js?v=5.1.50"></script>
+<script src="cuadros_manager.js?v=5.1.50"></script>
 <style>
 #classesJson{width:100%;min-height:360px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
 #classesPreviewBox{overflow-x:auto;margin-top:18px}

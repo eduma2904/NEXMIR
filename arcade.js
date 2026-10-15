@@ -183,7 +183,7 @@
        if(ticket!==request||state.view!=='arcade')return;
        const host=document.getElementById('arcadeHost');
        frame=document.createElement('iframe');frame.title='Clasificaciones MIR · Memoria clínica';frame.className='arcade-frame';
-       frame.src='arcade/clasificaciones.html?v=5.1.48';host.appendChild(frame);
+       frame.src='arcade/clasificaciones.html?v=5.1.50';host.appendChild(frame);
        document.getElementById('arcadeExpand').disabled=false;
        document.getElementById('arcadeLoading').textContent=definitions.length?'Selecciona una clasificación para practicar.':'Selecciona una clasificación. Los casos incluidos están disponibles aunque aún no se instale la ampliación del panel admin.';
        return;
@@ -191,7 +191,7 @@
      if(kind==='criteria_rush'){
        try{const {data,error}=await state.sb.from('arcade_criteria_rush').select('id,name,topic,icon,note,items,scoring,published').eq('published',true).order('name');if(error)throw error;rushCriteria=data||[]}catch(error){console.warn('Criteria Rush personalizado pendiente de instalación o conexión',error);rushCriteria=[]}
        if(ticket!==request||state.view!=='arcade')return;
-       const host=document.getElementById('arcadeHost');frame=document.createElement('iframe');frame.title='Criteria Rush · Atrapa los criterios';frame.className='arcade-frame';frame.src='arcade/criteria-rush.html?v=5.1.48';host.appendChild(frame);document.getElementById('arcadeExpand').disabled=false;document.getElementById('arcadeLoading').textContent=rushCriteria.length?'Criterios extra cargados desde el panel Admin.':'Criterios base listos para jugar.';return;
+       const host=document.getElementById('arcadeHost');frame=document.createElement('iframe');frame.title='Criteria Rush · Atrapa los criterios';frame.className='arcade-frame';frame.src='arcade/criteria-rush.html?v=5.1.50';host.appendChild(frame);document.getElementById('arcadeExpand').disabled=false;document.getElementById('arcadeLoading').textContent=rushCriteria.length?'Criterios extra cargados desde el panel Admin.':'Criterios base listos para jugar.';return;
      }
      const collected=[];
      for(let start=0;;start+=500){
@@ -205,7 +205,7 @@
      if(!rows.length){document.getElementById('arcadeLoading').textContent='Todavía no hay preguntas publicadas. Vuelve cuando el administrador añada contenido.';return}
      const host=document.getElementById('arcadeHost');
      frame=document.createElement('iframe');frame.title='Código Vital · Ahorcado médico';frame.className='arcade-frame';
-     frame.src='arcade/codigo-vital.html?v=5.1.48';host.appendChild(frame);
+     frame.src='arcade/codigo-vital.html?v=5.1.50';host.appendChild(frame);
      document.getElementById('arcadeExpand').disabled=false;
      document.getElementById('arcadeLoading').textContent='Elige una especialidad para comenzar.';
    }catch(error){

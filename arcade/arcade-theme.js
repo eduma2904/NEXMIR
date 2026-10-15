@@ -1,4 +1,4 @@
-/* NEXMIR Arcade · sincronización de tema V5.1.48
+/* NEXMIR Arcade · sincronización de tema V5.1.50
    Lee el tema real de la app (misma origen) antes del primer pintado y lo
    mantiene al día cuando la persona cambia paleta o modo. No toca datos. */
 (function(){

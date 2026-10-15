@@ -1,0 +1,16 @@
+{
+  "name": "nexmir-build",
+  "private": true,
+  "type": "module",
+  "description": "Empaqueta los JS y CSS de la app del estudiante. Uso: cd tools && npm install && npm run build",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "csso": "5.0.5",
+    "terser": "5.36.0"
+  },
+  "dependencies": {
+    "csso": "^5.0.5"
+  }
+}

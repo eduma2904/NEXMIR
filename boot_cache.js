@@ -1,4 +1,4 @@
-/* NEXMIR V5.1.48 · caché local SOLO del catálogo publicado (flashcards y preguntas).
+/* NEXMIR V5.1.50 · caché local SOLO del catálogo publicado (flashcards y preguntas).
    Nunca guarda perfil, rol, plan, permisos, repasos, intentos ni nada personal.
    Si algo falla, la app carga como siempre desde Supabase. */
 (function(){

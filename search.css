@@ -1,0 +1,30 @@
+/* NEXMIR V5.1.50 · búsqueda global */
+.gs-launch span{margin-left:2px}
+.gs-dialog{width:min(760px,96vw);max-height:90vh;padding:16px;display:none;flex-direction:column;gap:10px}
+.gs-dialog[open]{display:flex}
+.gs-head{display:flex;gap:8px;align-items:center}
+.gs-head input{flex:1;font-size:16px;padding:12px 14px}
+.gs-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.gs-types{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.gs-chip{cursor:pointer}
+.gs-chip.on{background:color-mix(in srgb,var(--primary) 20%,transparent);border-color:var(--primary);font-weight:700}
+.gs-count{opacity:.7;font-size:11px}
+.gs-filters select{max-width:230px}
+.gs-results{overflow:auto;display:flex;flex-direction:column;gap:6px;min-height:120px}
+.gs-item{display:flex;gap:10px;text-align:left;align-items:flex-start;border:1px solid var(--line,#23445f);background:transparent;color:inherit;border-radius:12px;padding:10px 12px;cursor:pointer}
+.gs-item:hover,.gs-item.active{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
+.gs-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gs-path{font-size:12px;opacity:.7}
+.gs-snippet{font-size:13px;opacity:.88;overflow-wrap:anywhere}
+.gs-badge{flex:none;font-size:11px;font-weight:800;border-radius:99px;padding:3px 9px;border:1px solid var(--line,#23445f);text-transform:uppercase;letter-spacing:.04em}
+.gs-theory{color:var(--primary)}.gs-cuadro{color:#12a07a}.gs-question{color:#e0a030}
+.gs-dialog mark{background:color-mix(in srgb,var(--primary) 32%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.gs-hint{padding:18px 6px}
+.gs-hint kbd{border:1px solid var(--line,#23445f);border-radius:6px;padding:1px 6px;font-size:12px}
+.gs-more{align-self:center;margin:8px 0}
+.gs-options{padding-left:22px}.gs-options li{margin:6px 0}
+.gs-correct{font-weight:700;color:#12a07a}
+#gsInput::-webkit-search-cancel-button{display:none}
+.gs-filters select{padding:7px 10px;font-size:13px}
+.gs-chip{padding:7px 11px;font-size:13px}
+@media(max-width:560px){.gs-filters{flex-direction:column;align-items:stretch}.gs-types{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.gs-chip{white-space:nowrap}.gs-filters select{max-width:none;width:100%}.gs-launch span{display:none}.gs-dialog{width:100vw;max-height:100dvh;height:100dvh;border-radius:0}}

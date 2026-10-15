@@ -1,0 +1,12 @@
+/* NEXMIR V5.1.50 · cuadros con nombre (Admin) */
+.cuadroItem{border:1px solid var(--line,#23445f);border-radius:14px;padding:14px;margin:12px 0;background:var(--card,transparent)}
+.cuadroHead{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.cuadroHead .fieldLabel{flex:1;min-width:220px}
+.cuadroBtns{display:flex;gap:8px;flex-wrap:wrap}
+.cuadroPreview{max-height:240px;overflow:auto;margin-top:10px}
+.cuadroToolbar,.cuadroPager{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.cuadrosPanelAdmin{margin-top:20px;border-top:1px solid var(--line,#23445f);padding-top:12px}
+.cuadroTag.pending{color:#c77d00;font-weight:700}.cuadroTag.done{color:#12805c;font-weight:700}
+.cuadrosBar{height:8px;border-radius:99px;background:var(--line,#23445f);margin-top:8px;overflow:hidden}
+.cuadrosBar span{display:block;height:100%;background:var(--accent,#3b82f6)}
+#cuadrosBulkBtn{margin:10px 0}

@@ -1,0 +1,11 @@
+/* NEXMIR V5.1.50 · estudiar en orden */
+.order-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;padding:12px 14px;border:1px solid var(--primary);border-radius:14px;background:color-mix(in srgb,var(--primary) 9%,transparent)}
+.order-bar .grow{flex:1;min-width:200px}
+.order-bar strong{display:block}
+.order-track{height:7px;border-radius:99px;background:var(--line,#23445f);overflow:hidden;margin-top:6px}
+.order-track span{display:block;height:100%;background:var(--primary);transition:width .25s}
+.order-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:1px solid var(--line,#23445f)}
+.order-nav .order-mid{flex:1;min-width:140px;text-align:center;font-size:13px}
+.order-read.is-read{border-color:#12a07a;color:#12a07a;font-weight:700}
+.list-item.is-read .type-icon::after{content:"✓";margin-left:2px;color:#12a07a}
+@media(max-width:560px){.order-nav .btn{flex:1}.order-nav .order-mid{order:-1;flex-basis:100%}}
