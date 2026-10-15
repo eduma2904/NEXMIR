@@ -1,6 +1,6 @@
-/* NEXMIR V5.1.50 · estudiar en orden. Agrega Anterior/Siguiente, progreso y "leído" a la teoría,
-   y un botón "Continuar donde quedé" por tema. El avance se guarda en este navegador
-   (localStorage); no escribe en Supabase y no toca repasos, bancos ni permisos. */
+/* NEXMIR · navegación ordenada de teoría y estudio completo de flashcards por tema/subtema.
+   El progreso de lectura se guarda en este navegador (localStorage); no escribe en Supabase
+   y no toca bancos ni permisos. */
 (() => {
   'use strict';
   if(typeof state==='undefined'||typeof openContent!=='function'||typeof contentRow!=='function')return;
@@ -66,20 +66,32 @@
   };
   window.contentRow=contentRow;
 
-  /* ---------- barra "Continuar donde quedé" en la vista del tema ---------- */
+  /* ---------- todas las flashcards visibles del tema o subtema ---------- */
+  function visibleTopicCards(){
+    const st=state.studyPath;if(!st?.items)return[];
+    return st.items.filter(x=>x.kind==='card'&&(!st.sub||(x.subtopic||'General')===st.sub));
+  }
+  function shuffled(items){
+    const out=[...items];
+    for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}
+    return out;
+  }
   function topicBar(){
-    const body=$('#studyDialogBody'),sp=state.studyPath;if(!body||!sp?.items||$('.order-bar',body))return;
-    const probe=sp.items.find(x=>x.kind==='theory');if(!probe)return;
-    const list=ordered(probe),st=load(),n=list.length,r=stats(list);
-    const lastId=st.last[topicKey(probe)],li=list.findIndex(y=>y.id===lastId);
-    const firstUnread=list.findIndex(y=>!st.read[y.id]);
-    const resume=li>=0?li:(firstUnread>=0?firstUnread:-1);
+    const body=$('#studyDialogBody'),st=state.studyPath;if(!body||!st?.items)return;
+    $('.order-bar',body)?.remove();
+    const list=visibleTopicCards(),n=list.length;if(!n)return;
+    const scope=st.sub?'subtema':'tema';
     const bar=document.createElement('div');bar.className='order-bar';
-    bar.innerHTML=`<div class="grow"><strong>▶ Estudiar este tema en orden</strong><span class="muted small">${n} bloque${n>1?'s':''} de teoría · ${r} leído${r===1?'':'s'}</span><div class="order-track"><span style="width:${Math.round(r/n*100)}%"></span></div></div><button type="button" class="btn" data-start="0">Desde el principio</button>${resume>=0&&(li>=0||resume>0)?`<button type="button" class="btn primary" data-start="${resume}">Continuar donde quedé (bloque ${resume+1})</button>`:''}`;
+    bar.innerHTML=`<div class="grow"><strong>▶ Estudiar todas las tarjetas de este ${scope}</strong><span class="muted small">${n} tarjeta${n===1?'':'s'} · se incluirán absolutamente todas las que aparecen en esta selección.</span></div><div class="order-bar-actions"><button type="button" class="btn primary" data-card-order="ordered">Estudiar en orden de aparición</button><button type="button" class="btn" data-card-order="random">Estudiar en desorden</button></div>`;
     const anchor=$('#topicActions',body)||$('.seg',body);
     if(!anchor)return;
     anchor.insertAdjacentElement('beforebegin',bar);
-    bar.addEventListener('click',e=>{const b=e.target.closest('[data-start]');if(b&&list[+b.dataset.start])openContent(list[+b.dataset.start].id)});
+    bar.addEventListener('click',e=>{
+      const b=e.target.closest('[data-card-order]');if(!b)return;
+      const pool=b.dataset.cardOrder==='random'?shuffled(list):[...list];
+      if(typeof window.startReviewPool==='function')window.startReviewPool(pool);
+      else toast('No se pudo iniciar el estudio de tarjetas');
+    });
   }
   const baseTopic=window.openTopic;
   if(typeof baseTopic==='function'){
@@ -90,5 +102,5 @@
     };
     openTopic=window.openTopic;
   }
-  window.NexmirStudyOrder={ordered,isRead};
+  window.NexmirStudyOrder={ordered,isRead,visibleTopicCards,refreshTopicBar:topicBar};
 })();

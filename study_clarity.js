@@ -79,9 +79,8 @@
  function renderTopicActions(){
   const box=$('#topicActions');if(!box)return;
   const{sp,t,sub}=path(),c=topicCards(sp,t,sub),nq=topicQuestions(sp,t,sub).length;
-  const cardBtn=c.all.length?`<button type="button" class="btn primary" ${c.pending.length?'':'disabled'} onclick="studyTopicCards()">${c.pending.length?`Estudiar tarjetas (${Math.min(c.pending.length,30)}${c.pending.length>30?' de '+c.pending.length:''})`:'Tarjetas al día'}</button>`:'';
   const qBtn=nq?`<button type="button" class="btn" onclick="banqueoTopic()">Banquear este tema (${Math.min(nq,20)}${nq>20?' de '+nq:''})</button>`:'';
-  box.innerHTML=`${cardBtn}${qBtn}${sub?`<span class="chip">Subtema: ${esc(sub)} <button type="button" class="link-btn" onclick="topicPickSub()">quitar</button></span>`:''}${!cardBtn&&!qBtn?'<span class="muted small">Este tema solo tiene teoría por ahora.</span>':''}`;
+  box.innerHTML=`${qBtn}${sub?`<span class="chip">Subtema: ${esc(sub)} <button type="button" class="link-btn" onclick="topicPickSub()">quitar</button></span>`:''}${!c.all.length&&!qBtn?'<span class="muted small">Este tema solo tiene teoría por ahora.</span>':''}`;
  }
  function renderTopicList(){
   const st=path(),kind=st.kind||'all',box=$('#topicItems');if(!box)return;
@@ -96,13 +95,12 @@
   const name=encodedName?decodeURIComponent(encodedName):null,st=path();
   st.sub=(name&&st.sub!==name)?name:null;
   $$('#studyDialogBody .sub-clickable').forEach(c=>c.classList.toggle('sub-active',!!st.sub&&c.dataset.sub===st.sub));
-  renderTopicList();renderTopicActions();
+  renderTopicList();renderTopicActions();window.NexmirStudyOrder?.refreshTopicBar?.();
  };
  window.studyTopicCards=function(){
-  const{sp,t,sub}=path(),{pending}=topicCards(sp,t,sub);
-  if(!pending.length)return toast('No hay tarjetas pendientes en este tema');
-  $('#studyDialog')?.close();
-  window.startReviewPool(shuffle(pending.slice(0,30)));
+  const{sp,t,sub}=path(),{all}=topicCards(sp,t,sub);
+  if(!all.length)return toast('No hay tarjetas en este tema');
+  window.startReviewPool(all);
  };
  window.banqueoTopic=function(){
   const{sp,t,sub}=path(),pool=shuffle(topicQuestions(sp,t,sub).filter(q=>(q.options||[]).length>=2)).slice(0,20);
