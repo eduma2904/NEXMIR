@@ -56,17 +56,17 @@ mark.user-highlight{background:#ffe36a;color:#17202a;padding:0 .08em;border-radi
 .goal-insights .card{padding:14px}.goal-estimate{margin-top:12px}.big-estimate{font-size:34px;font-weight:900;color:var(--primary);margin:5px 0 8px}.source-note{margin-top:16px}.gap{gap:10px}.grow{flex:1}
 @media(max-width:800px){.goal-insights{grid-template-columns:1fr}.review-filters{grid-template-columns:1fr!important}.goal-layout{grid-template-columns:1fr!important}}
 
-/* NEXMIR V3.7 — ventanas redimensionables */
-#studyDialog,#cardDialog,#questionDialog{resize:both;overflow:auto;max-width:98vw;max-height:96vh;min-width:360px;min-height:260px}
+/* NEXMIR V5.1.54 — ventanas adaptativas sin control de tamaño residual */
+#studyDialog,#cardDialog,#questionDialog{resize:none;overflow:auto;max-width:98vw;max-height:96vh;min-width:360px;min-height:260px}
 #studyDialog{width:min(1100px,94vw);height:min(780px,90vh)}
 #cardDialog{width:min(900px,92vw);max-height:92vh}
 #questionDialog{width:min(1100px,94vw);height:min(820px,92vh)}
 @media(max-width:760px){#studyDialog,#cardDialog,#questionDialog{resize:none;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:100vw!important;max-height:100vh!important;max-height:100dvh!important;border-radius:0}}
 
-/* NEXMIR V3.8 — redimensionado visible + navegación Banqueo */
+/* NEXMIR V5.1.54 — navegación Banqueo */
 #studyDialog,#cardDialog,#questionDialog,#simDialog{position:relative}
-.resize-grip{position:absolute;right:3px;bottom:3px;width:24px;height:24px;z-index:20;cursor:nwse-resize;border-right:3px solid #5f86a2;border-bottom:3px solid #5f86a2;border-radius:0 0 8px 0;opacity:.9;background:linear-gradient(135deg,transparent 0 52%,rgba(95,134,162,.18) 52%)}
-.resize-grip:hover{border-color:var(--primary);background:linear-gradient(135deg,transparent 0 45%,rgba(39,211,194,.22) 45%)}
+.resize-grip{display:none!important}
+#studyDialog,#cardDialog,#questionDialog,#simDialog{resize:none!important}
 .bank-progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 4px;color:var(--muted);font-size:12px}
 .bank-nav-actions{align-items:center;flex-wrap:wrap;position:sticky;bottom:0;background:linear-gradient(180deg,rgba(14,35,54,.35),#0e2336 28%);padding-top:14px;padding-bottom:4px;z-index:10}
 .bank-nav-actions .spacer{flex:1}

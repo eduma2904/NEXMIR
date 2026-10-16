@@ -34,7 +34,7 @@
   const shortIds=[0,2,6,7,10,26,20,25];
   let plan=steps;
   const dialogHelp = {
-    studyDialog:['Temas y teoría','Usa las pestañas para separar teoría y flashcards. Abre un contenido y regresa al tema con la flecha. El tirador de la esquina cambia el tamaño en escritorio.'],
+    studyDialog:['Temas y teoría','Usa las pestañas para separar teoría y flashcards. Abre un contenido y regresa al tema con la X o la tecla Esc.'],
     cardDialog:['Flashcards','Piensa la respuesta antes de revelarla. Después indica cuánto recordabas; esa valoración programa el próximo repaso.'],
     questionDialog:['Preguntas','Elige una alternativa y usa los controles para avanzar. Puedes marcar o descartar opciones; revisa la explicación tras corregir. Cerrar conserva el borrador del banqueo.'],
     simDialog:['Simulacro','Consulta el cronómetro, navega entre preguntas y entrega al terminar. La revisión final muestra respuestas, netas y explicaciones.'],

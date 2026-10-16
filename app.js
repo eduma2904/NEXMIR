@@ -523,7 +523,7 @@ function showQuestion(){
  <main class="bank-question-workspace ${q.image_url?'has-question-image':''}"><section class="bank-question-reading"><div id="bankStem" data-qkey="${esc(qkey)}" class="flash-front question-stem highlightable" onmouseup="captureHighlightSelection('bank')" onkeyup="captureHighlightSelection('bank')">${highlightedStemHtml('bank',q)}</div>${questionImageHtml(q)}</section><section class="bank-question-options"><div class="mcq-options" role="radiogroup" aria-label="Alternativas de respuesta">${options.map((o,i)=>answerChoiceHtml(q,i,{selected:selected===i,discarded:discarded.has(i),locked,correct:answered&&immediate&&i===+q.correct_index,wrong:answered&&immediate&&i===selected&&i!==+q.correct_index})).join('')}</div><p id="bankSelectionStatus" class="answer-save-status" role="status" aria-live="polite">${bankSelectionStatus()}</p><div id="qFeedback">${answered&&immediate?bankFeedbackHtml(q,saved):''}</div></section></main>
  <div class="dialog-actions bank-nav-actions"><button class="btn" data-bank-nav="previous" onclick="goBankQuestion(${bank.index-1})" ${bank.index===0?'disabled':''}>← Anterior</button><button class="btn" onclick="toggleBookmark('question','${q.id}')">★ Marcar</button><div class="spacer"></div>
  ${immediate&&!answered?`<button id="answerBtn" class="btn primary" ${saved?.saving||selected===null?'disabled':''} onclick="answerQuestion()">${saved?.saving?'Guardando…':'Responder'}</button>`:''}
- <button class="btn ${!immediate||answered?'primary':''}" data-bank-nav="next" onclick="goBankQuestion(${bank.index+1})" ${bank.index>=bank.pool.length-1?'disabled':''}>Siguiente →</button><button class="btn ${bank.index===bank.pool.length-1?'primary':''}" onclick="finishBank(true)">Finalizar y enviar</button></div><div class="resize-grip" title="Arrastra para cambiar el tamaño"></div>`;
+ <button class="btn ${!immediate||answered?'primary':''}" data-bank-nav="next" onclick="goBankQuestion(${bank.index+1})" ${bank.index>=bank.pool.length-1?'disabled':''}>Siguiente →</button><button class="btn ${bank.index===bank.pool.length-1?'primary':''}" onclick="finishBank(true)">Finalizar y enviar</button></div>`;
  const d=$('#questionDialog');if(!d.open)d.showModal();ensureResizableDialog(d);
 }
 
@@ -701,21 +701,9 @@ window.addEventListener('beforeunload',e=>{if(simIsActive()){e.preventDefault();
 
 function ensureResizableDialog(dialog){
  if(!dialog)return;
- // Keep the handle outside the body that is replaced on each question.
- dialog.querySelectorAll('.resize-grip').forEach(g=>{if(g.parentElement!==dialog)g.remove()});
- let grip=dialog.querySelector(':scope > .resize-grip');
- if(!grip){grip=document.createElement('button');grip.type='button';grip.className='resize-grip';grip.title='Arrastra para cambiar el tamaño. También puedes usar las flechas.';grip.setAttribute('aria-label','Cambiar tamaño de la ventana con las flechas o arrastrando');dialog.appendChild(grip)}
- if(grip.dataset.ready==='1')return;grip.dataset.ready='1';
- const size=(w,h)=>{const width=Math.max(360,Math.min(window.innerWidth-48,w)),height=Math.max(260,Math.min(window.innerHeight-48,h));dialog.style.setProperty('--dialog-width',width+'px');dialog.style.setProperty('--dialog-height',height+'px');dialog.style.width=width+'px';dialog.style.height=height+'px'};
- grip.addEventListener('pointerdown',e=>{
-   if(window.innerWidth<=760||e.button!==0)return;
-   e.preventDefault();e.stopPropagation();const r=dialog.getBoundingClientRect(),x=e.clientX,y=e.clientY;
-   grip.setPointerCapture(e.pointerId);
-   const move=ev=>size(r.width+ev.clientX-x,r.height+ev.clientY-y);
-   const end=()=>{grip.removeEventListener('pointermove',move);grip.removeEventListener('pointerup',end);grip.removeEventListener('pointercancel',end)};
-   grip.addEventListener('pointermove',move);grip.addEventListener('pointerup',end);grip.addEventListener('pointercancel',end);
- });
- grip.addEventListener('keydown',e=>{const dx={ArrowLeft:-40,ArrowRight:40}[e.key]||0,dy={ArrowUp:-40,ArrowDown:40}[e.key]||0;if(!dx&&!dy)return;e.preventDefault();const r=dialog.getBoundingClientRect();size(r.width+dx,r.height+dy)});
+ dialog.querySelectorAll('.resize-grip').forEach(grip=>grip.remove());
+ dialog.style.removeProperty('--dialog-width');dialog.style.removeProperty('--dialog-height');
+ dialog.style.removeProperty('width');dialog.style.removeProperty('height');
 }
 function initResizableDialogs(){['studyDialog','cardDialog','questionDialog','simDialog'].forEach(id=>{const d=document.getElementById(id);if(d)ensureResizableDialog(d)})}
 setTimeout(initResizableDialogs,0);
