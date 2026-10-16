@@ -1,0 +1,13 @@
+/* NEXMIR V5.1.56 · Importación del panel Admin */
+.shiftDown .diffRow,.shiftDown .simqRow,.shiftDown .groupingRow,.shiftDown .contentRow{-webkit-user-select:none;user-select:none}
+.shiftHint{margin:0;color:var(--muted);font-size:12px;flex-basis:100%}
+.importActions{position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+.importActions #importClassifyWarning{flex-basis:100%;margin:0}
+.minirow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.minirowActions{display:inline-flex;gap:8px;flex-wrap:wrap}
+.ghostBtn{background:transparent}
+.classificationField{display:grid;gap:6px;margin:14px 0}
+.classificationField>span{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.classificationClear{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.classificationClear input{width:auto}
+.classificationSummary{border:1px solid #293544;border-radius:12px;padding:12px 14px;margin:16px 0;font-size:13px;line-height:1.5;background:#101a28}

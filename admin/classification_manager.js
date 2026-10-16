@@ -50,7 +50,7 @@
     if(!value){
       if(el('groupPrev'))el('groupPrev').disabled=st.page<=0;
       if(el('groupNext'))el('groupNext').disabled=st.page>=Math.ceil(filtered().length/PAGE)-1;
-      for(const field of ['Topic','Subtopic','Section'])if(el('classUse'+field))el('class'+field).disabled=!el('classUse'+field).checked;
+      for(const f of ['specialty','topic','subtopic','section'])if(el('clear_'+f)&&el('class_'+f))el('class_'+f).disabled=el('clear_'+f).checked;
     }
   }
   function render(){
@@ -62,7 +62,7 @@
     el('groupList').innerHTML=page.length?page.map(r=>`<div class="groupingRow" data-key="${esc(key(r))}"><input class="groupCheck" type="checkbox" ${st.selected.has(key(r))?'checked':''}><div class="groupingText"><strong>${esc(title(r).slice(0,240))}</strong><small>${esc(label(r))} · ${esc(r.source||'Origen no guardado')}</small><span>${esc([isUnclassifiedValue(r.specialty)?'Desagrupadas':r.specialty,r.topic,r.subtopic,r.section].filter(Boolean).join(' › '))}</span></div><button class="secondary groupPreview">Ver / Editar</button></div>`).join(''):'<div class="empty">No hay contenidos con esos filtros. Cambia a «Todo lo publicado» para revisar también los agrupados.</div>';
     if(el('groupPrev'))el('groupPrev').onclick=()=>{st.page--;render()};if(el('groupNext'))el('groupNext').onclick=()=>{st.page++;render()};
     el('groupList').querySelectorAll('.groupingRow').forEach(row=>{
-      const k=row.dataset.key,r=byKey.get(k);row.querySelector('.groupCheck').onchange=e=>{e.target.checked?st.selected.add(k):st.selected.delete(k);render()};
+      const k=row.dataset.key,r=byKey.get(k);row.querySelector('.groupCheck').onclick=e=>{e.stopPropagation();NexmirShiftSelect.apply('group',e,rows.map(key),k,st.selected);render()};
       row.querySelector('.groupPreview').onclick=()=>edit([r]);
     });
     if(st.busy)setBusy(true);
@@ -71,31 +71,64 @@
     if(r.kind==='content')return renderValue({...r.payload,specialty:r.specialty,topic:r.topic,subtopic:r.subtopic,section:r.section});
     const q=r.payload;return `<div class="question">${inlineMd(q.stem||'')}</div><ol>${(q.options||[]).map((o,i)=>`<li>${i===q.correct_index?'✓ ':''}${inlineMd(typeof o==='string'?o:o.text||'')}</li>`).join('')}</ol><p>${inlineMd(q.explanation||'')}</p>`;
   }
-  function showForm(rows,save,{imported=false,proposals=null}={}){
-    const first=rows[0],single=rows.length===1,shared=field=>{const values=[...new Set(rows.map(r=>String(r[field]??'')))];return values.length===1?values[0]:''},sharedSpecialty=shared('specialty');
-    const proposed=proposals?.[0]||first;
-    el('classificationBody').innerHTML=`<div class="compareHead"><h2>${proposals?'Revisar recuperación de jerarquía':'Editar clasificación'}</h2><button id="classClose" class="secondary">Cerrar</button></div>
-      <p class="muted">${rows.length} ${imported?'contenidos de la importación':'contenidos publicados'}. ${single?'':'Cambiar la especialidad conserva los temas de cada registro, salvo que actives un campo.'}</p>
+  const SCOPES={
+    specialty:{title:'Cambiar especialidad',fields:['specialty'],note:'Solo cambia la especialidad. Los temas, subtemas y apartados de cada contenido se conservan.'},
+    topic:{title:'Cambiar tema',fields:['topic'],note:'Solo cambia el tema. La especialidad y los subtemas de cada contenido se conservan.'},
+    subtopic:{title:'Cambiar subtema',fields:['subtopic','section'],note:'Solo cambia el subtema o el apartado. La especialidad y el tema se conservan.'},
+    free:{title:'Editar clasificación',fields:['specialty','topic','subtopic','section'],note:'Solo se aplican los campos que modifiques. Lo que no toques se conserva en cada contenido.'}
+  };
+  const FIELD_LABEL={specialty:'Especialidad',topic:'Tema',subtopic:'Subtema',section:'Apartado'};
+  function showForm(rows,save,{imported=false,proposals=null,scope='free'}={}){
+    const H=NexmirHierarchy,cfg=SCOPES[scope]||SCOPES.free,dist=H.distinct(rows);
+    const shown=proposals?[]:cfg.fields,pendingSpecialty=rows.filter(r=>isUnclassifiedValue(r.specialty)).length;
+    const initial=f=>{const v=dist[f];if(v.length!==1)return '';return f==='specialty'&&isUnclassifiedValue(v[0])?'':v[0]};
+    const current=f=>{const v=dist[f];return !v.length?'sin valor':v.length===1?v[0]:`${v.length} valores distintos`};
+    const fieldHtml=f=>{
+      const init=initial(f),mixed=dist[f].length>1,canClear=(f==='subtopic'||f==='section')&&dist[f].length>0;
+      return `<div class="classificationField" data-field="${f}"><span><strong>${FIELD_LABEL[f]}</strong><small class="muted">Ahora: ${esc(current(f))}</small></span>
+        <input id="class_${f}" data-initial="${esc(init)}" value="${esc(init)}" ${f==='specialty'?'list="classificationSubjects"':''} placeholder="${mixed?'Varios · escribe para unificarlos':FIELD_LABEL[f]}" autocomplete="off">
+        ${canClear?`<label class="classificationClear"><input type="checkbox" id="clear_${f}"> Dejar ${FIELD_LABEL[f].toLowerCase()} vacío</label>`:''}</div>`;
+    };
+    el('classificationBody').innerHTML=`<div class="compareHead"><h2>${proposals?'Revisar recuperación de jerarquía':esc(cfg.title)}</h2><button id="classClose" class="secondary">Cerrar</button></div>
+      <p class="muted">${rows.length} ${imported?'contenidos de la importación':'contenidos publicados'}. ${proposals?'Se aplican las propuestas de abajo.':cfg.note}</p>
       ${proposals?`<div class="classificationProposals">${proposals.slice(0,100).map((p,i)=>`<p><strong>${esc(title(rows[i]).slice(0,90))}</strong><br>${esc([p.specialty,p.topic,p.subtopic,p.section].filter(Boolean).join(' › '))}</p>`).join('')}${proposals.length>100?`<p>Y ${proposals.length-100} propuestas más.</p>`:''}</div>`:
-      `<label class="fieldLabel">Especialidad<input id="classSpecialty" list="classificationSubjects" value="${esc(!isUnclassifiedValue(sharedSpecialty)?sharedSpecialty:'')}" placeholder="Elige o escribe una especialidad"></label>
-      ${[['Topic','Tema','topic'],['Subtopic','Subtema','subtopic'],['Section','Apartado','section']].map(([id,label,field])=>{const value=shared(field),enabled=single||!!value;return`<label class="classificationField"><span><input id="classUse${id}" type="checkbox" ${enabled?'checked':''}> Cambiar ${label.toLowerCase()}</span><input id="class${id}" value="${esc(value)}" placeholder="${label}" ${enabled?'':'disabled'}></label>`}).join('')}`}
-      ${single&&!proposals?`<div class="classificationPreview">${preview(first)}</div>`:''}
-      <p id="classMessage" class="muted" aria-live="polite"></p><div class="actions"><button id="classSave" class="primary">${proposals?'Aplicar recuperación':'Guardar clasificación'}</button></div>`;
+      `${shown.map(fieldHtml).join('')}
+       ${scope==='free'&&pendingSpecialty?`<p class="muted">${pendingSpecialty} de estos contenidos no tienen especialidad. Escribe una para clasificarlos.</p>`:''}
+       <div id="classSummary" class="classificationSummary" aria-live="polite"></div>
+       ${rows.length===1?`<div class="classificationPreview">${preview(rows[0])}</div>`:''}`}
+      <p id="classMessage" class="muted" aria-live="polite"></p><div class="actions"><button id="classSave" class="primary">${proposals?'Aplicar recuperación':'Guardar cambios'}</button></div>`;
+    const read=f=>{
+      const input=el('class_'+f);if(!input)return undefined;
+      if(el('clear_'+f)?.checked)return null;
+      const value=input.value.trim();return value===input.dataset.initial.trim()?undefined:value;
+    };
+    const collect=()=>{const changes={};for(const f of shown){const v=read(f);if(v!==undefined)changes[f]=v}return changes};
+    const summary=()=>{
+      const host=el('classSummary');if(!host)return;const changes=collect(),keys=Object.keys(changes);
+      if(!keys.length){host.textContent='Todavía no cambiaste ningún campo.';el('classSave').disabled=true;return}
+      el('classSave').disabled=false;
+      const kept=H.FIELDS.filter(f=>!keys.includes(f)&&dist[f].length).map(f=>`${dist[f].length} ${f==='specialty'?(dist[f].length===1?'especialidad':'especialidades'):f==='topic'?(dist[f].length===1?'tema':'temas'):f==='subtopic'?(dist[f].length===1?'subtema':'subtemas'):(dist[f].length===1?'apartado':'apartados')}`);
+      host.innerHTML=`<strong>Se cambiará:</strong> ${keys.map(f=>`${FIELD_LABEL[f].toLowerCase()} → ${changes[f]===null?'vacío':esc(changes[f]||'General')}`).join(', ')} en ${rows.length} contenidos.${kept.length?`<br><strong>Se conserva:</strong> ${kept.join(', ')}.`:''}`;
+    };
     el('classClose').onclick=()=>el('classificationDialog').close();
-    for(const field of ['Topic','Subtopic','Section'])if(el('classUse'+field))el('classUse'+field).onchange=e=>el('class'+field).disabled=!e.target.checked;
+    if(!proposals){
+      for(const f of shown){el('class_'+f).oninput=summary;if(el('clear_'+f))el('clear_'+f).onchange=e=>{el('class_'+f).disabled=e.target.checked;summary()}}
+      summary();
+    }
     el('classSave').onclick=async()=>{
       try{
-        const patches=proposals||rows.map(r=>RemnoteTaxonomy.manual(el('classSpecialty').value,{
-          topic:el('classUseTopic').checked?el('classTopic').value:r.topic,
-          subtopic:el('classUseSubtopic').checked?el('classSubtopic').value:r.subtopic,
-          section:el('classUseSection').checked?el('classSection').value:r.section
-        }));
+        let patches=proposals;
+        if(!patches){
+          const changes=collect();if(!Object.keys(changes).length)throw new Error('No cambiaste ningún campo.');
+          patches=rows.map(r=>H.patch(r,changes));
+        }
         await save(patches);
       }catch(e){el('classMessage').textContent=e.message||String(e)}
     };
     el('classificationDialog').showModal();
+    el(shown.length?'class_'+shown[0]:'classSave')?.focus();
   }
-  function edit(rows){if(st.busy||st.pending)return;if(!rows.length){alert('Selecciona al menos un contenido.');return}showForm(rows,patches=>savePublished(rows,patches))}
+  function edit(rows,scope='free'){if(st.busy||st.pending)return;if(!rows.length){alert('Selecciona al menos un contenido.');return}showForm(rows,patches=>savePublished(rows,patches),{scope})}
   async function savePublished(rows,patches){
     if(remnoteQueue.running||remnoteQueue.publishing||state.import?.cloudPublish)throw new Error('Termina la carga o publicación de RemNote antes de editar lo publicado.');
     if(!cloudMode){
@@ -162,11 +195,11 @@
     showForm(rows,patches=>savePublished(rows,patches),{proposals});
   }
   global.openGrouping=()=>{go('grouping');if(!st.pending)load()};
-  global.openImportGrouping=diffs=>{
+  global.openImportGrouping=(diffs,scope='free')=>{
     if(remnoteQueue.running||remnoteQueue.publishing||state.import?.cloudPublish)return;
     const selected=diffs.filter(d=>d.newValue&&d.status!=='missing');if(!selected.length){alert('Selecciona contenido para agrupar.');return}
     const rows=selected.map(d=>({kind:'content',payload:d.newValue,...d.newValue}));
-    showForm(rows,async patches=>{selected.forEach((d,i)=>Object.assign(d.newValue,patches[i]));state.import.meta.unclassified=state.import.diffs.filter(d=>isUnclassifiedValue(d.newValue?.specialty)).length;el('classificationDialog').close();renderCompare()},{imported:true});
+    showForm(rows,async patches=>{selected.forEach((d,i)=>Object.assign(d.newValue,patches[i]));state.import.meta.unclassified=state.import.diffs.filter(d=>isUnclassifiedValue(d.newValue?.specialty)).length;el('classificationDialog').close();renderCompare()},{imported:true,scope});
   };
   global.validateRemnotePublication=diffs=>{
     const invalid=diffs.filter(d=>d.status!=='missing'&&isUnclassifiedValue(d.newValue?.specialty));

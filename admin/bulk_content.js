@@ -10,7 +10,7 @@
       NexmirContentRules.retainSelection(selected,api.all(),api.key);
       const visible=api.visible();document.querySelectorAll(api.selector).forEach((node,i)=>{
         const row=visible[i];if(!row||api.nativeChecks)return;let box=node.querySelector('.bulk-record-check');
-        if(!box){box=document.createElement('input');box.type='checkbox';box.className='bulk-record-check';box.setAttribute('aria-label','Seleccionar '+name);box.onclick=e=>e.stopPropagation();box.onchange=()=>{box.checked?selected.add(api.key(row)):selected.delete(api.key(row));sync()};if(node.tagName==='TR')node.firstElementChild.prepend(box);else node.prepend(box)}
+        if(!box){box=document.createElement('input');box.type='checkbox';box.className='bulk-record-check';box.setAttribute('aria-label','Seleccionar '+name);box.onclick=e=>{e.stopPropagation();if(e.shiftKey){NexmirShiftSelect.apply('bulk:'+name+':'+api.host,e,api.visible().map(api.key),api.key(row),selected);sync()}else NexmirShiftSelect.apply('bulk:'+name+':'+api.host,e,[],api.key(row),new Set())};box.onchange=()=>{box.checked?selected.add(api.key(row)):selected.delete(api.key(row));sync()};if(node.tagName==='TR')node.firstElementChild.prepend(box);else node.prepend(box)}
         box.checked=selected.has(api.key(row));box.disabled=busy||api.busy?.();
       });
       const text=`${selected.size} seleccionadas`;if(count.textContent!==text)count.textContent=text;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXMIR Admin V5.1.39</title>
+  <title>NEXMIR Admin V5.1.56</title>
   <link rel="stylesheet" href="styles.css?v=5.1.50" />
   <link rel="stylesheet" href="review_refinements.css?v=5.1.50" />
   <link rel="stylesheet" href="admin_refinements.css?v=5.1.50" />
@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="responsive_admin.css?v=5.1.50" />
   <link rel="stylesheet" href="content_hub.css?v=5.1.50" />
   <link rel="stylesheet" href="plan_access.css?v=5.1.50" />
+  <link rel="stylesheet" href="import_ux.css?v=5.1.56" />
 </head>
 <body>
 <header class="topbar">
@@ -134,8 +135,7 @@
         <div id="compareStats" class="stats"></div>
         <section id="importGroupingSummary" class="cardBox" hidden></section>
         <div class="toolbar"><div class="tabs" id="statusTabs"><button class="tab active" data-status="all">Todos</button><button class="tab" data-status="new">Nuevos</button><button class="tab" data-status="modified">Modificados</button><button class="tab" data-status="review">Sin clasificar</button><button class="tab" data-status="problems">Con problemas</button></div><div class="filters"><input id="compareSearch" type="search" placeholder="Buscar tarjeta…" /></div></div>
-        <div class="bulkbar"><label><input id="selectVisible" type="checkbox" /> Seleccionar visibles</label><span id="selectedCount">0 seleccionados</span><button id="importSelectAll" class="secondary" type="button">Seleccionar todo el filtro</button><button id="importClearSelected" class="secondary" type="button">Quitar selección</button><button id="importDeleteSelected" class="secondary danger" type="button">Eliminar seleccionadas</button></div>
-        <div class="bulkbar"><button id="importGroupSelected" class="secondary" type="button">Agrupar seleccionadas</button><button id="importRepairSelected" class="secondary" type="button">Recuperar clasificación gratis</button><p id="importClassifyWarning" class="muted hidden"></p></div>
+        <div class="bulkbar importActions"><label><input id="selectVisible" type="checkbox" /> Seleccionar página</label><span id="selectedCount">0 seleccionados</span><button id="importSelectAll" class="secondary" type="button">Seleccionar todo el filtro</button><button id="importClearSelected" class="secondary" type="button">Quitar selección</button><button id="importGroupSelected" class="primary" type="button" title="Cambia solo los campos que modifiques">Cambiar clasificación…</button><button id="importRepairSelected" class="secondary" type="button" title="Recupera la especialidad desde carpetas o contenido">Sugerir clasificación</button><button id="importDeleteSelected" class="secondary danger" type="button">Quitar de esta carga</button><p id="importClassifyWarning" class="muted hidden"></p><p class="shiftHint">Tip: haz clic en una casilla y Shift + clic en otra para marcar todo el rango.</p></div>
         <div id="diffPager" class="diffPager"></div><div id="diffList" class="panel"></div>
       </div>
     </section>
@@ -197,7 +197,7 @@
         <div id="simImportStats" class="stats"></div>
           <div id="simImportQuality" class="notice hidden" style="margin-top:12px"></div>
         <div class="toolbar"><div class="tabs" id="simImportTabs"><button class="tab active" data-filter="all">Todas</button><button class="tab" data-filter="new">Nuevas</button><button class="tab" data-filter="modified">Modificadas</button><button class="tab" data-filter="unchanged">Sin cambios</button><button class="tab" data-filter="review">Sin clasificar</button><button class="tab" data-filter="problems">Con problemas</button></div><div class="filters"><input id="simImportSearch" type="search" placeholder="Buscar pregunta…"></div></div>
-        <div class="bulkbar"><label><input id="simSelectVisible" type="checkbox"> Seleccionar este filtro</label><div class="bulkActions"><span id="simImportSelectedCount">0 seleccionadas</span><button id="simDeleteSelected" type="button" class="secondary danger" disabled>Eliminar seleccionadas</button></div></div>
+        <div class="bulkbar"><label><input id="simSelectVisible" type="checkbox"> Seleccionar este filtro</label><div class="bulkActions"><span id="simImportSelectedCount">0 seleccionadas</span><button id="simDeleteSelected" type="button" class="secondary danger" disabled>Eliminar seleccionadas</button></div><span class="shiftHint">Shift + clic marca un rango</span></div>
         <div id="simQuestionList" class="panel"></div>
       </div>
     </section>
@@ -222,7 +222,7 @@
         <div class="actions" style="margin-top:16px"><button id="bankAnalyzeBtn" class="primary">Analizar banco</button></div>
       </div>
       <div id="bankProgress" class="cardBox hidden" style="margin-top:16px"><strong>Procesando banco</strong><div class="progressTrack"><div id="bankProgressBar" class="progressBar" style="width:0%"></div></div><div id="bankProgressText" class="progressPct">0%</div></div>
-      <div id="bankReview" class="hidden"><div class="compareHead"><div><h2>Banco preparado</h2><p class="muted">Revisa problemas y clasificación antes de publicar.</p></div><div class="actions"><button id="bankResetBtn" class="secondary">Descartar</button><button id="bankPublishBtn" class="primary">Publicar seleccionadas</button></div></div><div id="bankStats" class="stats"></div><div id="bankQuality" class="notice hidden" style="margin-top:12px"></div><div class="toolbar"><div class="tabs" id="bankTabs"><button class="tab active" data-filter="all">Todas</button><button class="tab" data-filter="new">Nuevas</button><button class="tab" data-filter="modified">Modificadas</button><button class="tab" data-filter="unchanged">Sin cambios</button><button class="tab" data-filter="review">Sin clasificar</button><button class="tab" data-filter="problems">Con problemas</button></div><div class="filters"><input id="bankSearch" type="search" placeholder="Buscar pregunta…"></div></div><div class="bulkbar"><label><input id="bankSelectVisible" type="checkbox"> Seleccionar este filtro</label><span id="bankSelectedCount">0 seleccionadas</span></div><div id="bankQuestionList" class="panel"></div></div>
+      <div id="bankReview" class="hidden"><div class="compareHead"><div><h2>Banco preparado</h2><p class="muted">Revisa problemas y clasificación antes de publicar.</p></div><div class="actions"><button id="bankResetBtn" class="secondary">Descartar</button><button id="bankPublishBtn" class="primary">Publicar seleccionadas</button></div></div><div id="bankStats" class="stats"></div><div id="bankQuality" class="notice hidden" style="margin-top:12px"></div><div class="toolbar"><div class="tabs" id="bankTabs"><button class="tab active" data-filter="all">Todas</button><button class="tab" data-filter="new">Nuevas</button><button class="tab" data-filter="modified">Modificadas</button><button class="tab" data-filter="unchanged">Sin cambios</button><button class="tab" data-filter="review">Sin clasificar</button><button class="tab" data-filter="problems">Con problemas</button></div><div class="filters"><input id="bankSearch" type="search" placeholder="Buscar pregunta…"></div></div><div class="bulkbar"><label><input id="bankSelectVisible" type="checkbox"> Seleccionar este filtro</label><span id="bankSelectedCount">0 seleccionadas</span><span class="shiftHint">Shift + clic marca un rango</span></div><div id="bankQuestionList" class="panel"></div></div>
     </section>
 
 
@@ -302,15 +302,16 @@
 <script src="../content_rules.js?v=5.1.50"></script>
 <script src="../taxonomy.js?v=5.1.55"></script>
 <script src="../session_manager.js?v=5.1.50"></script>
-<script src="app.js?v=5.1.50"></script>
+<script src="import_ux.js?v=5.1.56"></script>
+<script src="app.js?v=5.1.56"></script>
 <script src="spanish_spelling.js?v=5.1.50"></script>
 <script src="../content_admin.js?v=5.1.50"></script>
 <script src="content_editor.js?v=5.1.50"></script>
 <script src="remnote_upload.js?v=5.1.50"></script>
-<script src="sim_importer.js?v=5.1.50"></script>
+<script src="sim_importer.js?v=5.1.56"></script>
 <script src="simulation_manager.js?v=5.1.50"></script>
-<script src="bank_importer.js?v=5.1.50"></script>
-<script src="classification_manager.js?v=5.1.50"></script>
+<script src="bank_importer.js?v=5.1.56"></script>
+<script src="classification_manager.js?v=5.1.56"></script>
 <script src="question_quality.js?v=5.1.50"></script>
 <script src="question_manager_v2.js?v=5.1.50"></script>
 <script src="users_manager.js?v=5.1.50"></script>
@@ -318,8 +319,8 @@
 <script src="content_reset.js?v=5.1.50"></script>
 <script src="question_reports.js?v=5.1.50"></script>
 <script src="suggestions_manager.js?v=5.1.50"></script>
-<script src="import_review.js?v=5.1.50"></script>
-<script src="bulk_content.js?v=5.1.50"></script>
+<script src="import_review.js?v=5.1.56"></script>
+<script src="bulk_content.js?v=5.1.56"></script>
 <script src="unified_import.js?v=5.1.50"></script>
 <script src="../interaction_polish.js?v=5.1.50"></script>
 <link rel="stylesheet" href="arcade_manager.css?v=5.1.50">
