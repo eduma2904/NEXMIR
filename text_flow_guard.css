@@ -1,0 +1,17 @@
+/* NEXMIR V5.1.57 · Guardia de flujo de texto. SIEMPRE el último CSS.
+   Los contenedores que reciben texto con formato (negrita, cursiva, código, enlaces) deben ser bloques
+   normales. Con display:flex, grid o columnas cada fragmento en negrita se convierte en una columna
+   aparte y el enunciado se ve partido. Esta regla gana a cualquier estilo anterior.
+   tools/check-richtext.mjs falla el build si una regla vuelve a poner flex/grid/columnas aquí. */
+.flash-front,.flash-back,.question-stem,.sim-stem,.focus-stem,.sim-review-stem,
+.theory-body p,.cuadro-title,.option-text{
+  display:block!important;column-count:auto!important;columns:auto!important;
+  overflow-wrap:anywhere;word-break:normal;hyphens:manual
+}
+.flash-front :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.flash-back :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.question-stem :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.sim-stem :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.focus-stem :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.theory-body :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr),
+.option-text :is(strong,b,em,i,u,s,mark,code,a,sub,sup,small,abbr){display:inline!important;float:none!important}
