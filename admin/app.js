@@ -193,11 +193,28 @@ function setRemnoteControls(busy,publishing){
 function stat(label,n){return`<div class="stat"><div class="num">${n}</div><div class="label">${label}</div></div>`}
 function counts(diffs){const c={new:0,modified:0,unchanged:0,missing:0};diffs.forEach(d=>c[d.status]++);return c}
 function importProblemReasons(d){const v=d.newValue||{},r=[];if(isUnclassifiedValue(v.specialty))r.push('Sin clasificar');if(d.kind==='card'&&v.type==='multiple_choice'&&!NexmirContentRules.validTest(v))r.push('Alternativas o respuesta no válidas');if(d.kind==='card'&&!String(v.front||'').trim())r.push('Sin enunciado');return r}
+function renderImportGroupingSummary(){
+  const host=$('#importGroupingSummary');if(!host||!state.import)return;
+  const specialties=new Map();
+  for(const d of state.import.diffs.filter(d=>d.newValue&&d.status!=='missing')){
+    const v=d.newValue,specialty=isUnclassifiedValue(v.specialty)?'Desagrupadas':v.specialty||'Desagrupadas',topic=v.topic||'General',subtopic=v.subtopic||'Sin subtema',section=v.section||'';
+    if(!specialties.has(specialty))specialties.set(specialty,{rows:[],topics:new Map()});
+    const sp=specialties.get(specialty);sp.rows.push(d);
+    if(!sp.topics.has(topic))sp.topics.set(topic,{rows:[],subtopics:new Map()});
+    const tp=sp.topics.get(topic);tp.rows.push(d);
+    const subKey=[subtopic,section].join('§');if(!tp.subtopics.has(subKey))tp.subtopics.set(subKey,{subtopic,section,rows:[]});tp.subtopics.get(subKey).rows.push(d);
+  }
+  if(!specialties.size){host.hidden=true;return}host.hidden=false;
+  const edits=[],editButton=(rows,label)=>`<button type="button" class="secondary" data-import-group="${edits.push(rows)-1}">${label}</button>`;
+  const sorted=map=>[...map].sort(([a],[b])=>String(a).localeCompare(String(b),'es'));
+  host.innerHTML=`<div class="compareHead"><div><h3>Así se agrupará esta importación</h3><p class="muted">Revisa la clasificación automática antes de publicar. Puedes editar una especialidad, un tema o un subtema completo.</p></div></div>${sorted(specialties).map(([specialty,sp])=>`<details open><summary><strong>${esc(specialty)}</strong> · ${sp.rows.length} contenidos</summary><div class="list"><div class="minirow"><span class="muted">Destino de especialidad</span>${editButton(sp.rows,'Editar especialidad')}</div>${sorted(sp.topics).map(([topic,tp])=>`<div class="minirow"><span><strong>${esc(topic)}</strong><small>${tp.rows.length} contenidos</small></span>${editButton(tp.rows,'Editar tema')}</div>${sorted(tp.subtopics).map(([,sub])=>`<div class="minirow"><span class="path">↳ ${esc(sub.subtopic)}${sub.section?` › ${esc(sub.section)}`:''}<small>${sub.rows.length} contenidos</small></span>${editButton(sub.rows,'Editar grupo')}</div>`).join('')}`).join('')}</div></details>`).join('')}`;
+  $$('#importGroupingSummary [data-import-group]').forEach(button=>button.onclick=()=>openImportGrouping(edits[Number(button.dataset.importGroup)]));
+}
 function renderCompare(){if(!state.import)return;NexmirContentRules.retainSelection(state.selected,filteredDiffs(),diffKey);const c=counts(state.import.diffs),m=state.import.meta;
   $('#compareMeta').textContent=m.repair?'Revisión de la clasificación guardada. Solo se muestran las correcciones propuestas.':`${m.archive_names?.length||1} archivos de origen · ${m.files} Markdown · ${m.raw_cards} tarjetas detectadas · ${m.duplicate_cards} repeticiones unificadas.${m.failed_files?.length?` Atención: ${m.failed_files.length} archivos fallaron; revisa la cola.`:""} ${m.excluded_by_intent||0} contenidos de otras categorías excluidos según el tipo elegido. El contenido de otras cargas se conserva.`;
   const unresolved=state.import.diffs.filter(d=>state.selected.has(diffKey(d))&&d.status!=='missing'&&isUnclassifiedValue(d.newValue?.specialty)).length;
   if($('#importClassifyWarning')){$('#importClassifyWarning').textContent=unresolved?`${unresolved} seleccionadas sin especialidad. Agrúpalas antes de publicar.`:'';$('#importClassifyWarning').classList.toggle('hidden',!unresolved)}
-  $('#compareStats').innerHTML=stat('Nuevos',c.new)+stat('Con cambios',c.modified)+stat('Ya existentes · omitidos',m.existing_duplicates||0)+stat('Tablas',m.tables||0)+stat('Sin clasificar',m.unclassified||0)+stat('Problemas',m.issues+m.uid_collisions);renderDiffList();
+  $('#compareStats').innerHTML=stat('Nuevos',c.new)+stat('Con cambios',c.modified)+stat('Ya existentes · omitidos',m.existing_duplicates||0)+stat('Tablas',m.tables||0)+stat('Sin clasificar',m.unclassified||0)+stat('Problemas',m.issues+m.uid_collisions);renderImportGroupingSummary();renderDiffList();
 }
 function badge(status){return`<span class="badge ${status}">${{new:'Nuevo',modified:'Modificado',unchanged:'Sin cambios',missing:'Ausente'}[status]}</span>`}
 function diffKey(d){return d.uid+'§'+d.kind}

@@ -72,13 +72,13 @@
     const q=r.payload;return `<div class="question">${inlineMd(q.stem||'')}</div><ol>${(q.options||[]).map((o,i)=>`<li>${i===q.correct_index?'✓ ':''}${inlineMd(typeof o==='string'?o:o.text||'')}</li>`).join('')}</ol><p>${inlineMd(q.explanation||'')}</p>`;
   }
   function showForm(rows,save,{imported=false,proposals=null}={}){
-    const first=rows[0],single=rows.length===1;
+    const first=rows[0],single=rows.length===1,shared=field=>{const values=[...new Set(rows.map(r=>String(r[field]??'')))];return values.length===1?values[0]:''},sharedSpecialty=shared('specialty');
     const proposed=proposals?.[0]||first;
     el('classificationBody').innerHTML=`<div class="compareHead"><h2>${proposals?'Revisar recuperación de jerarquía':'Editar clasificación'}</h2><button id="classClose" class="secondary">Cerrar</button></div>
       <p class="muted">${rows.length} ${imported?'contenidos de la importación':'contenidos publicados'}. ${single?'':'Cambiar la especialidad conserva los temas de cada registro, salvo que actives un campo.'}</p>
       ${proposals?`<div class="classificationProposals">${proposals.slice(0,100).map((p,i)=>`<p><strong>${esc(title(rows[i]).slice(0,90))}</strong><br>${esc([p.specialty,p.topic,p.subtopic,p.section].filter(Boolean).join(' › '))}</p>`).join('')}${proposals.length>100?`<p>Y ${proposals.length-100} propuestas más.</p>`:''}</div>`:
-      `<label class="fieldLabel">Especialidad<input id="classSpecialty" list="classificationSubjects" value="${esc(single&&!isUnclassifiedValue(first.specialty)?first.specialty:'')}" placeholder="Elige o escribe una especialidad"></label>
-      ${[['Topic','Tema','topic'],['Subtopic','Subtema','subtopic'],['Section','Apartado','section']].map(([id,label,field])=>`<label class="classificationField"><span><input id="classUse${id}" type="checkbox" ${single?'checked':''}> Cambiar ${label.toLowerCase()}</span><input id="class${id}" value="${esc(single?first[field]||'':'')}" placeholder="${label}" ${single?'':'disabled'}></label>`).join('')}`}
+      `<label class="fieldLabel">Especialidad<input id="classSpecialty" list="classificationSubjects" value="${esc(!isUnclassifiedValue(sharedSpecialty)?sharedSpecialty:'')}" placeholder="Elige o escribe una especialidad"></label>
+      ${[['Topic','Tema','topic'],['Subtopic','Subtema','subtopic'],['Section','Apartado','section']].map(([id,label,field])=>{const value=shared(field),enabled=single||!!value;return`<label class="classificationField"><span><input id="classUse${id}" type="checkbox" ${enabled?'checked':''}> Cambiar ${label.toLowerCase()}</span><input id="class${id}" value="${esc(value)}" placeholder="${label}" ${enabled?'':'disabled'}></label>`}).join('')}`}
       ${single&&!proposals?`<div class="classificationPreview">${preview(first)}</div>`:''}
       <p id="classMessage" class="muted" aria-live="polite"></p><div class="actions"><button id="classSave" class="primary">${proposals?'Aplicar recuperación':'Guardar clasificación'}</button></div>`;
     el('classClose').onclick=()=>el('classificationDialog').close();

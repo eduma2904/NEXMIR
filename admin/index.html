@@ -132,6 +132,7 @@
       <div id="compareView" class="hidden">
         <div class="compareHead"><div class="compareTitleBlock"><h2>Contenido de esta carga</h2><p id="compareMeta" class="muted"></p><div id="publishProgressWrap" class="publishProgress hidden"><div class="progressTrack"><div id="publishProgressBar" class="progressBar" style="width:0%"></div></div><div id="publishProgressText" class="progressPct">0%</div></div></div><div class="actions"><button id="discardImportBtn" class="secondary">Descartar</button><button id="publishBtn" class="primary">Publicar seleccionados</button></div></div>
         <div id="compareStats" class="stats"></div>
+        <section id="importGroupingSummary" class="cardBox" hidden></section>
         <div class="toolbar"><div class="tabs" id="statusTabs"><button class="tab active" data-status="all">Todos</button><button class="tab" data-status="new">Nuevos</button><button class="tab" data-status="modified">Modificados</button><button class="tab" data-status="review">Sin clasificar</button><button class="tab" data-status="problems">Con problemas</button></div><div class="filters"><input id="compareSearch" type="search" placeholder="Buscar tarjeta…" /></div></div>
         <div class="bulkbar"><label><input id="selectVisible" type="checkbox" /> Seleccionar visibles</label><span id="selectedCount">0 seleccionados</span><button id="importSelectAll" class="secondary" type="button">Seleccionar todo el filtro</button><button id="importClearSelected" class="secondary" type="button">Quitar selección</button><button id="importDeleteSelected" class="secondary danger" type="button">Eliminar seleccionadas</button></div>
         <div class="bulkbar"><button id="importGroupSelected" class="secondary" type="button">Agrupar seleccionadas</button><button id="importRepairSelected" class="secondary" type="button">Recuperar clasificación gratis</button><p id="importClassifyWarning" class="muted hidden"></p></div>
@@ -299,7 +300,7 @@
 <script src="vendor/pdf.min.js?v=3.11.174"></script>
 <script src="jszip.min.js?v=5.1.50"></script>
 <script src="../content_rules.js?v=5.1.50"></script>
-<script src="../taxonomy.js?v=5.1.50"></script>
+<script src="../taxonomy.js?v=5.1.55"></script>
 <script src="../session_manager.js?v=5.1.50"></script>
 <script src="app.js?v=5.1.50"></script>
 <script src="spanish_spelling.js?v=5.1.50"></script>

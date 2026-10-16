@@ -45,9 +45,15 @@
   }
   function key(value){return cleanLabel(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
   const map=new Map();for(const [canonical,names] of Object.entries(aliases))for(const label of [canonical,...names])map.set(key(label),canonical);
+  // A root folder can be a recognized topic rather than a new subject.
+  const topicSubjects={
+    'Hematología':['anticoagulante','anticoagulantes','anticoagulacion','coagulacion','hemostasia']
+  };
+  const topicMap=new Map();for(const [specialty,names] of Object.entries(topicSubjects))for(const label of names)topicMap.set(key(label),specialty);
   function unclassified(value){const n=key(value);return !n||['sin clasificar','desagrupadas','desagrupados','desagrupada','desagrupado','unclassified','sin especialidad','pendiente'].includes(n)||n.startsWith('sin clasificar ')}
   const subjectLabel=value=>cleanLabel(value).replace(/^(?:especialidad|asignatura|materia)\s*[:：]\s*/i,'');
   function known(value){return map.get(key(subjectLabel(value)))||null}
+  function knownTopic(value){return topicMap.get(key(value))||null}
   function canonical(value){const s=subjectLabel(value);return unclassified(s)?'Desagrupadas':known(s)||s}
   function simulationLabel(value){return /^simulacros?(?:\s|$)/.test(key(value))}
   function simulationContent(item){
@@ -68,9 +74,13 @@
       const s=cleanLabel(label);if(wrapper(s)||!s)continue;
       if(!parts.some(p=>key(p)===key(s)))parts.push(s);
     }
-    let index=parts.findIndex(p=>known(p)),specialty=index>=0?known(parts[index]):null,origin='remnote_hierarchy';
+    let index=parts.findIndex(p=>known(p)),specialty=index>=0?known(parts[index]):null,origin='remnote_hierarchy',topicFromPath=false;
+    if(!specialty){
+      index=parts.findIndex(p=>knownTopic(p));
+      if(index>=0){specialty=knownTopic(parts[index]);origin='remnote_topic_hierarchy';topicFromPath=true}
+    }
     const rootFolder=sourceParts.slice(0,-1).find(usable);
-    if(rootFolder&&!known(rootFolder)){specialty=canonical(rootFolder);index=parts.findIndex(p=>key(p)===key(rootFolder));origin='remnote_custom_hierarchy'}
+    if(!specialty&&rootFolder&&!known(rootFolder)){specialty=canonical(rootFolder);index=parts.findIndex(p=>key(p)===key(rootFolder));origin='remnote_custom_hierarchy'}
     if(!specialty){
       index=parts.findIndex(p=>/^(?:especialidad|asignatura|materia)\s*[:：]/i.test(p)&&usable(subjectLabel(p)));
       if(index>=0){specialty=canonical(parts[index]);origin='remnote_custom_hierarchy'}
@@ -87,7 +97,7 @@
     }
     if(!specialty)return {specialty:'Sin clasificar',topic:'General',subtopic:null,section:null,path:[],classification_origin:'unresolved'};
     const descendants=(index>=0?parts.slice(index+1):parts).filter(p=>key(canonical(p))!==key(specialty));
-    const topic=descendants[0]||'General',subtopic=descendants[1]||null,section=descendants.slice(2).join(' › ')||null;
+    const topic=topicFromPath?parts[index]:(descendants[0]||'General'),subtopic=topicFromPath?(descendants[0]||null):(descendants[1]||null),section=(topicFromPath?descendants.slice(1):descendants.slice(2)).join(' › ')||null;
     return {specialty,topic,subtopic,section,path:[specialty,topic,subtopic,section].filter(Boolean),classification_origin:origin};
   }
   function manual(specialty,fields={}){
