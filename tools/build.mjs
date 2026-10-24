@@ -5,11 +5,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { minify } from 'terser';
 import * as cssoNs from 'csso';
 const csso = cssoNs.default || cssoNs;
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => fs.readFileSync(path.join(root, f), 'utf8');
 const hash = s => crypto.createHash('sha256').update(s).digest('hex').slice(0, 10);
 const dev = read('index.dev.html');

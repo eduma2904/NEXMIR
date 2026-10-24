@@ -3,9 +3,10 @@
    <strong> fuera una columna aparte. Se ejecuta antes de empaquetar (npm run build / npm run check). */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as cssoNs from 'csso';
 const csso = cssoNs.default || cssoNs;
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dev = fs.readFileSync(path.join(root, 'index.dev.html'), 'utf8');
 const files = [...dev.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"?]+)[^"]*"/g)].map(m => m[1]).filter(u => !/^(https?:)?\/\//.test(u));
 // Contenedores donde el texto se inserta con mdInline / optionHtml (negrita, cursiva, código).
