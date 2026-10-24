@@ -4,8 +4,9 @@
   "type": "module",
   "description": "Empaqueta los JS y CSS de la app del estudiante. Uso: cd tools && npm install && npm run build",
   "scripts": {
-    "check": "node check-richtext.mjs",
-    "build": "node check-richtext.mjs && node build.mjs"
+    "test": "node test-v5-1-63.mjs",
+    "check": "node check-richtext.mjs && node test-v5-1-63.mjs",
+    "build": "node check-richtext.mjs && node test-v5-1-63.mjs && node build.mjs"
   },
   "devDependencies": {
     "csso": "5.0.5",
