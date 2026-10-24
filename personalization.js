@@ -1,10 +1,10 @@
-/* NEXMIR V5.1.62 — temas personales, cronómetro, estadísticas y compatibilidad Focus */
+/* NEXMIR V5.1.63 — temas personales, cronómetro, estadísticas y compatibilidad Focus */
 (() => {
   const palettes={blue:{name:'Azul',label:'Profesional y clínico'},green:{name:'Verde',label:'Fresco y médico'},orange:{name:'Anaranjado',label:'Energético y cálido'},pink:{name:'Rosado',label:'Cercano y elegante'}};
   const themeStorage='nexmir_theme_v517';
   const timer={running:false,manual:false,kind:null,startedAt:0,elapsed:0,metrics:[],pendingQuestions:0,pendingCards:0};
-  const now=()=>Date.now(),isoDate=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)},pad=n=>String(n).padStart(2,'0');
-  const fmt=secs=>`${pad(Math.floor(secs/3600))}:${pad(Math.floor(secs%3600/60))}:${pad(secs%60)}`,isoDateFor=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  const now=()=>Date.now(),isoDate=()=>today(new Date()),pad=n=>String(n).padStart(2,'0');
+  const fmt=secs=>`${pad(Math.floor(secs/3600))}:${pad(Math.floor(secs%3600/60))}:${pad(secs%60)}`,isoDateFor=d=>today(d);
   const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   function preferredTheme(){let local={};try{local=JSON.parse(localStorage.getItem(themeStorage)||'{}')}catch{};const p=state.profile||{};return{palette:p.theme_palette||local.palette||'blue',mode:p.theme_mode||local.mode||'system'}}
@@ -24,6 +24,8 @@
   async function flushStudyTime(force=false){if(!state.user)return;const seconds=timer.running?Math.floor((now()-timer.startedAt)/1000):0;if(!force&&seconds<20&&!timer.pendingQuestions&&!timer.pendingCards)return;if(timer.running){timer.elapsed+=seconds;timer.startedAt=now()}const date=isoDate();let row=timer.metrics.find(x=>x.activity_date===date);if(!row)row={user_id:state.user.id,activity_date:date,study_seconds:0,questions_answered:0,flashcards_reviewed:0,simulations_completed:0};const next={user_id:state.user.id,activity_date:date,study_seconds:(row.study_seconds||0)+(timer.running?seconds:0),flashcards_reviewed:(row.flashcards_reviewed||0)+timer.pendingCards,simulations_completed:Number(row.simulations_completed||0),updated_at:new Date().toISOString()};if(window.NEXMIR_FOCUS_BACKEND_READY!==true)next.questions_answered=(row.questions_answered||0)+timer.pendingQuestions;timer.pendingQuestions=0;timer.pendingCards=0;const {data,error}=await state.sb.from('user_study_daily').upsert(next,{onConflict:'user_id,activity_date'}).select().single();if(!error){const i=timer.metrics.findIndex(x=>x.activity_date===date);if(i>=0)timer.metrics[i]=data||next;else timer.metrics.unshift(data||next);state.studyMetrics=timer.metrics}}
   function beginStudy(kind,manual=false){timer.kind=kind||timer.kind||'study';timer.manual=manual||timer.manual;if(timer.running||document.hidden)return;timer.running=true;timer.startedAt=now();updateClock()}
   function pauseStudy(force=true){if(!timer.running)return;flushStudyTime(force);timer.running=false;timer.startedAt=0;updateClock()}
+  window.nexmirBeginStudy=beginStudy;
+  window.nexmirPauseStudy=pauseStudy;
   window.toggleStudyTimerManual=()=>{if(timer.running){timer.manual=true;pauseStudy(true)}else{timer.manual=true;beginStudy('manual',true)}updateClock()};
   function metricSeconds(){return timer.metrics.reduce((s,x)=>s+(x.study_seconds||0),0)+totalElapsed()}
   function streak(){if(state.studyStreak&&Number.isFinite(Number(state.studyStreak.current_streak)))return Number(state.studyStreak.current_streak);const dates=new Set(timer.metrics.filter(x=>(x.study_seconds||0)>=60).map(x=>x.activity_date));let d=new Date(),n=0;while(dates.has(isoDateFor(d))){n++;d=new Date(d.getTime()-864e5)}return n}

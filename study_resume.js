@@ -2,12 +2,12 @@
 (() => {
   const key=()=>`nexmir_study_resume:${state.user?.id}`;
   const qkey=q=>`${q._source||'questions'}:${q.id}`;
-  function read(){try{return JSON.parse(localStorage.getItem(key())||'null')}catch{return null}}
+  function read(){try{const value=JSON.parse(localStorage.getItem(key())||'null');if(value?.bank?.context==='daily'){delete value.bank;localStorage.setItem(key(),JSON.stringify(value))}return value}catch{return null}}
   function save(){
     if(!state.user||state.deviceBlocked)return false;
     const value={view:state.view,focusOpen:!!document.querySelector('#focusSessionDialog[open]')};
     const bank=state.bank;
-    if(bank?.pool?.length&&(!bank.submitted||document.querySelector('#questionDialog[open] .bank-results-shell'))){
+    if(bank?.context!=='daily'&&bank?.pool?.length&&(!bank.submitted||document.querySelector('#questionDialog[open] .bank-results-shell'))){
       value.bank={keys:bank.pool.map(qkey),index:bank.index,mode:bank.mode,context:bank.context,submitted:!!bank.submitted,
         answers:Object.fromEntries(Object.entries(bank.answers||{}).map(([k,a])=>[k,{...a,saving:false}])),
         highlights:bank.highlights||{},eliminations:bank.eliminations||{},activity:window.nexmirBankCheckpoint?.()};
@@ -17,6 +17,7 @@
   }
   let restoring=false;
   window.nexmirSaveStudy=save;
+  window.nexmirClearBankResume=()=>{try{const value=read();if(!value)return;delete value.bank;localStorage.setItem(key(),JSON.stringify(value))}catch{}};
   window.nexmirClearStudyResume=()=>{try{localStorage.removeItem(key());localStorage.removeItem(`nexmir_focus_checkpoint:${state.user?.id}`)}catch{}};
   window.nexmirRestoreStudy=()=>{
     const saved=read();if(!saved||state.deviceBlocked)return false;
@@ -42,7 +43,7 @@
   const oldRenderBank=window.renderBank;
   window.renderBank=function(...args){
     const result=oldRenderBank.apply(this,args),saved=read();
-    if(saved?.bank&&!saved.bank.submitted&&!document.getElementById('resumeBankCard')){
+    if(saved?.bank&&saved.bank.context!=='daily'&&!saved.bank.submitted&&!document.getElementById('resumeBankCard')){
       const box=document.createElement('div');box.id='resumeBankCard';box.className='card resume-bank-card';
       const answered=Object.values(saved.bank.answers||{}).filter(a=>Number.isInteger(a?.selected)).length;
       box.innerHTML=`<div><strong>Banqueo pendiente</strong><p class="muted">${answered} de ${saved.bank.keys.length} respuestas seleccionadas. Continúa donde lo dejaste.</p></div><button class="btn primary" type="button">Continuar banqueo</button>`;

@@ -11,7 +11,7 @@ html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
 *{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--n-primary,var(--primary)) 40%,transparent) transparent}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--n-primary,var(--primary)) 38%,transparent);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
-:focus-visible{outline:2px solid var(--n-primary,var(--primary));outline-offset:2px;border-radius:8px}
+:focus-visible{outline:2px solid var(--n-primary,var(--primary));outline-offset:2px;border-radius:6px}
 
 /* Barra de progreso superior al cambiar de pestaña */
 #mxRoute{position:fixed;top:0;left:0;height:3px;width:0;z-index:9999;pointer-events:none;
@@ -130,7 +130,7 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px color-mix(in srgb,v
 }
 
 /* Esqueleto de carga */
-.mx-skel{position:relative;overflow:hidden;background:color-mix(in srgb,var(--n-muted,var(--muted)) 14%,transparent);border-radius:12px;min-height:90px}
+.mx-skel{position:relative;overflow:hidden;background:color-mix(in srgb,var(--n-muted,var(--muted)) 14%,transparent);border-radius:10px;min-height:90px}
 .mx-skel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.12) 50%,transparent 80%);transform:translateX(-100%);animation:mx-shine 1.3s infinite}
 
 /* Movimiento reducido: respeta la preferencia del sistema */

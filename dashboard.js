@@ -1,7 +1,7 @@
-/* NEXMIR V5.1.62 — tablero visual y Pregunta del día resoluble. */
+/* NEXMIR V5.1.63 — tablero visual y Pregunta del día resoluble. */
 (() => {
   const safe=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
-  const formatDate=()=>new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long'}).format(new Date()).replace(/^./,x=>x.toUpperCase());
+  const formatDate=()=>new Intl.DateTimeFormat('es-ES',{timeZone:typeof userTimeZone==='function'?userTimeZone():undefined,weekday:'long',day:'numeric',month:'long'}).format(new Date()).replace(/^./,x=>x.toUpperCase());
   const stat=()=>typeof stats==='function'?stats():{cards:[],theory:[],attempts:[],accuracy:0,due:0};
   const weak=()=>typeof weakSpecialties==='function'?weakSpecialties().slice(0,3):[];
   const questions=()=>typeof questionPool==='function'?questionPool():[];
@@ -17,14 +17,19 @@
   };
   const questionPreview=q=>{
     if(!q)return '<p class="muted">Cuando haya preguntas publicadas, verás aquí una recomendación del día.</p>';
-    const options=(q.options||[]).slice(0,3).map((x,i)=>`<div class="home-option"><b>${String.fromCharCode(65+i)}.</b>${safe(typeof x==='string'?x:(x.text||x.label||''))}</div>`).join('');
+    const plainOption=x=>typeof reviewQuestionPreview==='function'
+      ?reviewQuestionPreview({stem:typeof x==='string'?x:(x?.text||x?.label||'')},180)
+      :String(typeof x==='string'?x:(x?.text||x?.label||'')).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    const options=(q.options||[]).map((x,i)=>`<div class="home-option"><b>${String.fromCharCode(65+i)}.</b>${safe(plainOption(x))}</div>`).join('');
     const key=encodeURIComponent(questionKey(q)).replace(/'/g,'%27');
-    return `<div class="home-question-badge">Pregunta del día · ${safe(topicLabel(q))}</div><h4>${safe(String(q.stem||q.question||q.text||'Pregunta MIR recomendada').replace(/<[^>]+>/g,'')).slice(0,190)}</h4>${options?`<div class="home-options">${options}</div>`:''}<button class="btn primary" onclick="openDailyQuestion('${key}')">Resolver ahora</button>`;
+    const stem=typeof reviewQuestionPreview==='function'?reviewQuestionPreview(q,190):String(q.stem||q.question||q.text||'Pregunta MIR recomendada').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    return `<div class="home-question-badge">Pregunta del día · ${safe(topicLabel(q))}</div><h4>${safe(stem)}</h4>${options?`<div class="home-options">${options}</div>`:''}<button class="btn primary" onclick="openDailyQuestion('${key}')">Resolver ahora</button>`;
   };
   function openDailyQuestion(encodedKey){
     const wanted=decodeURIComponent(encodedKey||''),q=questions().find(item=>questionAliases(item).has(wanted));
     if(!q){toast('La pregunta ya no está disponible. Te mostramos otra recomendación.');refreshDailyQuestion();return false}
     state.bank={pool:[q],index:0,answered:false,selected:null,mode:'immediate',results:[],context:'daily',highlights:{},answers:{},eliminations:{},submitted:false};
+    window.nexmirBeginStudy?.('questions');
     showQuestion();return true;
   }
   function refreshDailyQuestion(){const card=document.querySelector('#view-dashboard .home-question');if(card)card.innerHTML=questionPreview(dailyQuestion())}

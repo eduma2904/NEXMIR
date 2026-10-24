@@ -4,7 +4,8 @@ const state={sb:null,user:null,profile:null,content:[],questions:[],reviews:[],a
 const viewNames={dashboard:'Inicio',study:'Estudiar',reviews:'Repasos',bank:'Banqueo',simulations:'Simulacros',battles:'Batallas',errors:'Mis errores',bookmarks:'Marcadas',progress:'Progreso',goal:'Mi plaza MIR',profile:'Perfil'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const fmtDate=s=>s?new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short'}).format(new Date(s)):'—';
-const today=(d=new Date())=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+const userTimeZone=()=>state.focusPreferences?.timezone||(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'}catch{return'UTC'}})();
+const today=(d=new Date())=>{try{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:userTimeZone(),year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`}catch{return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}};
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.add('hidden'),2600)}
 function encodeActionArg(value){return encodeURIComponent(value).replace(/'/g,'%27')}
 const AUTH_STORAGE_KEY='sb-'+new URL(DEFAULT_SB.url).hostname.split('.')[0]+'-auth-token';
@@ -530,8 +531,19 @@ function showQuestion(){
 function bankFeedbackHtml(q,saved){const correct=!!saved?.correct;return `<div class="card"><strong class="${correct?'green':'red'}">${correct?'Correcta':'Incorrecta'}</strong><div id="bankExplanation">${q.explanation?`<p class="muted">${mdInline(q.explanation)}</p>`:'<p class="muted">Esta pregunta no tiene explicación registrada.</p>'}</div></div>`}
 function selectOption(i){const q=state.bank.pool[state.bank.index],saved=bankSavedAnswer(q);if(state.bank.submitting||saved?.persisted||saved?.saving||(state.bank.mode==='immediate'&&saved?.answered))return;if(bankElimination(q).active.includes(i))return toast('Primero recupera esta alternativa para seleccionarla');state.bank.selected=i;state.bank.answers??={};state.bank.answers[bankQKey(q)]={...(saved||{}),selected:i,answered:false};$$('#questionDialogBody .mcq-option').forEach(x=>{const selected=+x.dataset.i===i;x.classList.toggle('selected',selected);const radio=x.querySelector('[role=radio]');radio?.setAttribute('aria-checked',String(selected));const check=x.querySelector('.choice-check');if(check)check.textContent=selected?'✓':''});window.nexmirSaveStudy?.();updateBankSelectionStatus()}
 function goBankQuestion(i){if(i<0||i>=state.bank.pool.length)return;const control=document.activeElement?.dataset.bankNav;window.nexmirSaveStudy?.();state.bank.index=i;showQuestion();if(control){const next=document.querySelector(`[data-bank-nav="${control}"]:not(:disabled)`);(next||document.querySelector('#questionDialog .answer-choice:not(:disabled)'))?.focus({preventScroll:true})}}
-function closeDailyQuestion(){const dialog=$('#questionDialog');if(dialog?.open)dialog.close();if(state.view==='dashboard')renderDashboard()}
-function closeBankDialog(){if(state.bank?.context==='daily'){const q=state.bank.pool?.[state.bank.index],saved=q?bankSavedAnswer(q):null;if(saved?.answered)return closeDailyQuestion();if(confirm('¿Salir de esta pregunta?'))$('#questionDialog').close();return}if(confirm('¿Salir del banqueo? Tus selecciones quedarán guardadas en este navegador para continuar después.'))$('#questionDialog').close()}
+function closeDailyQuestion(){const dialog=$('#questionDialog');if(state.bank?.context==='daily'){state.bank={pool:[],index:0,answered:false,selected:null,mode:'immediate',results:[],context:null,highlights:{},answers:{},eliminations:{},submitted:false};window.nexmirClearBankResume?.()}if(dialog?.open)dialog.close();if(state.view==='dashboard')renderDashboard()}
+function closeBankDialog(){if(state.bank?.context==='daily'){const q=state.bank.pool?.[state.bank.index],saved=q?bankSavedAnswer(q):null;if(saved?.answered)return closeDailyQuestion();if(confirm('¿Salir de esta pregunta?'))closeDailyQuestion();return}if(confirm('¿Salir del banqueo? Tus selecciones quedarán guardadas en este navegador para continuar después.'))$('#questionDialog').close()}
+$('#questionDialog')?.addEventListener('cancel',event=>{
+  if(state.diagnostic?.active){
+    event.preventDefault();
+    if(typeof closeDiagnostic==='function') closeDiagnostic();
+    return
+  }
+  if($('#questionDialog #bankStem')){
+    event.preventDefault();
+    closeBankDialog()
+  }
+});
 function attemptPayload(q,selectedIndex,isCorrect,mode){return{user_id:state.user.id,question_id:q._source==='questions'?q.id:null,source_content_id:q._source==='remnote'?q.id:null,selected_index:selectedIndex,is_correct:isCorrect,answered_at:new Date().toISOString(),mode}}
 async function persistQuestionAttempt(q,selectedIndex,isCorrect,mode){const row=attemptPayload(q,selectedIndex,isCorrect,mode);if(!row.question_id&&!row.source_content_id){toast('No pude identificar la pregunta para guardar el intento');return null}const {data,error}=await state.sb.from('user_question_attempts').insert(row).select('*').single();if(error){console.error('attempt save',error,row);toast('No se pudo guardar el intento: '+error.message);return null}const saved=data||row;state.attempts.unshift(saved);window.dispatchEvent(new CustomEvent('nexmir:question-attempt-saved',{detail:{question:q,attempt:saved}}));if(state.view==='errors'){try{if(await refreshErrorLog()&&state.view==='errors')renderErrors()}catch(e){console.warn('No se pudo actualizar Mis errores',e)}}return saved}
 async function answerQuestion(){

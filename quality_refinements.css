@@ -1,0 +1,40 @@
+/* NEXMIR V5.1.63 · legibilidad, consistencia cromática y acabados de calidad. */
+:root[data-theme-mode]{
+  --primary:var(--ui-accent);
+  --accent:var(--ui-accent);
+  --n-primary:var(--ui-accent);
+}
+
+/* Los estados y resultados deben seguir siendo legibles en pantallas pequeñas. */
+.sim-results-top .sim-result-card span,
+.sim-results-top .sim-result-summary,
+.sim-review-nav-btn .review-card-copy small,
+.sim-review-legend,
+.sim-legend,
+.diagnostic-result span,
+.performance-specialty small{
+  font-size:12px!important;
+  line-height:1.35!important;
+}
+
+.sim-review-nav-btn .review-card-copy strong{
+  font-size:12px!important;
+  line-height:1.3!important;
+}
+
+.priority-pill,
+.option-tag,
+.discard-btn,
+.discard-order-badge,
+.mascot-specialty{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+@media(max-width:760px){
+  #questionDialog .bank-progress-row,
+  #questionDialog .bank-nav-actions .btn,
+  #questionDialog .report-content-action .btn{
+    font-size:12px!important;
+  }
+}
