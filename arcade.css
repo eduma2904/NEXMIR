@@ -1,4 +1,4 @@
-.arcade-game{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.arcade-game h3,.arcade-game p{margin:0}.arcade-game .btn{margin-top:auto}.arcade-frame{display:block;width:100%;height:calc(100dvh - 190px);min-height:650px;border:1px solid var(--line);border-radius:20px;background:var(--bg)}#view-arcade .section-head{flex-wrap:wrap;gap:12px}@media(max-width:650px){.arcade-frame{height:1100px;min-height:0}#view-arcade .cols-3{grid-template-columns:1fr}}
+.arcade-game{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.arcade-game h3,.arcade-game p{margin:0}.arcade-game .btn{margin-top:auto}.arcade-frame{display:block;width:100%;height:calc(100dvh - 190px);min-height:650px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}#view-arcade .section-head{flex-wrap:wrap;gap:12px}@media(max-width:650px){.arcade-frame{height:1100px;min-height:0}#view-arcade .cols-3{grid-template-columns:1fr}}
 .arcade-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
 .arcade-expand{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;min-width:44px}
 .arcade-expand:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
@@ -9,8 +9,8 @@ html.arcade-expanded,html.arcade-expanded body{overflow:hidden!important}
 #arcadePlayer.is-expanded .arcade-toolbar h2{margin:0;font-size:18px}
 #arcadePlayer.is-expanded #arcadeBack,#arcadePlayer.is-expanded #arcadeLoading{display:none}
 #arcadePlayer.is-expanded #arcadeHost{flex:1;min-height:0}
-#arcadePlayer.is-expanded .arcade-frame{height:100%;min-height:0;border-radius:14px}
-#arcadePlayer.is-expanded .arcade-expand{background:#c62828!important;color:#fff!important;border:1px solid #ef9a9a!important;border-radius:12px;font-size:30px;line-height:1;padding:0!important;width:44px;height:44px}
+#arcadePlayer.is-expanded .arcade-frame{height:100%;min-height:0;border-radius:16px}
+#arcadePlayer.is-expanded .arcade-expand{background:#c62828!important;color:#fff!important;border:1px solid #ef9a9a!important;border-radius:10px;font-size:30px;line-height:1;padding:0!important;width:44px;height:44px}
 #arcadePlayer::backdrop{background:var(--bg)}
 .arcade-report-dialog{max-width:min(520px,94vw)}
 .arcade-report-dialog h3{margin:0 0 10px}

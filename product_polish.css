@@ -2,7 +2,7 @@
    Loaded last because earlier versioned styles contain theme !important rules. */
 :root{
  --ui-ease:cubic-bezier(.23,1,.32,1);--ui-fast:140ms;--ui-enter:180ms;
- --ui-radius:12px;--ui-accent:#245bc4;--ui-on-accent:#fff;
+ --ui-radius:10px;--ui-accent:#245bc4;--ui-on-accent:#fff;
  --ui-text:var(--n-text,var(--text));--ui-muted:var(--n-muted,var(--muted));
  --ui-surface:var(--n-card,var(--panel));--ui-border:var(--n-border,var(--line));
 }
@@ -18,7 +18,7 @@
 html{scroll-padding-block:88px;scrollbar-color:var(--ui-muted) transparent}
 html,body{background:var(--n-canvas,var(--bg))!important}
 body{line-height:1.5}
-.battle-invite-auth{display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--ui-accent) 45%,var(--ui-border));border-radius:14px;background:color-mix(in srgb,var(--ui-accent) 10%,var(--ui-surface))}
+.battle-invite-auth{display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--ui-accent) 45%,var(--ui-border));border-radius:16px;background:color-mix(in srgb,var(--ui-accent) 10%,var(--ui-surface))}
 .battle-invite-auth>span{font-size:24px;line-height:1}.battle-invite-auth strong{display:block}.battle-invite-auth p{margin:3px 0 0;color:var(--ui-muted);font-size:13px;line-height:1.45}
 .battle-share-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.battle-share-url{width:100%;font-size:13px}
 ::selection{background:color-mix(in srgb,var(--ui-accent) 24%,transparent);color:var(--ui-text)}
@@ -45,7 +45,7 @@ button[aria-busy="true"]{cursor:progress}
 .card,.list-item,.home-section,.home-kpi{border-radius:16px!important}
 .card>.section-head:first-child{margin-top:0!important}
 .section-head p{line-height:1.55}
-.home-hero{border-radius:18px;box-shadow:none;min-height:220px}
+.home-hero{border-radius:16px;box-shadow:none;min-height:220px}
 .home-hero-copy{padding:24px;gap:12px;max-width:620px}
 .home-hero-copy h2{font-size:clamp(24px,2.7vw,32px);letter-spacing:-.025em;line-height:1.2}
 .nexmir-welcome h1{letter-spacing:-.025em;font-size:clamp(26px,3vw,34px)}
@@ -61,7 +61,7 @@ button[aria-busy="true"]{cursor:progress}
 .dashboard-focus-card h3{margin:5px 0}.dashboard-focus-card p{margin:4px 0}
 .dashboard-focus-card>.btn{grid-column:auto;grid-row:1/3;grid-column:2;align-self:center}
 .dashboard-focus-streak{grid-column:1;justify-self:start;padding:0;background:transparent}
-.home-activity-item.clickable{border-radius:8px;cursor:pointer}
+.home-activity-item.clickable{border-radius:6px;cursor:pointer}
 .resume-bank-card{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
 .resume-bank-card p{margin:4px 0 0}
 .dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overscroll-behavior:contain}
@@ -79,9 +79,9 @@ dialog[open]{animation:dialog-arrive var(--ui-enter) var(--ui-ease)}
 :root[data-theme-mode] :is(.mcq-option.discardable,.sim-option.discardable){
  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;
  padding:4px 10px 4px 4px!important;min-height:60px;box-shadow:none!important;
- border:1px solid var(--n-border)!important;background:var(--n-card)!important;border-radius:12px!important;
+ border:1px solid var(--n-border)!important;background:var(--n-card)!important;border-radius:10px!important;
 }
-.answer-choice{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;min-width:0;min-height:48px;padding:12px;border:0;border-radius:8px;background:transparent;color:inherit;cursor:pointer;line-height:1.5}
+.answer-choice{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;min-width:0;min-height:48px;padding:12px;border:0;border-radius:6px;background:transparent;color:inherit;cursor:pointer;line-height:1.5}
 .answer-choice .option-letter{flex:0 0 26px;min-width:26px;min-height:26px;display:grid;place-items:center;border-radius:6px;font-size:13px;font-weight:650}
 .answer-choice .option-text{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:400}
 .choice-check{width:18px;flex:0 0 18px;color:var(--ui-accent);font-weight:750}
@@ -90,7 +90,7 @@ dialog[open]{animation:dialog-arrive var(--ui-enter) var(--ui-ease)}
 :root[data-theme-mode] :is(.mcq-option,.sim-option).selected{background:color-mix(in srgb,var(--ui-accent) 8%,var(--n-card))!important;border-color:var(--ui-accent)!important;box-shadow:inset 3px 0 var(--ui-accent)!important}
 :root[data-theme-mode] :is(.mcq-option,.sim-option).correct{border-color:var(--green)!important;background:color-mix(in srgb,var(--green) 8%,var(--n-card))!important}
 :root[data-theme-mode] :is(.mcq-option,.sim-option).wrong{border-color:var(--red)!important;background:color-mix(in srgb,var(--red) 8%,var(--n-card))!important}
-.discard-btn{position:static!important;transform:none!important;margin:0!important;color:var(--ui-muted)!important;background:transparent!important;border:1px solid var(--ui-border)!important;font-size:12px!important;min-width:86px;padding:7px 9px!important;border-radius:8px!important;line-height:1.35}
+.discard-btn{position:static!important;transform:none!important;margin:0!important;color:var(--ui-muted)!important;background:transparent!important;border:1px solid var(--ui-border)!important;font-size:12px!important;min-width:86px;padding:7px 9px!important;border-radius:6px!important;line-height:1.35}
 .discard-btn.restore{color:var(--ui-accent)!important;border-color:var(--ui-accent)!important}
 .answer-save-status{color:var(--ui-muted);font-size:12px;line-height:1.5;min-height:18px;margin:12px 2px 18px}
 .bank-nav-actions{box-shadow:none;padding:16px 0 8px;gap:8px}
@@ -166,7 +166,7 @@ body:has(#dashboardView) .tableWrap{overflow:auto;max-width:100%}
  .bank-question-workspace.has-question-image .question-image-wrap{width:100%;margin:14px 0 18px;align-items:center}
  .bank-question-workspace.has-question-image .question-image{max-height:290px!important}
  #cardDialog{width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:18px!important;border-radius:0!important}
- .flash-study-layout{grid-template-columns:1fr;gap:12px}.flash-prompt-panel,.flash-answer-panel,.flash-reveal-panel{padding:18px;border-radius:13px}.flash-prompt-panel .flash-front{min-height:0;font-size:21px}.flash-answer-panel .flash-back{font-size:16px;margin-bottom:14px}.rating-grid{grid-template-columns:repeat(2,1fr)}.rating-grid button{min-height:76px}.flash-admin-actions{justify-content:stretch}.flash-admin-actions .btn{width:100%}
+ .flash-study-layout{grid-template-columns:1fr;gap:12px}.flash-prompt-panel,.flash-answer-panel,.flash-reveal-panel{padding:18px;border-radius:10px}.flash-prompt-panel .flash-front{min-height:0;font-size:21px}.flash-answer-panel .flash-back{font-size:16px;margin-bottom:14px}.rating-grid{grid-template-columns:repeat(2,1fr)}.rating-grid button{min-height:76px}.flash-admin-actions{justify-content:stretch}.flash-admin-actions .btn{width:100%}
  .keyboard-hint{display:none}
  .highlight-toolbar{padding:8px!important;gap:6px;align-items:center}
  .highlight-toolbar>span:first-child{display:none}

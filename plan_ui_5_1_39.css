@@ -4,13 +4,13 @@
   --pl-card:var(--n-card,var(--surface,#19273a));--pl-text:var(--n-text,var(--text,#edf4ff));--pl-border:var(--n-border,var(--line,#2e435d));--pl-primary:var(--n-primary,var(--primary,#3478ef));
   --pl-soft:color-mix(in srgb,var(--pl-text) 6%,var(--pl-card));--pl-label:color-mix(in srgb,var(--pl-text) 74%,var(--pl-card));
   width:min(820px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;
-  padding:20px;border:1px solid var(--pl-border);border-radius:20px;background:var(--pl-card);color:var(--pl-text);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+  padding:20px;border:1px solid var(--pl-border);border-radius:16px;background:var(--pl-card);color:var(--pl-text);box-shadow:0 24px 70px rgba(0,0,0,.35)}
 .pro-upsell-dialog{width:min(520px,calc(100vw - 24px))}
 .plan-dialog::backdrop,.pro-upsell-dialog::backdrop{background:rgba(5,12,22,.62);backdrop-filter:blur(3px)}
 .plan-dialog .dialog-head,.pro-upsell-dialog .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .plan-dialog h3,.pro-upsell-dialog h3{margin:0;color:var(--pl-text)}
 .plan-dialog p,.plan-dialog li,.pro-upsell-dialog p{color:var(--pl-text)}
-.plan-dialog .icon-btn,.pro-upsell-dialog .icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--pl-border);background:var(--pl-soft);color:var(--pl-text);font-size:24px;line-height:1;cursor:pointer}
+.plan-dialog .icon-btn,.pro-upsell-dialog .icon-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--pl-border);background:var(--pl-soft);color:var(--pl-text);font-size:24px;line-height:1;cursor:pointer}
 .plan-dialog .chip,.pro-upsell-dialog .chip{background:color-mix(in srgb,var(--pl-primary) 14%,var(--pl-card))!important;color:var(--pl-text)!important;border:1px solid color-mix(in srgb,var(--pl-primary) 40%,var(--pl-border))!important}
 
 /* Precio */
@@ -32,7 +32,7 @@
 .plan-steps li{counter-increment:plan;position:relative;display:block;min-width:0;margin:0;padding:2px 0 2px 42px;line-height:1.5;font-size:14.5px;overflow-wrap:anywhere}
 .plan-steps li::before{content:counter(plan);position:absolute;left:0;top:1px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--n-primary,#3478ef) 68%,#000);color:#fff;font-weight:800;font-size:14px}
 .plan-steps li strong{display:inline;font-size:inherit;line-height:inherit;white-space:normal}
-.plan-renew-note{margin:0 0 14px;padding:10px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--n-text,#edf4ff) 35%,var(--n-border,#2e435d));background:color-mix(in srgb,var(--n-text,#edf4ff) 5%,var(--n-card,#19273a));font-size:13.5px}
+.plan-renew-note{margin:0 0 14px;padding:10px 12px;border-radius:10px;border:1px dashed color-mix(in srgb,var(--n-text,#edf4ff) 35%,var(--n-border,#2e435d));background:color-mix(in srgb,var(--n-text,#edf4ff) 5%,var(--n-card,#19273a));font-size:13.5px}
 
 /* Cuentas bancarias y CCI (antes: texto claro sobre fondo celeste claro fijo) */
 .bank-channel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
@@ -41,7 +41,7 @@
 .bank-channel-note{margin:0;font-size:13px;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
 .bank-channel-amount{margin:8px 0 0;font-size:14px;font-weight:650;color:var(--n-text,#edf4ff)}
 .bank-channel-amount strong{font-size:16px}
-.bank-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:11px 12px;border:1px solid var(--n-border,#2e435d);border-radius:12px;
+.bank-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:11px 12px;border:1px solid var(--n-border,#2e435d);border-radius:10px;
   background:color-mix(in srgb,var(--n-text,#edf4ff) 7%,var(--n-card,#19273a));color:var(--n-text,#edf4ff)}
 .bank-detail .bank-detail-label,.bank-detail span{grid-column:1/-1;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
 .bank-detail .bank-detail-value,.bank-detail strong{min-width:0;font-size:16px;font-weight:750;letter-spacing:.02em;color:var(--n-text,#edf4ff);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
@@ -55,7 +55,7 @@
 .plan-channel-list small{color:color-mix(in srgb,var(--n-text,#edf4ff) 74%,var(--n-card,#19273a))}
 
 /* Vigencia en el perfil */
-.plan-expiry{margin:10px 0 0;padding:10px 12px;border-radius:12px;border:1px solid var(--n-border,#2e435d);background:color-mix(in srgb,var(--n-primary,#3478ef) 10%,var(--n-card,#19273a));color:var(--n-text,#edf4ff);font-size:14px}
+.plan-expiry{margin:10px 0 0;padding:10px 12px;border-radius:10px;border:1px solid var(--n-border,#2e435d);background:color-mix(in srgb,var(--n-primary,#3478ef) 10%,var(--n-card,#19273a));color:var(--n-text,#edf4ff);font-size:14px}
 .plan-expiry.is-soon{border-color:var(--amber,#f5b942);background:color-mix(in srgb,var(--amber,#f5b942) 20%,var(--n-card,#19273a))}
 
 @media(max-width:720px){

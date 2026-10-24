@@ -18,7 +18,7 @@ html,body{max-width:100%;overflow-x:clip}
 .theory-body table,.flash-back table{display:block;max-width:100%;overflow-x:auto}
 .password-field{position:relative;width:100%;min-width:0;margin:0 0 13px}
 .password-field input{display:block;width:100%;padding-right:86px;font-size:16px}
-.password-field .password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-width:69px;min-height:38px;border:0;border-radius:8px;background:transparent;color:var(--n-primary,var(--primary));font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.password-field .password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-width:69px;min-height:38px;border:0;border-radius:6px;background:transparent;color:var(--n-primary,var(--primary));font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .password-field .password-toggle:focus-visible{outline:2px solid var(--n-primary,var(--primary));outline-offset:0}
 .auth-screen{min-height:100dvh;align-content:center;justify-items:center;gap:0;padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom))}
 .auth-brand,.auth-card{max-width:100%}

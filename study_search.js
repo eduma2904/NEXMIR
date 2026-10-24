@@ -9,7 +9,7 @@
   const $=(s,r=document)=>r.querySelector(s);
   const BEST_MAX=8,CUADRO_PAGE=6,DOC_PAGE=24;
   const LABEL={specialty:'Asignatura',topic:'Tema',subtopic:'Subtema',cuadro:'Cuadro',card:'Tarjeta',theory:'Teoría'};
-  const ICON={topic:'▤',subtopic:'☰',cuadro:'▦',card:'F',theory:'T'};
+  const ICON={topic:NxIcon('layers'),subtopic:NxIcon('list'),cuadro:NxIcon('table'),card:NxIcon('cards'),theory:NxIcon('book')};
 
   /* ---------- texto ---------- */
   /* Minúsculas y sin tildes, conservando la longitud (así los resaltados coinciden con el original). */

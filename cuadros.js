@@ -20,7 +20,7 @@
     const list=items();
     host.hidden=!list.length;
     if(!list.length){host.innerHTML='';return}
-    host.innerHTML=`<details class="card cuadros-panel"><summary>▦ Cuadros de esta selección (${list.length})</summary><div class="list">${list.slice(0,60).map(({x,c})=>cuadroRow(x,c)).join('')}</div>${list.length>60?'<p class="muted small">Mostrando 60. Afina asignatura, tema o subtema para ver el resto.</p>':''}</details>`;
+    host.innerHTML=`<details class="card cuadros-panel"><summary>${NxIcon('table')} Cuadros de esta selección (${list.length})</summary><div class="list">${list.slice(0,60).map(({x,c})=>cuadroRow(x,c)).join('')}</div>${list.length>60?'<p class="muted small">Mostrando 60. Afina asignatura, tema o subtema para ver el resto.</p>':''}</details>`;
   }
   renderReviews=function(...args){
     const result=base.apply(this,args);

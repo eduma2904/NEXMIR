@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="search.css?v=5.1.50" />
   <link rel="stylesheet" href="study_order.css?v=5.1.50" />
   <link rel="stylesheet" href="study_search.css?v=5.1.58" />
+  <link rel="stylesheet" href="design_refinements.css?v=5.1.61" />
   <link rel="stylesheet" href="text_flow_guard.css?v=5.1.57" />
   <script src="vendor/supabase.js?v=2.57.4"></script>
 </head>
@@ -51,7 +52,7 @@
     <div><h1>NEXMIR</h1><p>Estudia. Practica. Repite. Llega.</p></div>
   </div>
   <div class="auth-card">
-    <div id="battleInviteAuth" class="battle-invite-auth hidden" role="status"><span>⚔</span><div><strong>Te invitaron a una batalla NEXMIR</strong><p>Crea tu cuenta gratis o inicia sesión. Conservaremos el código para llevarte a la sala.</p></div></div>
+    <div id="battleInviteAuth" class="battle-invite-auth hidden" role="status"><span><svg class="nx-i" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 5 9.5 9.5M19 5l-9.5 9.5"/><path d="m3.5 6.5 3 3M20.5 6.5l-3 3"/><path d="m8 16-3 3m11-3 3 3"/></svg></span><div><strong>Te invitaron a una batalla NEXMIR</strong><p>Crea tu cuenta gratis o inicia sesión. Conservaremos el código para llevarte a la sala.</p></div></div>
     <div class="auth-tabs"><button class="auth-tab active" data-auth="login">Entrar</button><button class="auth-tab" data-auth="signup">Crear cuenta</button></div>
     <div id="loginPanel">
       <label>Correo<input id="loginEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></label>
@@ -95,9 +96,9 @@
 
   <main class="main">
     <header class="topbar">
-      <button id="mobileMenu" class="icon-btn">☰</button>
+      <button id="mobileMenu" class="icon-btn" aria-label="Abrir menú"><svg class="nx-i" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div><h2 id="viewTitle">Inicio</h2><p id="crumb" class="muted"></p></div>
-      <div class="top-actions"><button id="tutorialBtn" class="btn mini tutorial-launch" type="button" title="Repetir el recorrido guiado" aria-label="Repetir el recorrido guiado">🐾 <span>Guía</span></button><button id="focusModeBtn" class="btn mini focus-toggle" type="button" title="Inicia una sesión NexMIR Focus">🎯 Modo Focus</button><button id="studyTimerBtn" class="btn mini study-timer" type="button" title="Controla tu cronómetro de estudio">⏱ 00:00:00</button><span id="planPill" class="pill">Free</span><button id="userAvatar" class="avatar" type="button" aria-label="Abrir opciones de tu cuenta" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">E</button></div>
+      <div class="top-actions"><button id="tutorialBtn" class="btn mini tutorial-launch" type="button" title="Repetir el recorrido guiado" aria-label="Repetir el recorrido guiado"><svg class="nx-i" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5"/><circle cx="12" cy="16.6" r=".6" fill="currentColor"/></svg> <span>Guía</span></button><button id="focusModeBtn" class="btn mini focus-toggle" type="button" title="Inicia una sesión NexMIR Focus"><svg class="nx-i" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg> Modo Focus</button><button id="studyTimerBtn" class="btn mini study-timer" type="button" title="Controla tu cronómetro de estudio"><svg class="nx-i" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="8"/><path d="M12 8.5V13l3 2"/><path d="M9.5 2.8h5"/></svg> 00:00:00</button><span id="planPill" class="pill">Free</span><button id="userAvatar" class="avatar" type="button" aria-label="Abrir opciones de tu cuenta" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">E</button></div>
     </header>
 
     <section id="view-dashboard" class="view active"></section>
@@ -131,6 +132,7 @@
 <dialog id="studyTimerDialog" class="dialog"><div class="dialog-head"><div><span class="chip">Cronómetro de estudio</span><h3>Tu tiempo de estudio</h3></div><button class="icon-btn" type="button" onclick="document.getElementById('studyTimerDialog').close()">×</button></div><p class="timer-big" id="studyTimerBig">00:00:00</p><p class="muted">Cuenta solo cuando resuelves preguntas, flashcards/repasos o simulacros con esta pestaña visible.</p><div class="dialog-actions"><button class="btn" type="button" onclick="toggleStudyTimerManual()" id="studyTimerManualBtn">Pausar</button><button class="btn primary" type="button" onclick="document.getElementById('studyTimerDialog').close()">Listo</button></div></dialog>
 
 <script>document.getElementById('planLoadingDialog').addEventListener('cancel',event=>event.preventDefault());</script>
+<script src="ui_icons.js?v=5.1.61"></script>
 <script src="content_rules.js?v=5.1.50"></script>
 <script src="taxonomy.js?v=5.1.50"></script>
 <script src="session_manager.js?v=5.1.50"></script>

@@ -31,7 +31,7 @@
 
 /* Demostración de revisión: usa las clases reales, hereda el tema */
 .tutorial-review-demo{z-index:9995;left:262px;top:5vh;width:calc(100vw - 262px - 430px);height:88vh;min-width:560px;
-  border:1px solid color-mix(in srgb,var(--tut-accent) 70%,transparent);border-radius:18px;background:var(--n-card,var(--surface,#0d2235));color:var(--n-text,var(--text,#f3f6fa));
+  border:1px solid color-mix(in srgb,var(--tut-accent) 70%,transparent);border-radius:16px;background:var(--n-card,var(--surface,#0d2235));color:var(--n-text,var(--text,#f3f6fa));
   box-shadow:0 26px 80px rgba(0,0,0,.45);animation:tut-demo-in .5s var(--tut-ease) both}
 .tutorial-review-demo::before{content:"Vista de ejemplo";position:absolute;top:12px;right:14px;z-index:3;font:700 10px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
   color:#04211c;background:var(--tut-accent);padding:5px 9px;border-radius:99px;pointer-events:none}
@@ -41,7 +41,7 @@
 .tutorial-review-demo .sim-review-nav{grid-template-columns:1fr;align-content:start}
 .tutorial-review-demo .sim-review-nav-btn{display:flex;align-items:center;gap:10px;height:auto;min-height:60px!important;padding:8px 10px;text-align:left;transition:transform .2s var(--tut-ease),outline-color .2s,background-color .2s}
 .tutorial-review-demo .sim-review-nav-btn:hover{transform:translateX(3px)}
-.tutorial-review-demo .review-card-number{display:grid;place-items:center;flex:none;min-width:34px;height:34px;border-radius:9px;background:rgba(127,150,170,.2);font-weight:800}
+.tutorial-review-demo .review-card-number{display:grid;place-items:center;flex:none;min-width:34px;height:34px;border-radius:6px;background:rgba(127,150,170,.2);font-weight:800}
 .tutorial-review-demo .review-card-copy{display:grid;min-width:0;flex:1;gap:2px}
 .tutorial-review-demo .review-card-copy strong{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tutorial-review-demo .review-card-copy small{font-size:11px;opacity:.75}
@@ -89,7 +89,7 @@
   .tutorial-review-demo .sim-results-top .dialog-head{padding-right:84px}
 }
 @media(max-width:760px){
-  .tutorial-card{padding:14px 14px 12px;border-radius:18px}
+  .tutorial-card{padding:14px 14px 12px;border-radius:16px}
   .tutorial-card:not(.tutorial-card-demo){max-height:44dvh}
   .tutorial-copy{font-size:13.5px}
   .tutorial-actions .btn{min-height:42px;padding-inline:12px}

@@ -82,7 +82,7 @@
     const list=visibleTopicCards(),n=list.length;if(!n)return;
     const scope=st.sub?'subtema':'tema';
     const bar=document.createElement('div');bar.className='order-bar';
-    bar.innerHTML=`<div class="grow"><strong>▶ Estudiar todas las tarjetas de este ${scope}</strong><span class="muted small">${n} tarjeta${n===1?'':'s'} · se incluirán absolutamente todas las que aparecen en esta selección.</span></div><div class="order-bar-actions"><button type="button" class="btn primary" data-card-order="ordered">Estudiar en orden de aparición</button><button type="button" class="btn" data-card-order="random">Estudiar en desorden</button></div>`;
+    bar.innerHTML=`<div class="grow"><strong>${NxIcon('play')} Estudiar todas las tarjetas de este ${scope}</strong><span class="muted small">${n} tarjeta${n===1?'':'s'} · se incluirán absolutamente todas las que aparecen en esta selección.</span></div><div class="order-bar-actions"><button type="button" class="btn primary" data-card-order="ordered">Estudiar en orden de aparición</button><button type="button" class="btn" data-card-order="random">Estudiar en desorden</button></div>`;
     const anchor=$('#topicActions',body)||$('.seg',body);
     if(!anchor)return;
     anchor.insertAdjacentElement('beforebegin',bar);

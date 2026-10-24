@@ -11,7 +11,7 @@
 .gs-count{opacity:.7;font-size:11px}
 .gs-filters select{max-width:230px}
 .gs-results{overflow:auto;display:flex;flex-direction:column;gap:6px;min-height:120px}
-.gs-item{display:flex;gap:10px;text-align:left;align-items:flex-start;border:1px solid var(--line,#23445f);background:transparent;color:inherit;border-radius:12px;padding:10px 12px;cursor:pointer}
+.gs-item{display:flex;gap:10px;text-align:left;align-items:flex-start;border:1px solid var(--line,#23445f);background:transparent;color:inherit;border-radius:10px;padding:10px 12px;cursor:pointer}
 .gs-item:hover,.gs-item.active{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
 .gs-main{display:flex;flex-direction:column;gap:3px;min-width:0}
 .gs-path{font-size:12px;opacity:.7}

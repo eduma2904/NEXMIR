@@ -1,5 +1,5 @@
 /* NEXMIR V5.1.50 · estudiar en orden */
-.order-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;padding:12px 14px;border:1px solid var(--primary);border-radius:14px;background:color-mix(in srgb,var(--primary) 9%,transparent)}
+.order-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;padding:12px 14px;border:1px solid var(--primary);border-radius:16px;background:color-mix(in srgb,var(--primary) 9%,transparent)}
 .order-bar .grow{flex:1;min-width:200px}
 .order-bar strong{display:block}
 .order-bar-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}

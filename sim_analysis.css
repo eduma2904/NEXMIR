@@ -20,7 +20,7 @@
 .sim-an-meta .lost{font-weight:700}
 .sim-an-trend{display:flex;align-items:flex-end;gap:10px;height:150px;margin:12px 0 6px;padding:0 4px}
 .sim-an-col{flex:1;min-width:0;max-width:72px;height:100%;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:4px}
-.sim-an-colbar{align-self:end;width:100%;border-radius:8px 8px 3px 3px;background:rgba(127,150,170,.4);transition:height .8s cubic-bezier(.22,1,.36,1)}
+.sim-an-colbar{align-self:end;width:100%;border-radius:6px 6px 3px 3px;background:rgba(127,150,170,.4);transition:height .8s cubic-bezier(.22,1,.36,1)}
 .sim-an-col.cur .sim-an-colbar{background:var(--n-primary,var(--primary,#27d3c2))}
 .sim-an-val{font-size:12px;font-weight:700}.sim-an-lbl{font-size:11px;opacity:.7}
 @media (max-width:760px){

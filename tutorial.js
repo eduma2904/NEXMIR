@@ -228,7 +228,7 @@
   function maybeAuto(restored){clearTimeout(autoTimer);if(!state.user||getSeen()||!isNewAccount())return;const userId=state.user.id;const launch=()=>{if(state.user?.id!==userId||getSeen()||index>=0)return;if(openDialogs().length){autoTimer=setTimeout(launch,2000);return}startTour(true)};autoTimer=setTimeout(launch,restored?2500:1000)}
   function attachDialogHelp(){
     openDialogs().forEach(d=>{if(!dialogHelp[d.id]||d.querySelector('.tutorial-dialog-help'))return;
-      const btn=el('button','btn mini tutorial-dialog-help');btn.type='button';btn.textContent='🐾 ? Ayuda';btn.setAttribute('aria-label','Ayuda para esta ventana');
+      const btn=el('button','btn mini tutorial-dialog-help');btn.type='button';btn.innerHTML=`${NxIcon('help')} Ayuda`;btn.setAttribute('aria-label','Ayuda para esta ventana');
       btn.onclick=()=>{d.querySelector(':scope > .tutorial-dialog-note')?.remove();const note=el('aside','tutorial-dialog-note');note.setAttribute('role','status');const heading=el('strong','');heading.textContent=dialogHelp[d.id][0];const p=el('p','');p.textContent=dialogHelp[d.id][1];const close=el('button','icon-btn');close.type='button';close.textContent='×';close.setAttribute('aria-label','Cerrar ayuda');close.onclick=()=>note.remove();note.append(heading,close,p);d.append(note)};
       const head=d.id==='simDialog' ? d.querySelector('.sim-top,.sim-results-top .dialog-head') : d.querySelector('.dialog-head,.focus-session-top,.tutorial-guide-head');
       if(head){btn.classList.add('in-header');const close=head.querySelector(':scope > .icon-btn');if(close)head.insertBefore(btn,close);else head.append(btn)}
@@ -256,7 +256,7 @@
     window.renderProfile=function(...args){
       const result=previous.apply(this,args),root=document.getElementById('view-profile');
       root?.querySelector('#tutorialProfileCard')?.remove();
-      root?.insertAdjacentHTML('beforeend','<section class="card tutorial-profile-card" id="tutorialProfileCard"><span class="chip">Ayuda</span><h3>Conoce NEXMIR</h3><p class="muted">Vuelve a recorrer la web con tu lince o consulta aquí el PDF con todas las funciones y los límites Free/Pro.</p><div class="row gap"><button class="btn primary" type="button" onclick="nexmirTutorial.start()">🐾 Tutorial corto</button><button class="btn" type="button" onclick="nexmirTutorial.startFull()">Recorrido completo</button><button class="btn" type="button" onclick="window.nexmirTips?.reset()">Ver consejos otra vez</button><button class="btn" type="button" onclick="nexmirTutorial.openGuide()">Ver guía PDF</button></div></section>');
+      root?.insertAdjacentHTML('beforeend','<section class="card tutorial-profile-card" id="tutorialProfileCard"><span class="chip">Ayuda</span><h3>Conoce NEXMIR</h3><p class="muted">Vuelve a recorrer la web con tu lince o consulta aquí el PDF con todas las funciones y los límites Free/Pro.</p><div class="row gap"><button class="btn primary" type="button" onclick="nexmirTutorial.start()">'+NxIcon('help')+' Tutorial corto</button><button class="btn" type="button" onclick="nexmirTutorial.startFull()">Recorrido completo</button><button class="btn" type="button" onclick="window.nexmirTips?.reset()">Ver consejos otra vez</button><button class="btn" type="button" onclick="nexmirTutorial.openGuide()">Ver guía PDF</button></div></section>');
       return result;
     };
   },0);

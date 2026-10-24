@@ -186,7 +186,7 @@
     const host=$('.top-actions');if(!host)return;
     const b=document.createElement('button');b.id='globalSearchBtn';b.type='button';b.className='btn mini gs-launch';
     b.title='Buscar en toda la biblioteca (atajo: /)';b.setAttribute('aria-label','Buscar en toda la biblioteca. Atajo: barra inclinada');
-    b.innerHTML='🔍 <span>Buscar</span>';b.addEventListener('click',()=>openSearch());
+    b.innerHTML=`${NxIcon('search')} <span>Buscar</span>`;b.addEventListener('click',()=>openSearch());
     const warm=()=>{(window.requestIdleCallback||setTimeout)(()=>{try{if(state.content?.length||state.questions?.length)ensureIndex()}catch(e){}})};
     ['pointerenter','focus','touchstart'].forEach(ev=>b.addEventListener(ev,warm,{once:true,passive:true}));
     host.prepend(b);

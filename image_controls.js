@@ -40,7 +40,7 @@
       if(el.closest('#imageViewerDialog,.question-image-wrap'))return;
       el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Ampliar imagen: '+(el.alt||'imagen de la pregunta'));el.title='Pulsa para ampliar';
       if(el.nextElementSibling?.classList.contains('inline-image-zoom'))return;
-      const btn=document.createElement('button');btn.type='button';btn.className='image-zoom-btn inline-image-zoom';btn.textContent='⛶ Ver imagen ampliada';el.after(btn);
+      const btn=document.createElement('button');btn.type='button';btn.className='image-zoom-btn inline-image-zoom';btn.innerHTML=`${NxIcon('expand')} Ver imagen ampliada`;el.after(btn);
     });
   }
   document.addEventListener('click',e=>{

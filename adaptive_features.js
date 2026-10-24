@@ -7,7 +7,7 @@
   const stamp=s=>s?new Date(s).toLocaleDateString('es-ES'):'—';
   const validDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s));
   const currentQuestion=()=>state.bank?.pool?.[state.bank.index];
-  const reportButton=q=>q?`<button type="button" class="btn mini" onclick="openQuestionReport('${key(q)}')">⚑ Reportar contenido</button>${state.profile?.role==='admin'?`<button type="button" class="btn mini danger admin-delete-question" data-question-key="${key(q)}" onclick="deleteQuestionAsAdmin('${key(q)}')">Eliminar pregunta</button>`:''}`:'';
+  const reportButton=q=>q?`<button type="button" class="btn mini" onclick="openQuestionReport('${key(q)}')">${NxIcon('flag')} Reportar contenido</button>${state.profile?.role==='admin'?`<button type="button" class="btn mini danger admin-delete-question" data-question-key="${key(q)}" onclick="deleteQuestionAsAdmin('${key(q)}')">Eliminar pregunta</button>`:''}`:'';
   function buttonNear(container,q){if(container&&!container.querySelector('.report-content-action'))container.insertAdjacentHTML('beforeend',`<div class="report-content-action">${reportButton(q)}</div>`)}
 
   const oldShowQuestion=showQuestion;
