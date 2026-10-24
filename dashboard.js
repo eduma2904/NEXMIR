@@ -1,4 +1,4 @@
-/* NEXMIR V5.0.21 — tablero visual. Conserva las rutas y acciones originales. */
+/* NEXMIR V5.1.62 — tablero visual y Pregunta del día resoluble. */
 (() => {
   const safe=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
   const formatDate=()=>new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long'}).format(new Date()).replace(/^./,x=>x.toUpperCase());
@@ -6,11 +6,29 @@
   const weak=()=>typeof weakSpecialties==='function'?weakSpecialties().slice(0,3):[];
   const questions=()=>typeof questionPool==='function'?questionPool():[];
   const topicLabel=q=>q?.topic||q?.specialty||'Tema MIR';
+  const questionKey=q=>`${q?._source||'questions'}:${q?.id}`;
+  const attemptKey=a=>a?.question_id?`questions:${a.question_id}`:a?.source_content_id?`remnote:${a.source_content_id}`:'';
+  const questionAliases=q=>new Set([questionKey(q),...(Array.isArray(q?._aliases)?q._aliases:[])]);
+  const dailyQuestion=()=>{
+    const pool=questions();if(!pool.length)return null;
+    const lastSeen=new Map();
+    for(const attempt of state.attempts||[]){const key=attemptKey(attempt);if(!key)continue;const at=Date.parse(attempt.answered_at)||0;if(at>(lastSeen.get(key)||0))lastSeen.set(key,at)}
+    return pool.map((q,index)=>{let last=0;for(const key of questionAliases(q))last=Math.max(last,lastSeen.get(key)||0);return{q,index,last}}).sort((a,b)=>a.last-b.last||a.index-b.index)[0].q;
+  };
   const questionPreview=q=>{
     if(!q)return '<p class="muted">Cuando haya preguntas publicadas, verás aquí una recomendación del día.</p>';
     const options=(q.options||[]).slice(0,3).map((x,i)=>`<div class="home-option"><b>${String.fromCharCode(65+i)}.</b>${safe(typeof x==='string'?x:(x.text||x.label||''))}</div>`).join('');
-    return `<div class="home-question-badge">Pregunta del día · ${safe(topicLabel(q))}</div><h4>${safe(String(q.stem||q.question||q.text||'Pregunta MIR recomendada').replace(/<[^>]+>/g,'')).slice(0,190)}</h4>${options?`<div class="home-options">${options}</div>`:''}<button class="btn primary" onclick="route('bank')">Resolver ahora</button>`;
+    const key=encodeURIComponent(questionKey(q)).replace(/'/g,'%27');
+    return `<div class="home-question-badge">Pregunta del día · ${safe(topicLabel(q))}</div><h4>${safe(String(q.stem||q.question||q.text||'Pregunta MIR recomendada').replace(/<[^>]+>/g,'')).slice(0,190)}</h4>${options?`<div class="home-options">${options}</div>`:''}<button class="btn primary" onclick="openDailyQuestion('${key}')">Resolver ahora</button>`;
   };
+  function openDailyQuestion(encodedKey){
+    const wanted=decodeURIComponent(encodedKey||''),q=questions().find(item=>questionAliases(item).has(wanted));
+    if(!q){toast('La pregunta ya no está disponible. Te mostramos otra recomendación.');refreshDailyQuestion();return false}
+    state.bank={pool:[q],index:0,answered:false,selected:null,mode:'immediate',results:[],context:'daily',highlights:{},answers:{},eliminations:{},submitted:false};
+    showQuestion();return true;
+  }
+  function refreshDailyQuestion(){const card=document.querySelector('#view-dashboard .home-question');if(card)card.innerHTML=questionPreview(dailyQuestion())}
+  window.openDailyQuestion=openDailyQuestion;
   const planRows=items=>items.length?items.map((x,i)=>{
     const acc=Math.max(0,Math.min(100,Number(x.acc??x.accuracy??0))); const score=Math.max(24,100-acc);
     return `<div class="home-plan-row"><span class="home-rank">${i+1}</span><div><strong>${safe(x.name||x.specialty||'Tema pendiente')}</strong><small>${acc?`${acc}% de precisión · `:''}refuerzo recomendado</small><div class="home-plan-line"><i style="width:${score}%"></i></div></div><span class="home-plan-score">${Math.round(score)}%</span></div>`;
@@ -21,7 +39,7 @@
     [NxIcon('table'),`${s.cards?.length||0} flashcards disponibles`,'Repaso espaciado activo']
   ].map(x=>`<div class="home-activity-item"><span class="home-activity-dot">${x[0]}</span><div><strong>${x[1]}</strong><span>${x[2]}</span></div></div>`).join('');
   function dashboard(){
-    const s=stat(), areas=weak(), q=questions()[0], user=typeof profileName==='function'?profileName():'Estudiante';
+    const s=stat(), areas=weak(), q=dailyQuestion(), user=typeof profileName==='function'?profileName():'Estudiante';
     const todayAttempts=(s.attempts||[]).filter(a=>a.answered_at&&today(new Date(a.answered_at))===today()).length;
     const goal=state.profile?.goal_specialty?`Tu objetivo: ${safe(state.profile.goal_specialty)}`:'Construye una rutina que te acerque a tu plaza MIR.';
     const root=document.querySelector('#view-dashboard'); if(!root)return;
@@ -38,6 +56,7 @@
   const original=window.renderDashboard;
   window.renderDashboard=dashboard;
   window.nexmirDesignDashboard=dashboard;
+  window.addEventListener('nexmir:question-attempt-saved',()=>{if(state.bank?.context==='daily')refreshDailyQuestion()});
   setTimeout(()=>{if(state?.view==='dashboard'&&!document.querySelector('#app')?.classList.contains('hidden'))dashboard()},60);
   // Referencia intencional: conserva el tablero anterior accesible para depuración sin usarlo en producción.
   window.__nexmirLegacyDashboard=original;
