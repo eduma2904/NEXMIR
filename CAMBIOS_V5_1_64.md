@@ -4,6 +4,7 @@
 - Nuevo `study_compact_5_1_64.css` (carga justo antes de `text_flow_guard.css`).
 - Focus: título, ruta, reloj, válidas, tamaño de texto, Ayuda y Terminar pasan a una sola franja baja en escritorio; en móvil, dos filas finas.
 - Banqueo y simulacro: cabeceras, contadores y barra de resaltado reducidos; botones de control de 30 a 32 px.
+- Corrección: las filas del encabezado ya no se encogen (flex:0 0 auto), lo que evitaba que la ruta se pisara con el contador en banqueo.
 - Móvil horizontal o ventanas bajas (alto menor de 560 px): se ocultan ruta, chip y textos de apoyo para dar todo el espacio a la pregunta.
 
 ## Símbolos extraños en preguntas
