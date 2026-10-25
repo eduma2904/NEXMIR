@@ -72,3 +72,18 @@ for(const match of html.matchAll(/<button\b([^>]*)>([×✕✖])<\/button>/g)){
 }
 
 console.log('✔ test-v5-1-63: Pregunta del día, cronómetro, recuperación, legibilidad y accesibilidad verificados.');
+
+
+// V5.1.64: símbolos sobrantes de importación no deben llegar a la pantalla.
+{
+  const grab=name=>{const i=app.indexOf('function '+name+'(');let d=0;for(let k=app.indexOf('{',i);k<app.length;k++){if(app[k]==='{')d++;else if(app[k]==='}'){d--;if(!d)return app.slice(i,k+1)}}};
+  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  const md=new Function('esc',['stripStrayBrackets','cleanRemnoteMarks','mdInline'].map(grab).join('\n')+';return mdInline')(esc);
+  assert.equal(md('Paciente con [[hiperparatiroidismo]] primario'),'Paciente con hiperparatiroidismo primario');
+  assert.equal(md('**Señale** la incorrecta **'),'<strong>Señale</strong> la incorrecta ');
+  assert.equal(md('* Es causa de HTA'),'Es causa de HTA');
+  assert.equal(md('texto ] suelto [ y otro'),'texto suelto y otro');
+  assert.equal(md('Calcio [Ca2+] elevado'),'Calcio [Ca2+] elevado','No debe tocar corchetes balanceados con sentido clínico');
+  assert.equal(md('Texto con *cursiva* y **negrita**'),'Texto con <em>cursiva</em> y <strong>negrita</strong>');
+}
+assert.match(html,/study_compact_5_1_64\.css[\s\S]*text_flow_guard\.css/,'El CSS compacto debe cargarse justo antes de text_flow_guard.css');

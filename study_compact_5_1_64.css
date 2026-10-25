@@ -1,0 +1,112 @@
+/* NEXMIR V5.1.64 · Encabezados de estudio compactos.
+   Objetivo: la pregunta y las alternativas son siempre lo principal. El encabezado (título, reloj,
+   contador, Ayuda, Terminar, tamaño de texto) queda en UNA franja baja en banqueo, simulacro y Focus,
+   en escritorio, tableta y móvil. Va justo antes de text_flow_guard.css (que sigue siendo el último). */
+
+:root{--nx-head-pad-x:clamp(12px,2vw,24px);--nx-ctl-h:30px}
+
+/* ───────── Controles pequeños comunes (tamaño de texto, Ayuda, resaltar) ───────── */
+:is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls{gap:3px!important;padding:0!important;margin-block:0!important;flex:0 0 auto}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls>span{font-size:11px;line-height:1}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls button{height:var(--nx-ctl-h)!important;min-height:var(--nx-ctl-h)!important;min-width:32px!important;padding:0 8px!important;font-size:12px!important;border-radius:8px!important}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-scale-value{min-width:44px!important}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .tutorial-dialog-help{min-height:var(--nx-ctl-h)!important;height:var(--nx-ctl-h);padding:0 10px!important;font-size:12px!important;border-radius:8px!important;margin:0!important;flex:0 0 auto}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar{
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;
+  padding:4px 10px!important;min-height:0!important;margin-block:0 8px!important;font-size:12px}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar .btn.mini{min-height:var(--nx-ctl-h)!important;height:var(--nx-ctl-h);padding:0 10px!important;font-size:12px!important}
+:is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar>span{font-size:12px}
+
+/* ───────── Focus (Sesión adaptativa) ───────── */
+#focusSessionDialog .focus-session-top{
+  display:flex!important;flex-wrap:wrap;align-items:center;
+  gap:4px 12px;padding:8px var(--nx-head-pad-x)!important;min-height:0!important}
+#focusSessionDialog .focus-session-top>*{grid-area:auto!important}
+#focusSessionDialog .focus-session-heading{
+  order:0;flex:1 1 240px;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:2px 10px}
+#focusSessionDialog .focus-session-heading .chip{font-size:10px!important;line-height:1.2;padding:2px 8px!important;margin:0!important}
+#focusSessionDialog .focus-session-heading h2{font-size:17px!important;line-height:1.2!important;margin:0!important}
+#focusSessionDialog .focus-session-heading .path{
+  font-size:11px!important;line-height:1.2!important;margin:0!important;min-width:0;max-width:100%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#focusSessionDialog .focus-session-meta{
+  order:1;flex:0 0 auto;width:auto!important;min-width:0;margin:0!important;gap:4px 10px;
+  display:flex;align-items:center;flex-wrap:nowrap;justify-content:flex-start}
+#focusSessionDialog .focus-session-meta strong,#focusSessionDialog #focusClock{font-size:18px!important;line-height:1!important}
+#focusSessionDialog .focus-session-meta>span{font-size:12px;white-space:nowrap}
+#focusSessionDialog .focus-session-meta .question-text-controls{margin-left:0!important}
+#focusSessionDialog .focus-session-top>.tutorial-dialog-help{order:2;grid-column:auto!important;justify-self:auto!important}
+#focusSessionDialog .focus-session-top>.focus-finish-btn{
+  order:3;min-height:var(--nx-ctl-h)!important;height:var(--nx-ctl-h);min-width:0!important;padding:0 14px!important;font-size:12px!important;margin:0}
+#focusSessionDialog .focus-progress{padding:0 var(--nx-head-pad-x)!important;margin:0!important}
+#focusSessionDialog .focus-progress .progress-track{height:6px!important;margin:0!important}
+#focusSessionDialog .focus-question-area{padding:12px var(--nx-head-pad-x) 16px!important}
+#focusSessionDialog .focus-counter{margin:0 0 8px!important;font-size:12px!important;line-height:1.2}
+#focusSessionDialog .focus-counter .admin-delete-question{min-height:var(--nx-ctl-h)!important;padding:0 10px!important;font-size:12px!important}
+#focusSessionDialog .focus-session-actions{padding:8px var(--nx-head-pad-x)!important;gap:8px!important}
+#focusSessionDialog .focus-session-actions .btn{min-height:42px!important;padding:6px 20px!important;font-size:15px!important}
+
+/* ───────── Banqueo ───────── */
+#questionDialog .dialog-head{padding:8px var(--nx-head-pad-x)!important;margin:0!important;min-height:0!important;gap:8px!important;align-items:center}
+#questionDialog .dialog-head .chip{font-size:11px!important;padding:2px 9px!important;margin:0!important}
+#questionDialog .dialog-head .path{font-size:11px!important;line-height:1.25!important;margin:3px 0 0!important}
+#questionDialog .dialog-head .icon-btn{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;font-size:20px}
+#questionDialog .bank-progress-row{padding:0 var(--nx-head-pad-x)!important;margin:0 0 4px!important;min-height:0!important;font-size:11px!important;line-height:1.3}
+#questionDialog .highlight-toolbar{margin-inline:var(--nx-head-pad-x)!important}
+#questionDialog .bank-nav-actions{padding:8px var(--nx-head-pad-x)!important}
+#questionDialog .bank-nav-actions .btn{min-height:42px}
+
+/* ───────── Simulacro ───────── */
+#simDialog .sim-top{padding:7px var(--nx-head-pad-x)!important;gap:10px!important;min-height:0!important}
+#simDialog .sim-title{font-size:14px!important;line-height:1.2}
+#simDialog .sim-counter{font-size:11px!important;line-height:1.25}
+#simDialog .sim-timer{font-size:19px!important;line-height:1!important;padding:0!important}
+#simDialog .sim-top .icon-btn{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
+#simDialog .sim-top:has(.tutorial-dialog-help){padding:6px var(--nx-head-pad-x)!important}
+#simDialog .sim-question{padding-top:12px!important}
+#simDialog .sim-bottom{padding:8px var(--nx-head-pad-x)!important}
+
+/* ───────── Tableta y móvil ───────── */
+@media(max-width:760px){
+  :root{--nx-head-pad-x:12px;--nx-ctl-h:32px}
+  /* el texto de contexto sobra: se conservan los botones */
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar>span:not(.muted){display:none}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar>span.muted,#questionDialog .keyboard-hint{display:none}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar{margin-bottom:6px!important;padding:3px 0!important;border:0!important;background:transparent!important}
+  #questionDialog .highlight-toolbar{margin-inline:var(--nx-head-pad-x)!important}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls>span{display:none}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls button{min-width:30px!important;padding:0 6px!important}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-scale-value{min-width:42px!important}
+
+  /* Focus: fila 1 = título + Terminar; fila 2 = reloj/válidas + Ayuda + tamaño de texto */
+  #focusSessionDialog .focus-session-top{gap:4px 8px;padding-top:max(6px,env(safe-area-inset-top))!important;padding-bottom:6px!important}
+  #focusSessionDialog .focus-session-heading{flex:1 1 0;order:0}
+  #focusSessionDialog .focus-session-heading .chip{display:none}
+  #focusSessionDialog .focus-session-heading h2{font-size:15px!important}
+  #focusSessionDialog .focus-session-heading .path{flex:1 1 100%;font-size:10.5px!important}
+  #focusSessionDialog .focus-session-top>.focus-finish-btn{order:1;min-height:var(--nx-ctl-h)!important;height:var(--nx-ctl-h);padding:0 11px!important}
+  #focusSessionDialog .focus-session-meta{order:2;flex:1 1 auto;width:100%!important;gap:8px}
+  #focusSessionDialog .focus-session-meta .question-text-controls{margin-left:auto!important}
+  #focusSessionDialog .focus-session-top>.tutorial-dialog-help{order:3;position:static}
+  #focusSessionDialog .focus-session-meta strong,#focusSessionDialog #focusClock{font-size:16px!important}
+  #focusSessionDialog .focus-question-area{padding:8px 12px 14px!important}
+  #focusSessionDialog .focus-session-actions .btn{min-height:44px!important}
+
+  #questionDialog .dialog-head{padding-top:max(6px,env(safe-area-inset-top))!important;padding-bottom:4px!important}
+  #questionDialog .dialog-head .icon-btn{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important}
+  #simDialog .sim-top{padding-top:max(6px,env(safe-area-inset-top))!important;padding-bottom:6px!important;gap:4px 8px!important}
+  #simDialog .sim-timer{font-size:17px!important}
+}
+
+/* Móvil horizontal o ventanas muy bajas: la pregunta tiene prioridad absoluta */
+@media(max-height:560px){
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .highlight-toolbar>span,#questionDialog .bank-progress-row .keyboard-hint{display:none}
+  #focusSessionDialog .focus-session-heading .path,#focusSessionDialog .focus-session-heading .chip,#questionDialog .dialog-head .path{display:none}
+  #focusSessionDialog .focus-session-top{padding-block:4px!important;flex-wrap:nowrap}
+  #focusSessionDialog .focus-session-heading{flex:1 1 0}
+  #focusSessionDialog .focus-session-meta{order:1;width:auto!important;flex:0 0 auto}
+  #focusSessionDialog .focus-session-top>.tutorial-dialog-help{order:2}
+  #focusSessionDialog .focus-session-top>.focus-finish-btn{order:3}
+  #focusSessionDialog .focus-session-actions,#questionDialog .bank-nav-actions,#simDialog .sim-bottom{padding-block:5px!important}
+  #focusSessionDialog .focus-session-actions .btn,#questionDialog .bank-nav-actions .btn{min-height:38px!important}
+}
