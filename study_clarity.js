@@ -8,39 +8,72 @@
  const PAGE=15;
 
  /* ───────── Mis errores: Hoy / Próximos / Todos, paginado y con práctica en bloque ───────── */
- let errFilter=null,errShown=PAGE;
+ let errFilter=null,errShown=PAGE,errSpec='';
  const errorRowsSafe=()=>{try{return window.__nexmirAdaptiveTest?.errorRows?.()||[]}catch{return[]}};
  const isDue=e=>Date.parse(e.next_review_at)<=Date.now();
+ const qKey=q=>`${q._source||'questions'}:${q.id}`;
+ const specOf=q=>(typeof displaySpecialty==='function'?displaySpecialty(q.specialty):q.specialty)||'Sin especialidad';
+ /* Una pregunta queda superada cuando sus DOS últimos intentos válidos fueron correctos. */
+ const DONE_STREAK=2;
+ function latestOutcome(){
+  const m=new Map();
+  for(const a of state.attempts||[]){
+   if(a.is_valid===false)continue;
+   const q=typeof getAttemptQuestion==='function'?getAttemptQuestion(a):null;if(!q)continue;
+   const k=qKey(q),list=m.get(k)||[];list.push({t:Date.parse(a.answered_at)||0,ok:a.is_correct===true});m.set(k,list);
+  }
+  for(const [k,list] of m){list.sort((x,y)=>y.t-x.t);m.set(k,list.slice(0,DONE_STREAK))}
+  return m;
+ }
+ const isDone=(r,latest)=>{if(r.e.uncertain)return false;const l=latest.get(qKey(r.q))||[];return l.length>=DONE_STREAK&&l.every(x=>x.ok)};
+ const rowState=(r,latest)=>isDone(r,latest)?'done':isDue(r.e)?'today':'later';
+ function startErrorBank(qs){
+  const pool=shuffle(qs.filter(q=>(q.options||[]).length>=2)).slice(0,100);
+  if(!pool.length)return toast('No hay preguntas para rehacer en esta lista');
+  state.bank={pool,index:0,answered:false,selected:null,mode:'immediate',results:[],context:'errors',highlights:{},answers:{},eliminations:{},submitted:false};
+  showQuestion();
+ }
  function decorateErrors(){
   const view=document.getElementById('view-errors');if(!view)return;
   const entries=$$('.error-entry',view),list=$('.list',view);if(!list)return;
-  const rows=errorRowsSafe(),dueRows=rows.filter(r=>isDue(r.e));
-  if(errFilter===null)errFilter=dueRows.length?'today':'all';
-  entries.forEach(el=>{const chip=el.querySelector('.row > .chip');el.dataset.ef=/^Repasar hoy/.test(chip?.textContent||'')?'today':'later'});
-  const p=$('.section-head p',view);if(p)p.textContent='Cada pregunta que fallas vuelve a ti en fechas espaciadas. Resuélvela de nuevo hasta que deje de fallar.';
-  list.insertAdjacentHTML('beforebegin',`<div class="card errors-summary"><div class="row"><div><strong>${dueRows.length} para repasar hoy</strong><p class="muted small" style="margin:2px 0 0">${Math.max(0,rows.length-dueRows.length)} programadas para más adelante</p></div><button class="btn primary" ${dueRows.length?'':'disabled'} onclick="practiceDueErrors()">Practicar errores de hoy${dueRows.length?` (${Math.min(dueRows.length,20)})`:''}</button></div><div class="seg errors-seg" role="tablist"><button type="button" data-ef="today">Hoy</button><button type="button" data-ef="later">Próximos</button><button type="button" data-ef="all">Todos</button></div></div>`);
-  const seg=$('.errors-seg',view);
+  const rows=errorRowsSafe();
+  if(!rows.length)return;
+  if(entries.length!==rows.length){console.warn('errores: filas y tarjetas no coinciden; se omiten los filtros');return}
+  const latest=latestOutcome(),states=rows.map(r=>rowState(r,latest));
+  const specs=[...new Set(rows.map(r=>specOf(r.q)))].sort((a,b)=>a.localeCompare(b,'es'));
+  if(errSpec&&!specs.includes(errSpec))errSpec='';
+  const count=k=>states.filter(x=>x===k).length,dueN=count('today'),laterN=count('later'),doneN=count('done');
+  if(errFilter===null)errFilter=dueN?'today':'all';
+  entries.forEach((el,i)=>{el.dataset.ef=states[i]||'later';el.dataset.sp=rows[i]?specOf(rows[i].q):'';
+   if(states[i]==='done'&&!el.querySelector('.error-done-chip'))el.querySelector('.row > .chip')?.insertAdjacentHTML('beforebegin','<span class="chip error-done-chip">Ya acertada</span>')});
+  const p=$('.section-head p',view);if(p)p.textContent='Cada pregunta que fallas vuelve a ti en fechas espaciadas. Resuélvela de nuevo hasta que deje de fallar; cuando la aciertas dos veces seguidas pasa a «Superadas».';
+  list.insertAdjacentHTML('beforebegin',`<div class="card errors-summary"><div class="row"><div><strong>${dueN} para repasar hoy</strong><p class="muted small" style="margin:2px 0 0">${laterN} programadas para más adelante · ${doneN} superadas</p></div><button id="errRedoBtn" class="btn primary" type="button"></button></div><div class="errors-filters"><div class="seg errors-seg" role="tablist"><button type="button" data-ef="today">Hoy</button><button type="button" data-ef="later">Próximos</button><button type="button" data-ef="all">Todos</button><button type="button" data-ef="done">Superadas</button></div><label class="errors-spec"><span class="sr-only">Filtrar por especialidad</span><select id="errSpec" aria-label="Filtrar por especialidad"><option value="">Todas las especialidades</option>${specs.map(sp=>`<option value="${esc(sp)}"${sp===errSpec?' selected':''}>${esc(sp)} (${rows.filter((r,i)=>specOf(r.q)===sp&&states[i]!=='done').length})</option>`).join('')}</select></label></div></div>`);
+  const seg=$('.errors-seg',view),redo=$('#errRedoBtn',view),sel=$('#errSpec',view);
+  const matches=()=>entries.filter(el=>(errFilter==='all'?el.dataset.ef!=='done':el.dataset.ef===errFilter)&&(!errSpec||el.dataset.sp===errSpec));
   const apply=()=>{
    seg.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.ef===errFilter));
-   const match=entries.filter(el=>errFilter==='all'||el.dataset.ef===errFilter);
+   const match=matches();
    entries.forEach(el=>{el.hidden=true});
    match.slice(0,errShown).forEach(el=>{el.hidden=false});
    $('.errors-more',view)?.remove();
    if(match.length>errShown)list.insertAdjacentHTML('beforeend',`<button type="button" class="btn errors-more">Mostrar más (${match.length-errShown})</button>`);
-   else if(!match.length&&entries.length)list.insertAdjacentHTML('beforeend',`<div class="empty errors-more">${errFilter==='today'?'No tienes errores para repasar hoy.':'Nada en esta lista.'}</div>`);
+   else if(!match.length&&entries.length)list.insertAdjacentHTML('beforeend',`<div class="empty errors-more">${errFilter==='today'?'No tienes errores para repasar hoy.':errFilter==='done'?'Aún no has superado ningún error. Una pregunta se supera al acertarla dos veces seguidas.':'Nada en esta lista.'}</div>`);
+   redo.disabled=!match.length;
+   redo.textContent=match.length?`Rehacer estos errores (${Math.min(match.length,100)})`:'Rehacer estos errores';
+   redo.title=match.length>100?'Se usarán 100 preguntas al azar de esta lista':'Abre un banqueo con corrección inmediata con las preguntas de esta lista';
   };
   seg.addEventListener('click',e=>{const b=e.target.closest('button[data-ef]');if(!b)return;errFilter=b.dataset.ef;errShown=PAGE;apply()});
+  sel.addEventListener('change',()=>{errSpec=sel.value;errShown=PAGE;apply()});
+  redo.addEventListener('click',()=>{const keep=new Set(matches().map(el=>entries.indexOf(el)));startErrorBank(rows.filter((r,i)=>keep.has(i)).map(r=>r.q))});
   list.addEventListener('click',e=>{if(e.target.closest('button.errors-more')){errShown+=PAGE;apply()}});
   apply();
  }
  const priorRenderErrors=renderErrors;
  renderErrors=function(){priorRenderErrors.apply(this,arguments);try{decorateErrors()}catch(e){console.warn('errores',e)}};
  window.practiceDueErrors=function(){
-  const pool=errorRowsSafe().filter(r=>isDue(r.e)).map(r=>r.q).filter(q=>(q.options||[]).length>=2);
+  const latest=latestOutcome(),pool=errorRowsSafe().filter(r=>isDue(r.e)&&!isDone(r,latest)).map(r=>r.q).filter(q=>(q.options||[]).length>=2);
   if(!pool.length)return toast('No tienes errores para repasar hoy');
-  const pick=shuffle(pool).slice(0,20);
-  state.bank={pool:pick,index:0,answered:false,selected:null,mode:'immediate',results:[],context:'errors',highlights:{},answers:{},eliminations:{},submitted:false};
-  showQuestion();
+  startErrorBank(pool.length>20?shuffle(pool).slice(0,20):pool);
  };
 
  /* ───────── Estudiar: progreso real por tema (sin 0% engañoso) ───────── */

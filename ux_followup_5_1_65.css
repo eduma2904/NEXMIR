@@ -1,0 +1,42 @@
+/* NEXMIR V5.1.65 · Seguimiento de estudio: resumen del banqueo, Marcadas y filtros de Mis errores. */
+
+/* ───────── Resultados del banqueo: resumen y siguiente paso ───────── */
+.sim-review-sidebar-head{display:flex;align-items:center;gap:8px}
+.sim-review-sidebar-head .bank-summary-btn{margin-left:auto;font-size:12px;font-weight:700;white-space:nowrap}
+.bank-summary-btn.active{color:var(--n-primary,var(--primary));text-decoration:underline;text-underline-offset:3px}
+.bank-summary-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.bank-summary-times>div{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--n-border,var(--line));border-radius:12px;background:var(--n-card,var(--surface))}
+.bank-summary-times strong{font-size:22px;line-height:1.1}
+.bank-summary-times span{font-size:12px;color:var(--muted)}
+.bank-summary-actions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 8px}
+.bank-summary-title{margin:16px 0 8px;font-size:14px}
+.bank-topic-list{display:grid;gap:12px}
+.bank-topic-row{display:grid;gap:5px}
+.bank-topic-name{font-weight:700;font-size:13px;line-height:1.3;overflow-wrap:anywhere}
+.bank-topic-row .progress-track{height:8px}
+.bank-topic-row .progress-fill.low{background:var(--red)!important}
+.bank-topic-row .progress-fill.mid{background:var(--amber)!important}
+.bank-topic-row .progress-fill.good{background:var(--green)!important}
+.bank-topic-row .progress-fill.blank{background:var(--muted)!important}
+.bank-topic-meta{font-size:12px;color:var(--muted)}
+.bank-topic-meta strong{color:var(--n-text,var(--text))}
+.review-back{margin-top:16px}
+@media (pointer:coarse){
+  .sim-review-sidebar-head .bank-summary-btn{min-height:40px;padding:0 10px}
+}
+@media(max-width:520px){
+  .bank-summary-times strong{font-size:19px}
+  .bank-summary-actions .btn{flex:1 1 100%}
+}
+
+/* ───────── Marcadas ───────── */
+.section-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bookmark-question{gap:8px}
+.bookmark-question .btn.mini{flex:0 0 auto}
+.bookmark-question .grow strong{display:block;overflow-wrap:anywhere}
+
+/* ───────── Mis errores: filtros ───────── */
+.errors-filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.errors-spec{display:block;flex:1 1 220px;min-width:0;max-width:340px;margin:0}
+.errors-spec select{width:100%;min-height:40px}
+.error-done-chip{margin-right:6px;background:color-mix(in srgb,var(--green) 16%,transparent)!important;color:var(--green)!important}

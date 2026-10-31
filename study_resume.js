@@ -10,7 +10,7 @@
     if(bank?.context!=='daily'&&bank?.pool?.length&&(!bank.submitted||document.querySelector('#questionDialog[open] .bank-results-shell'))){
       value.bank={keys:bank.pool.map(qkey),index:bank.index,mode:bank.mode,context:bank.context,submitted:!!bank.submitted,
         answers:Object.fromEntries(Object.entries(bank.answers||{}).map(([k,a])=>[k,{...a,saving:false}])),
-        highlights:bank.highlights||{},eliminations:bank.eliminations||{},activity:window.nexmirBankCheckpoint?.()};
+        highlights:bank.highlights||{},eliminations:bank.eliminations||{},times:bank.times||{},activity:window.nexmirBankCheckpoint?.()};
     }
     try{localStorage.setItem(key(),JSON.stringify(value));window.nexmirStudySaveFailed=false;return true}
     catch{if(!window.nexmirStudySaveFailed)toast('No se pudo guardar en este navegador. Mantén esta pestaña abierta hasta enviar las respuestas.');window.nexmirStudySaveFailed=true;return false}

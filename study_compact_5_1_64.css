@@ -120,3 +120,22 @@
   #focusSessionDialog .focus-session-actions,#questionDialog .bank-nav-actions,#simDialog .sim-bottom{padding-block:5px!important}
   #focusSessionDialog .focus-session-actions .btn,#questionDialog .bank-nav-actions .btn{min-height:38px!important}
 }
+
+/* ───────── V5.1.65 · Área táctil de 40 a 44 px con aspecto compacto ─────────
+   En pantallas táctiles el control se VE igual de bajo (30 a 34 px), pero su zona pulsable se amplía
+   con un pseudo-elemento invisible. product_polish.css ya exigía 44 px en móvil y V5.1.64 lo había reducido. */
+@media (pointer:coarse){
+  :root{--nx-ctl-h:32px}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls{gap:6px!important}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .question-text-controls button{min-width:38px!important}
+  #focusSessionDialog .focus-session-top{row-gap:8px!important}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) :is(.question-text-controls button,.highlight-toolbar .btn.mini),
+  #focusSessionDialog .focus-session-top>.focus-finish-btn,
+  #questionDialogBody>.dialog-head>.icon-btn,
+  #simDialog .sim-top>.icon-btn{position:relative}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) .tutorial-dialog-help.in-header{position:relative!important}
+  :is(#questionDialog,#simDialog,#focusSessionDialog) :is(.question-text-controls button,.highlight-toolbar .btn.mini,.tutorial-dialog-help.in-header)::after,
+  #focusSessionDialog .focus-session-top>.focus-finish-btn::after,
+  #questionDialogBody>.dialog-head>.icon-btn::after,
+  #simDialog .sim-top>.icon-btn::after{content:"";position:absolute;inset:-4px}
+}
