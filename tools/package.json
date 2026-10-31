@@ -4,12 +4,13 @@
   "type": "module",
   "description": "Empaqueta los JS y CSS de la app del estudiante. Uso: cd tools && npm install && npm run build",
   "scripts": {
-    "test": "node test-v5-1-63.mjs",
-    "check": "node check-richtext.mjs && node test-v5-1-63.mjs",
-    "build": "node check-richtext.mjs && node test-v5-1-63.mjs && node build.mjs"
+    "test": "node test-v5-1-63.mjs && node test-v5-1-65.mjs",
+    "check": "node check-richtext.mjs && node test-v5-1-63.mjs && node test-v5-1-65.mjs",
+    "build": "node check-richtext.mjs && node test-v5-1-63.mjs && node test-v5-1-65.mjs && node build.mjs"
   },
   "devDependencies": {
     "csso": "5.0.5",
+    "jsdom": "^25.0.1",
     "terser": "5.36.0"
   },
   "dependencies": {
