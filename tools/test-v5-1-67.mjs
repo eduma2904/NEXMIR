@@ -1,0 +1,28 @@
+import {JSDOM} from 'jsdom';import fs from 'fs';import assert from 'assert';
+import path from 'path';import {fileURLToPath} from 'url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')+'/';
+const dom=new JSDOM(`<body><dialog id="studyDialog"><div id="studyDialogBody"></div></dialog><section id="view-reviews"></section></body>`,{url:'https://example.test/',runScripts:'outside-only',pretendToBeVisual:true});
+const w=dom.window;
+w.eval(`var clicked=0;var state={user:{id:'u'},reviews:[{content_id:'c1',next_review_at:new Date(Date.now()+864e5).toISOString()}],studyPath:{}};function reviewMap(){return Object.fromEntries(state.reviews.map(r=>[r.content_id,r]))}
+window.topicPickSub=function(n){const name=n?decodeURIComponent(n):null;state.studyPath.sub=(name&&state.studyPath.sub!==name)?name:null};
+localStorage.setItem('nexmir_study_order_v1:u',JSON.stringify({read:{t1:1}}));`);
+w.eval(fs.readFileSync(root+'keyboard_access.js','utf8'));
+w.eval(fs.readFileSync(root+'subtopic_active.js','utf8'));
+const body=w.document.getElementById('studyDialogBody');
+body.innerHTML=`<div class="card specialty-card" onclick="clicked++">Tema</div><div class="list-item" onclick="clicked++"><button>x</button></div><section class="topic-subtopics"><button class="card subtopic-option" data-sub="A" onclick="topicPickSub('A')"><strong>A</strong><span class="path">4 contenidos</span></button></section><div id="topicItems"></div>`;
+w.eval(`state.studyPath={sp:'s',t:'t',items:[{id:'t1',kind:'theory',subtopic:'A'},{id:'t2',kind:'theory',subtopic:'A'},{id:'c1',kind:'card',subtopic:'A'},{id:'c2',kind:'card',subtopic:'A'}]}`);
+await new Promise(r=>setTimeout(r,50));
+const [card,row]=body.querySelectorAll('[data-nx-kb]');
+assert.equal(card.getAttribute('tabindex'),'0');assert.equal(card.getAttribute('role'),'button');
+assert.equal(row.getAttribute('tabindex'),'0');assert.equal(row.getAttribute('role'),null);
+let n=0;card.addEventListener('click',()=>n++);
+card.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+card.dispatchEvent(new w.KeyboardEvent('keydown',{key:' ',bubbles:true}));
+assert.equal(n,2);
+const opt=body.querySelector('.subtopic-option');
+console.log(opt.querySelector('.path').textContent);
+assert.match(opt.querySelector('.path').textContent,/1 de 2 tarjetas pendientes/);
+assert.match(opt.querySelector('.path').textContent,/1 de 2 bloques de teoría leídos/);
+w.topicPickSub('A');assert.equal(opt.getAttribute('aria-pressed'),'true');
+w.topicPickSub('A');assert.equal(opt.getAttribute('aria-pressed'),'false');
+console.log('✔ test-v5-1-67: teclado, contadores por subtema y aria-pressed verificados.');

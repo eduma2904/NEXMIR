@@ -1,4 +1,6 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+/* Avisos de diagnóstico: silenciosos en producción. Para verlos: localStorage.setItem('nexmir_debug','1') */
+const nxDebug=(...a)=>{try{if(localStorage.getItem('nexmir_debug')==='1')console.warn(...a)}catch(e){}};
 const DEFAULT_SB={url:'https://yovubdwasqkfpjmeyilg.supabase.co',key:'sb_publishable_iusNo0xndlWbws1_qh95OQ_eSuws-sI'};
 const state={sb:null,user:null,profile:null,content:[],questions:[],reviews:[],attempts:[],errorLog:[],bookmarks:[],notes:[],simulations:[],view:'dashboard',studyPath:{},studyMode:'all',bank:{pool:[],index:0,answered:false,selected:null,highlights:{},answers:{},results:[]},review:{pool:[],index:0,revealed:false},simulation:{template:null}};
 const viewNames={dashboard:'Inicio',study:'Estudiar',reviews:'Repasos',bank:'Banqueo',simulations:'Simulacros',battles:'Batallas',errors:'Mis errores',bookmarks:'Marcadas',progress:'Progreso',goal:'Mi plaza MIR',profile:'Perfil'};
@@ -80,7 +82,7 @@ async function start(){
    if(attempt)await new Promise(resolve=>setTimeout(resolve,350));
    const result=await state.sb.auth.getSession();session=result.data?.session||null;lastError=result.error||null;
  }
- if(lastError&&!session)console.warn('No se pudo recuperar la sesión',lastError);
+ if(lastError&&!session)nxDebug('No se pudo recuperar la sesión',lastError);
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
  state.sb.auth.onAuthStateChange((event,newSession)=>{
    // Never request Supabase work inside the authentication callback/lock.
@@ -105,7 +107,7 @@ function showStartupError(error){
 }
 function showAuth(){hideBootScreen();state.profile=null;$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.remove('hidden');$('#app').classList.add('hidden');const invite=$('#battleInviteAuth'),code=new URLSearchParams(location.search).get('battle');if(invite)invite.classList.toggle('hidden',!/^[a-z0-9]{6}$/i.test(code||''));window.dispatchEvent(new Event('nexmir:signout'))}
 function showApp(){ hideBootScreen();$('#adminLink')?.classList.add('hidden');$('#authScreen').classList.add('hidden');$('#app').classList.remove('hidden');const n=profileName();$('#userAvatar').textContent=n[0]?.toUpperCase()||'N';$('#planPill').textContent=(state.profile?.role==='admin'?'Admin':state.profile?.plan||'Free');if(['admin','moderator'].includes(state.profile?.role))$('#adminLink').classList.remove('hidden');const restored=window.nexmirRestoreStudy?.();if(!restored)route('dashboard');window.dispatchEvent(new CustomEvent('nexmir:ready',{detail:{restored:!!restored}}))}
-async function safeLoad(label,fn,fallback=[]){try{return await fn()}catch(e){console.warn('Carga opcional falló:',label,e);return fallback}}
+async function safeLoad(label,fn,fallback=[]){try{return await fn()}catch(e){nxDebug('Carga opcional falló:',label,e);return fallback}}
 let errorLogRefreshedAt=0,errorLogRefreshPromise=null;
 async function refreshErrorLog(force=false){
  const uid=state.user?.id,generation=authGeneration;
@@ -150,19 +152,19 @@ async function loadAll(){
  if(cached)catalogFresh.then(([fc,fq])=>{
    if(generation!==authGeneration||state.user?.id!==uid)return;
    if(JSON.stringify(fc)!==JSON.stringify(cached.content)||JSON.stringify(fq)!==JSON.stringify(cached.questions))state.pendingCatalog={uid,content:fc,questions:fq};
- }).catch(e=>console.warn('Catálogo en segundo plano',e));
+ }).catch(e=>nxDebug('Catálogo en segundo plano',e));
  // Datos secundarios: nunca deben impedir entrar a la app.
  const [rv,at,bm,nt,sm,el]=await secondary;
  if(generation!==authGeneration||state.user?.id!==uid)return;
  state.reviews=rv||[];state.attempts=at||[];state.bookmarks=bm||[];state.notes=nt||[];state.simulations=sm||[];state.errorLog=el||[];
  updateDueBadge();
  // Las URLs firmadas de imágenes se cargan después y no bloquean el login.
- hydrateQuestionImages().catch(e=>console.warn('Imágenes diferidas',e));
+ hydrateQuestionImages().catch(e=>nxDebug('Imágenes diferidas',e));
 }
 async function hydrateQuestionImages(){
  const rows=state.questions.filter(q=>q.image_path);if(!rows.length)return;
  const paths=[...new Set(rows.map(q=>q.image_path))];
- try{const {data,error}=await state.sb.storage.from('question-images').createSignedUrls(paths,43200);if(error)throw error;const map=new Map((data||[]).map(x=>[x.path,x.signedUrl]));state.questions=state.questions.map(q=>q.image_path?{...q,image_url:map.get(q.image_path)||null}:q)}catch(e){console.warn('No pude firmar imágenes de preguntas',e)}
+ try{const {data,error}=await state.sb.storage.from('question-images').createSignedUrls(paths,43200);if(error)throw error;const map=new Map((data||[]).map(x=>[x.path,x.signedUrl]));state.questions=state.questions.map(q=>q.image_path?{...q,image_url:map.get(q.image_path)||null}:q)}catch(e){nxDebug('No pude firmar imágenes de preguntas',e)}
 }
 function questionImageHtml(q){return q?.image_url?`<div class="question-image-wrap"><img class="question-image" src="${esc(q.image_url)}" alt="Imagen asociada a la pregunta" loading="lazy" onclick="openQuestionImageFromElement(this)" title="Pulsa para ampliar"><button type="button" class="image-zoom-btn" onclick="openQuestionImageFromElement(this.previousElementSibling)">${NxIcon('expand')} Ver imagen ampliada</button></div>`:''}
 function openQuestionImageFromElement(img){if(!img?.src)return;const d=$('#imageViewerDialog'),v=$('#imageViewerImg');if(!d||!v)return;v.src=img.src;v.alt=img.alt||'Imagen de la pregunta';if(!d.open)d.showModal()}
@@ -252,7 +254,7 @@ async function runPlanLoading(work,label='Cargando…'){
  }
 }
 runPlanLoading.pending=0;
-function applyPendingCatalog(){const p=state.pendingCatalog;if(!p)return;state.pendingCatalog=null;if(p.uid!==state.user?.id)return;state.content=p.content.map(repairImportedClassification);state.questions=p.questions.map(repairImportedClassification);hydrateQuestionImages().catch(e=>console.warn('Imágenes diferidas',e))}
+function applyPendingCatalog(){const p=state.pendingCatalog;if(!p)return;state.pendingCatalog=null;if(p.uid!==state.user?.id)return;state.content=p.content.map(repairImportedClassification);state.questions=p.questions.map(repairImportedClassification);hydrateQuestionImages().catch(e=>nxDebug('Imágenes diferidas',e))}
 function route(v){
  if(v!==state.view)applyPendingCatalog();
  const generation=++routeGeneration;
@@ -276,7 +278,7 @@ function route(v){
  document.querySelector('.sidebar')?.classList.remove('open');
  return pending;
 }
-function render(v){return ({dashboard:renderDashboard,study:renderStudy,reviews:renderReviews,bank:renderBank,simulations:renderSimulations,battles:renderBattles,errors:async()=>{try{await refreshErrorLog()}catch(e){console.warn('No se pudo actualizar Mis errores',e)}if(state.user)renderErrors()},bookmarks:renderBookmarks,progress:renderProgress,goal:renderGoal,profile:renderProfile}[v]||(()=>{}))()}
+function render(v){return ({dashboard:renderDashboard,study:renderStudy,reviews:renderReviews,bank:renderBank,simulations:renderSimulations,battles:renderBattles,errors:async()=>{try{await refreshErrorLog()}catch(e){nxDebug('No se pudo actualizar Mis errores',e)}if(state.user)renderErrors()},bookmarks:renderBookmarks,progress:renderProgress,goal:renderGoal,profile:renderProfile}[v]||(()=>{}))()}
 function stats(){const cards=studyContent().filter(x=>x.kind==='card'),theory=studyContent().filter(x=>x.kind==='theory'),attempts=state.attempts,correct=attempts.filter(a=>a.is_correct).length;return{cards,theory,attempts,correct,accuracy:attempts.length?Math.round(correct/attempts.length*100):0,due:dueCards().length}}
 function level(){const pts=state.attempts.length+state.reviews.reduce((a,r)=>a+(r.repetitions||0),0);if(pts>2000)return'Especialista';if(pts>1000)return'R4';if(pts>500)return'R3';if(pts>200)return'R2';if(pts>50)return'R1';return'R0'}
 function renderDashboard(){const s=stats(),weak=weakSpecialties().slice(0,3);$('#view-dashboard').innerHTML=`
@@ -566,7 +568,7 @@ $('#questionDialog')?.addEventListener('cancel',event=>{
   }
 });
 function attemptPayload(q,selectedIndex,isCorrect,mode){return{user_id:state.user.id,question_id:q._source==='questions'?q.id:null,source_content_id:q._source==='remnote'?q.id:null,selected_index:selectedIndex,is_correct:isCorrect,answered_at:new Date().toISOString(),mode}}
-async function persistQuestionAttempt(q,selectedIndex,isCorrect,mode){const row=attemptPayload(q,selectedIndex,isCorrect,mode);if(!row.question_id&&!row.source_content_id){toast('No pude identificar la pregunta para guardar el intento');return null}const {data,error}=await state.sb.from('user_question_attempts').insert(row).select('*').single();if(error){console.error('attempt save',error,row);toast('No se pudo guardar el intento: '+error.message);return null}const saved=data||row;state.attempts.unshift(saved);window.dispatchEvent(new CustomEvent('nexmir:question-attempt-saved',{detail:{question:q,attempt:saved}}));if(state.view==='errors'){try{if(await refreshErrorLog()&&state.view==='errors')renderErrors()}catch(e){console.warn('No se pudo actualizar Mis errores',e)}}return saved}
+async function persistQuestionAttempt(q,selectedIndex,isCorrect,mode){const row=attemptPayload(q,selectedIndex,isCorrect,mode);if(!row.question_id&&!row.source_content_id){toast('No pude identificar la pregunta para guardar el intento');return null}const {data,error}=await state.sb.from('user_question_attempts').insert(row).select('*').single();if(error){console.error('attempt save',error,row);toast('No se pudo guardar el intento: '+error.message);return null}const saved=data||row;state.attempts.unshift(saved);window.dispatchEvent(new CustomEvent('nexmir:question-attempt-saved',{detail:{question:q,attempt:saved}}));if(state.view==='errors'){try{if(await refreshErrorLog()&&state.view==='errors')renderErrors()}catch(e){nxDebug('No se pudo actualizar Mis errores',e)}}return saved}
 async function answerQuestion(){
  const bank=state.bank,q=bank?.pool?.[bank.index],selected=bank?.selected;
  if(!q||!Number.isInteger(selected)){toast('Selecciona una alternativa');return}

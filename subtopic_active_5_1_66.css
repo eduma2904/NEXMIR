@@ -1,0 +1,30 @@
+/* NEXMIR V5.1.66: el subtema elegido se sombrea con el color de la paleta (verde, azul, rosa, naranja).
+   Antes la regla .sub-active perdía contra .card{background/border:...!important}. */
+#studyDialogBody .topic-subtopics .subtopic-option{position:relative;transition:background-color .18s,border-color .18s,box-shadow .18s}
+#studyDialogBody .topic-subtopics .subtopic-option.sub-active{
+  background:color-mix(in srgb,var(--n-primary,var(--primary)) 20%,var(--n-card,var(--surface)))!important;
+  border-color:var(--n-primary,var(--primary))!important;
+  box-shadow:inset 0 0 0 1px var(--n-primary,var(--primary)),0 8px 22px color-mix(in srgb,var(--n-primary,var(--primary)) 24%,transparent)!important;
+  padding-right:46px;
+}
+#studyDialogBody .topic-subtopics .subtopic-option.sub-active strong{color:var(--n-primary,var(--primary))!important}
+#studyDialogBody .topic-subtopics .subtopic-option.sub-active::after{
+  content:"\2713";position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;background:var(--n-primary,var(--primary));color:#fff;font-size:13px;font-weight:800;line-height:1}
+#studyDialogBody .topic-subtopics .subtopic-option:focus-visible{outline:3px solid color-mix(in srgb,var(--n-primary,var(--primary)) 55%,transparent);outline-offset:2px}
+
+/* Filtros de Repaso (asignatura, tema, subtema) con valor elegido */
+#view-reviews .review-filters select.nx-filter-on{
+  background:color-mix(in srgb,var(--n-primary,var(--primary)) 14%,var(--n-card,#fff))!important;
+  border-color:var(--n-primary,var(--primary))!important;
+  box-shadow:0 0 0 1px var(--n-primary,var(--primary))!important;font-weight:700}
+
+/* V5.1.67: contadores por subtema, foco por teclado y desplazamiento a la lista */
+#topicItems{scroll-margin-top:12px}
+.topic-subtopics .subtopic-option .sub-stats span{display:block;margin-top:2px}
+.topic-subtopics .subtopic-option .sub-stats .sub-stat{font-size:12px;font-weight:650;color:var(--n-muted,var(--muted))}
+.topic-subtopics .subtopic-option .sub-stats .sub-stat.has-pending{color:var(--n-primary,var(--primary))}
+.topic-subtopics .subtopic-option .sub-stats .sub-stat.is-done{opacity:.8}
+[data-nx-kb]{cursor:pointer}
+[data-nx-kb]:focus-visible{outline:3px solid color-mix(in srgb,var(--n-primary,var(--primary)) 60%,transparent);outline-offset:2px}
+.list-item.clickable[data-nx-kb]:focus-visible,.specialty-card[data-nx-kb]:focus-visible{border-color:var(--n-primary,var(--primary))!important}

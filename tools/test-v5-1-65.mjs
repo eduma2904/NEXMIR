@@ -184,7 +184,7 @@ assert.doesNotMatch(app, /para elegir<\/span>/, 'No debe quedar la pista antigua
   assert.match(css, /--nx-ctl-h:32px/);
   const html = read('index.dev.html');
   assert.match(html, /ux_followup_5_1_65\.css/);
-  assert.match(html, /<title>NEXMIR V5\.1\.65<\/title>/);
+  assert.match(html, /<title>NEXMIR V5\.1\.67<\/title>/);
 }
 
 console.log('✔ test-v5-1-65: errores, marcadas, resumen del banqueo, tiempos, modo Al final y áreas táctiles verificados.');

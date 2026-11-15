@@ -28,7 +28,7 @@ assert.match(resume,/value\?\.bank\?\.context===\'daily\'/,'Las recuperaciones a
 assert.match(resume,/window\.nexmirClearBankResume=/,'Debe existir una limpieza específica que no borre Focus');
 assert.match(personalization,/window\.nexmirBeginStudy=beginStudy/,'El cronómetro debe exponer una entrada común para nuevos flujos');
 
-assert.match(html,/quality_refinements\.css\?v=5\.1\.63/,'La capa final de calidad debe cargarse en desarrollo y producción');
+assert.match(html,/quality_refinements\.css\?v=5\.1\.\d+/,'La capa final de calidad debe cargarse en desarrollo y producción');
 assert.match(quality,/--n-primary:var\(--ui-accent\)/,'El acento visual debe tener una única fuente efectiva');
 assert.match(quality,/sim-result-card span[\s\S]*font-size:12px!important/,'Los resultados no deben usar texto de 9 px');
 
